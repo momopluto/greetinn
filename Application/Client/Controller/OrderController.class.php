@@ -15,4 +15,13 @@ class OrderController extends ClientController {
     	
     	$this->display();
     }
+
+    /**
+     * 网上支付
+     */
+    public function payOnline(){
+    	
+    	$this->display();
+    }
+
 }

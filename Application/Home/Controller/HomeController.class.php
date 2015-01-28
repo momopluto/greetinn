@@ -15,6 +15,18 @@ class HomeController extends Controller {
 		
 	}
 
+	/**
+	 * 前台登录
+	 * 
+	 * 前台只能本地固定IP登录
+	 * 只允许1位前台登录，另一个前台登录会自动将之前的前台挤下线
+	 */
+	public function login(){
+		
+		$this->display();
+	}
+	
+
 	// //初始化操作
 	// function _initialize() {
 	// 	/* 用户登录检测 */

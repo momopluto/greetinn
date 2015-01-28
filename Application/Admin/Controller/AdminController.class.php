@@ -15,6 +15,14 @@ class AdminController extends Controller {
 		
 	}
 
+	/**
+	 * 管理员登录
+	 */
+	public function login(){
+
+		$this->display();
+	}
+
 	// //初始化操作
 	// function _initialize() {
 	// 	/* 用户登录检测 */

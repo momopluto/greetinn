@@ -28,18 +28,18 @@ if (! empty ( $_GET ['echostr'] ) && ! empty ( $_GET ["signature"] ) && ! empty 
 
 	// // 绑定Client模块到当前入口文件
 	// define('BIND_MODULE','Client');
-	// define('BUILD_CONTROLLER_LIST','Index,User,Order,Device,Feedback');
-	// define('BUILD_MODEL_LIST','Client,O_record,D_record,Opinion');
+	// define('BUILD_CONTROLLER_LIST','Index,User,Order,Device,Feedback,Client,Empty');
+	// define('BUILD_MODEL_LIST','Client,O_record,O_record_2_room,D_record,Opinion,Log');
 
     // // 绑定Home模块到当前入口文件
     // define('BIND_MODULE','Home');
-    // define('BUILD_CONTROLLER_LIST','Index,Client,Order,Device,Opinion');
-    // // define('BUILD_MODEL_LIST','Index');
+    // define('BUILD_CONTROLLER_LIST','Index,Client,Order,Device,Opinion,Home,Empty');
+    // define('BUILD_MODEL_LIST','Client,D_record,Log,O_record_2_room,O_record');
 
     // // 绑定Admin模块到当前入口文件
     // define('BIND_MODULE','Admin');
-    // define('BUILD_CONTROLLER_LIST','Index,Staff,Statistic,Facility,Opinion,Log');
-    // define('BUILD_MODEL_LIST','Member,Room,Deivce');
+    // define('BUILD_CONTROLLER_LIST','Index,Staff,Statistic,Facility,Opinion,Log,Admin,Empty');
+    // define('BUILD_MODEL_LIST','Member,Room,Deivce,Log');
 
     define('APP_PATH', './Application/');
     define('THINK_PATH', './ThinkPHP/');

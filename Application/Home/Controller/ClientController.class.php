@@ -7,7 +7,19 @@ use Think\Controller;
  */
 class ClientController extends HomeController {
 	
-    public function index(){
-        $this->show('暂时无用！');
+	/**
+	 * 查询该用户是否注册
+	 */
+    public function check(){
+        
+        $this->display();
+    }
+
+    /**
+	 * [助]客户注册
+	 */
+    public function reg(){
+        
+        $this->display();
     }
 }
