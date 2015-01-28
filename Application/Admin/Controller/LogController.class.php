@@ -3,12 +3,12 @@ namespace Admin\Controller;
 use Think\Controller;
 
 /**
- * 意见管理控制器
+ * 日志管理控制器
  */
-class OpinionController extends AdminController {
+class LogController extends AdminController {
     
     /**
-     * 意见列表
+     * 操作日志列表
      */
     public function lists(){
         

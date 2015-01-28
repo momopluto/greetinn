@@ -3,13 +3,12 @@ namespace Admin\Controller;
 use Think\Controller;
 
 /**
- * 意见管理控制器
+ * 运营统计控制器
  */
-class OpinionController extends AdminController {
-    
-    /**
-     * 意见列表
-     */
+class StatisticController extends AdminController {
+	/**
+	 * 所有订单数据
+	 */
     public function lists(){
         
         $this->display();
