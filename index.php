@@ -1,4 +1,4 @@
-<?php
+S<?php
 
 /**
  * 微信接入验证
@@ -38,7 +38,7 @@ if (! empty ( $_GET ['echostr'] ) && ! empty ( $_GET ["signature"] ) && ! empty 
 
     // // 绑定Admin模块到当前入口文件
     // define('BIND_MODULE','Admin');
-    // define('BUILD_CONTROLLER_LIST','Index,Staff,Order,Deivce,Opinion');
+    // define('BUILD_CONTROLLER_LIST','Index,Staff,Statistic,Facility,Opinion,Log');
     // define('BUILD_MODEL_LIST','Member,Room,Deivce');
 
     define('APP_PATH', './Application/');

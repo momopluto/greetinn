@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>未完成订单</title>
+</head>
+<body>
+
+	未完成订单(默认)
+	<li><a href="{:U('Home/Order/complete')}">已完成订单</a></li>	
+
+	1.从状态2，帮已付款但不入住的客户处理订单，状态改成“取消订单”0
+	2.从状态1或2，办理客户入住，核对入住人信息，分配房间，确认，状态改成“正在入住”3
+	3.从状态3，办理客户退房（只有“正在入住”状态能看到“退房”选项），确认，状态改成“已退房”4
+	4.从状态3，帮已入住客户办理换房手续（只有“正在入住”状态能看到“换房”选项），换房，分配房间，确认，换房记录写入数据库
+
+
+	公共订房流程：
+	   下单，状态1->取消，状态0     --客户自行解决
+	现金支付订房流程：
+	   下单，状态1->给现金，正在入住，状态3->退房，状态4
+	网上支付订房流程：（指下单后在网上自行支付了，到店只需办理入住的）
+	   下单，状态1->支付，状态2->取消，状态0
+       下单，状态1->支付，状态2->正在入住，状态3->退房，状态4
+	
+</body>
+</html>
