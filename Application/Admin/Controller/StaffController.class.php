@@ -22,4 +22,28 @@ class StaffController extends AdminController {
         
         $this->display();
     }
+
+    /**
+     * 添加工作人员
+     */
+    public function add(){
+        
+        $this->display();
+    }
+
+    /**
+     * 编辑工作人员
+     */
+    public function edit(){
+        
+        $this->display();
+    }
+
+    /**
+     * 删除人员列表
+     */
+    public function del(){
+        
+        $this->display();
+    }
 }

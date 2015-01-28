@@ -9,6 +9,7 @@ use Think\Controller;
 class UserController extends ClientController {
 	/**
 	 * 个人中心
+     * 若未注册，则显示为注册页面
 	 */
     public function index(){
         
@@ -29,5 +30,13 @@ class UserController extends ClientController {
     public function myorder(){
 
     	$this->display();
+    }
+
+    /**
+     * 取消订单
+     */
+    public function cancel(){
+        
+        $this->display();
     }
 }

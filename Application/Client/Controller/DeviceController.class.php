@@ -17,6 +17,14 @@ class DeviceController extends ClientController {
     }
 
     /**
+     * 取消申请
+     */
+    public function cancel(){
+        
+        $this->display();
+    }
+
+    /**
      * 历史记录
      */
     public function history(){
