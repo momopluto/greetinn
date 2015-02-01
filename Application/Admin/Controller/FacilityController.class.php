@@ -28,7 +28,7 @@ class FacilityController extends AdminController {
 
         echo "添加房间，begin<br/>";
 
-        $new_room['room_ID'] = '228 test';
+        $new_room['room_ID'] = '228 test12';
         $new_room['price'] = '118';
         $new_room['type'] = self::TYPE_SINGLE;
         $new_room['desc'] = '可以为空';
@@ -51,7 +51,11 @@ class FacilityController extends AdminController {
                 
             */
 
-            write_log_all($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_ADD, 'add', array('房间id' => $r_id, '房间号' => $new_room['room_ID']));
+            $log_Arr = array($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_ADD, 'add', array('房间id' => $r_id, '房间号' => $new_room['room_ID']));
+            //                     0                 1                2             3                4                            5
+            write_log_all_array($log_Arr);
+            // write_log_all($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_ADD, 'add', array('房间id' => $r_id, '房间号' => $new_room['room_ID']));
+
 
             // // 日志事件
             // $this->log_data['event'] = self::ADMIN_ROOM_ADD . "，房间id: " . $r_id . "，房间号: " . $new_room['room_ID'];
@@ -65,6 +69,8 @@ class FacilityController extends AdminController {
 
             //     $room_model->commit();// 提交事务
             // }
+
+            
         }else{
 
             echo "create失败<br/>";
@@ -84,7 +90,7 @@ class FacilityController extends AdminController {
 
         echo "编辑房间，begin<br/>";
 
-        $r_id = 16;// 模拟操作的房间id
+        $r_id = 54;// 模拟操作的房间id
         // $room_ID = '228';// 模拟操作的房间号
 
         $edit_room['r_id'] = $r_id;// 主键也必须加上，却不对其更行更改
@@ -116,7 +122,10 @@ class FacilityController extends AdminController {
                     
                 */
 
-                write_log_all($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_EDIT, 'edit', array('房间id' => $r_id), $edit_room);
+                $log_Arr = array($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_EDIT, 'edit', array('房间id' => $r_id), $edit_room);
+                //                     0                 1                2             3                4                            5         6
+                write_log_all_array($log_Arr);
+                // write_log_all($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_EDIT, 'edit', array('房间id' => $r_id), $edit_room);
 
                 // // 记录所更新的字段信息
                 // $edit_info = format_edit_info($edit_room);
@@ -158,7 +167,7 @@ class FacilityController extends AdminController {
         echo "删除房间，begin<br/>";
 
         // $r_id = 16;
-        $r_id = array(4, 14);// 模拟操作的房间id
+        $r_id = array(31, 49, 54);// 模拟操作的房间id
         // $room_ID = '228';// 模拟操作的房间号
 
         $room_model = M('room');
@@ -208,7 +217,10 @@ class FacilityController extends AdminController {
             
             echo $r_id."删除成功<br/>";
 
-            write_log_all($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_DELETE, 'delete', $del_info);
+            $log_Arr = array($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_DELETE, 'delete', $del_info);
+            //                     0                 1                2             3                    4           5
+            write_log_all_array($log_Arr);
+            // write_log_all($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_DELETE, 'delete', $del_info);
 
             // // 日志事件
             // $this->log_data['event'] = self::ADMIN_ROOM_DELETE . "，" . $del_info;
@@ -266,7 +278,11 @@ class FacilityController extends AdminController {
             
             $device_ID = $device_model->add();
 
-            write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_ADD, 'add', array('设备id' => $device_ID, '名称' => $new_device['name']));
+
+            $log_Arr = array($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_ADD, 'add', array('设备id' => $device_ID, '名称' => $new_device['name']));
+            //                     0                 1                2                  3               4                                 5
+            write_log_all_array($log_Arr);
+            // write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_ADD, 'add', array('设备id' => $device_ID, '名称' => $new_device['name']));
 
             // // 日志事件
             // $this->log_data['event'] = self::ADMIN_DEVICE_ADD . "，设备id: " . $device_ID;
@@ -300,7 +316,7 @@ class FacilityController extends AdminController {
 
         echo "编辑设备，begin<br/>";
 
-        $device_ID = 24;// 模拟操作的设备id
+        $device_ID = 25;// 模拟操作的设备id
 
         $edit_device['device_ID'] = $device_ID;// 为配合更新name，字段必须存在
         $edit_device['pid'] = '1';
@@ -329,7 +345,11 @@ class FacilityController extends AdminController {
                 echo "更新成功<br/>";
                 unset($edit_device['device_ID']);// 去掉主键
 
-                write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_EDIT, 'edit', array('设备id' => $device_ID), $edit_device);
+
+                $log_Arr = array($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_EDIT, 'edit', array('设备id' => $device_ID), $edit_device);
+                //                     0                 1                2                   3                4                   5                 6
+                write_log_all_array($log_Arr);
+                // write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_EDIT, 'edit', array('设备id' => $device_ID), $edit_device);
 
                 // // 记录所更新的字段信息
                 // $edit_info = format_edit_info($edit_device);
@@ -371,7 +391,8 @@ class FacilityController extends AdminController {
 
         echo "删除设备，begin<br/>";
 
-        $device_ID = array(20,24);// 模拟操作的设备id
+        $device_ID = 25;
+        // $device_ID = array(20,24);// 模拟操作的设备id
 
         // if (is_array($device_ID)) {// 如果是数组，组合成以','为连接符的字符串
             
@@ -396,7 +417,10 @@ class FacilityController extends AdminController {
             
             echo "删除成功<br/>";
 
-            write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_DELETE, 'delete', $del_info);
+            $log_Arr = array($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_DELETE, 'delete', $del_info);
+            //                     0                 1                2                 3                    4           5
+            write_log_all_array($log_Arr);
+            // write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_DELETE, 'delete', $del_info);
 
             // // 日志事件
             // $this->log_data['event'] = self::ADMIN_DEVICE_DELETE . "，设备id: " . $device_ID;

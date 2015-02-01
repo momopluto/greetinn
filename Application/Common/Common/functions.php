@@ -11,6 +11,62 @@ function p($array){
 
 /**
  * 写日志进log表
+ * @param mixed $val
+ * @return bool
+ */ 
+function write_log_all_array($val){
+
+    // 日志内容初始化
+    $val[1]['event'] = $val[3];
+    
+    $val[4] = strtolower(trim($val[4]));
+    switch ($val[4]) {
+
+        case 'add':
+            foreach ($val[5] as $key => $value) {
+                // 组合日志内容
+                $val[1]['event'] .= "，" . $key . ": " . $value;
+            }
+            break;
+        case 'edit':
+            if (empty($val[6])) {
+                echo "<br/>"."edit的更新内容数组'$val[6]'为空！"."<br/>";
+                return false;
+            }
+            // 得到格式化后的$edit_info
+            $edit_info = format_edit_info($val[6]);
+
+            foreach ($val[5] as $key => $value) {
+                // 组合日志内容
+                $val[1]['event'] .= "，" . $key . ": " . $value;
+            }
+            $val[1]['event'] .= "，" . $edit_info;
+            break;
+        case 'delete':
+
+            // 组合日志内容
+            $val[1]['event'] .= "，" . $val[5];
+
+            break;
+        default:
+            echo "<br/>"."write_log_all的$type出错了！"."<br/>";
+            die;
+            break;
+    }
+
+    // 写日志
+    if (!write_log($val[0], $val[1])) {
+        // 如果不成功，rollback
+        
+        $val[2]->rollback();// 回滚事务
+    }else{// 成功
+
+        $val[2]->commit();// 提交事务
+    }
+}
+
+/**
+ * 写日志进log表
  * @param Model $log_model log模型
  * @param array $log_data "加了引用的"log数据
  * @param Model $model "加了引用的"数据来源模型，如：room表，device表等
@@ -20,7 +76,7 @@ function p($array){
  * @param array $arr 需要额外处理的数组（可选）
  * @return bool
  */ 
-function write_log_all($log_model, &$log_data, &$model, $event, $type, $data, $arr = array()){
+function write_log_all($log_model, $log_data, $model, $event, $type, $data, $arr = array()){
 
     // 日志内容初始化
     $log_data['event'] = $event;
@@ -64,10 +120,10 @@ function write_log_all($log_model, &$log_data, &$model, $event, $type, $data, $a
     if (!write_log($log_model, $log_data)) {
         // 如果不成功，rollback
         
-        $model->rollback();// 回滚事务
+        dump($model->rollback());// 回滚事务
     }else{// 成功
 
-        $model->commit();// 提交事务
+        dump($model->commit());// 提交事务
     }
     
     /*$type = strtolower(trim($type));
@@ -142,15 +198,13 @@ function write_log_all($log_model, &$log_data, &$model, $event, $type, $data, $a
  * @param array $log_data "加了引用的"log数据
  * @return bool
  */ 
-function write_log($log_model, &$log_data){
+function write_log($log_model, $log_data){
 
     // return false;// 模拟写日志失败
 
     if ($log_model->create($log_data)) {
 
         $log_model->add();// 新日志记录写入log表
-        // p($log_data);
-        unset($log_data['event']);// 销毁event字段，确保不会影响下次的日志事件内容
         
         echo "log create成功<br/>";
         return true;
