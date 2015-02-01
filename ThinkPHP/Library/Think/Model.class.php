@@ -22,6 +22,9 @@ class Model {
     const EXISTS_VALIDATE       =   0;      // 表单存在字段则验证
     const VALUE_VALIDATE        =   2;      // 表单值不为空则验证
 
+    // *************** momo于2015.01.31 19:16，为完成check比较字段间关系而定义的数据
+    protected $checkData        =   array();
+
     // 当前数据库操作对象
     protected $db               =   null;
     // 主键名称
@@ -861,6 +864,9 @@ class Model {
         }elseif(is_object($data)){
             $data   =   get_object_vars($data);
         }
+        
+        $this->checkData = $data;// momo于2015.01.31 19:16，为完成check比较字段间关系而定义的数据
+
         // 验证数据
         if(empty($data) || !is_array($data)) {
             $this->error = L('_DATA_TYPE_INVALID_');

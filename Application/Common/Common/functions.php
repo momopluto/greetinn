@@ -9,6 +9,434 @@ function p($array){
     dump($array, 1, '<pre>', 0);
 }
 
+/**
+ * 写日志进log表
+ * @param Model $log_model log模型
+ * @param array $log_data "加了引用的"log数据
+ * @param Model $model "加了引用的"数据来源模型，如：room表，device表等
+ * @param string $event 操作内容，如：ADMIN_LOGIN_IN ＝ '管理员登录成功';
+ * @param string $type 写日志的情形，$type可能为add, edit, delete等
+ * @param mixed $data 附加的日志内容的键值数组 / 1个数字or1个数组
+ * @param array $arr 需要额外处理的数组（可选）
+ * @return bool
+ */ 
+function write_log_all($log_model, &$log_data, &$model, $event, $type, $data, $arr = array()){
+
+    // 日志内容初始化
+    $log_data['event'] = $event;
+    
+    $type = strtolower(trim($type));
+    switch ($type) {
+
+        case 'add':
+            foreach ($data as $key => $value) {
+                // 组合日志内容
+                $log_data['event'] .= "，" . $key . ": " . $value;
+            }
+            break;
+        case 'edit':
+            if (empty($arr)) {
+                echo "<br/>"."edit的更新内容数组$arr为空！"."<br/>";
+                return false;
+            }
+            // 得到格式化后的$edit_info
+            $edit_info = format_edit_info($arr);
+
+            foreach ($data as $key => $value) {
+                // 组合日志内容
+                $log_data['event'] .= "，" . $key . ": " . $value;
+            }
+            $log_data['event'] .= "，" . $edit_info;
+            break;
+        case 'delete':
+
+            // 组合日志内容
+            $log_data['event'] .= "，" . $data;
+
+            break;
+        default:
+            echo "<br/>"."write_log_all的$type出错了！"."<br/>";
+            die;
+            break;
+    }
+
+    // 写日志
+    if (!write_log($log_model, $log_data)) {
+        // 如果不成功，rollback
+        
+        $model->rollback();// 回滚事务
+    }else{// 成功
+
+        $model->commit();// 提交事务
+    }
+    
+    /*$type = strtolower(trim($type));
+    switch ($type) {
+        // ================================Client
+        
+        case 'pay_order':
+            
+            break;
+        
+        // ================================Client & Home
+        case 'register':
+            
+            break;
+        case 'submit_order':
+            
+            break;
+        case 'cancel_order':
+            
+            break;
+        case 'submit_borrow_request':
+            
+            break;
+        case 'cancel_borrow_request':
+            
+            break;
+        
+        // ================================Home
+        case 'cancel_paid_order':
+            
+            break;
+        case 'check_in':
+            
+            break;
+        case 'change_room':
+            
+            break;
+        case 'check_out':
+            
+            break;
+        case 'response_borrow_request':
+            
+            break;
+        case 'confirm_return_borrowed':
+            
+            break;
+
+        // ================================Home & Admin
+        case 'login':
+            
+            break;
+
+        // ================================Admin
+        case 'add':
+            
+            break;
+        case 'edit':
+            
+            break;
+        case 'delete':
+            
+            break;
+        
+        default:
+            return false;
+    }*/
+}
+
+/**
+ * 写日志进log表
+ * @param Model $log_model log模型
+ * @param array $log_data "加了引用的"log数据
+ * @return bool
+ */ 
+function write_log($log_model, &$log_data){
+
+    // return false;// 模拟写日志失败
+
+    if ($log_model->create($log_data)) {
+
+        $log_model->add();// 新日志记录写入log表
+        // p($log_data);
+        unset($log_data['event']);// 销毁event字段，确保不会影响下次的日志事件内容
+        
+        echo "log create成功<br/>";
+        return true;
+    }else{
+
+        echo "log create失败<br/>";
+        echo $log_model->getError();
+
+        return false;
+    }
+}
+
+/**
+ * 格式化"用于更新的数组"的内容[xx=>xx, xx=>xx]
+ * @param array $arr 用于更新的数组
+ * @return string 格式化后的字符串
+ */
+function format_edit_info($arr){
+
+    // 记录所更新的字段信息
+    $edit_info = '';
+    foreach ($arr as $key => $value) {
+
+        $edit_info .= $key . "=>" . $value . ", ";
+    }
+    $edit_info = "[" . substr_replace($edit_info, "]", strlen($edit_info) - 2);// 加上'['，最后一个多出的  ', '  用 ']' 替换
+
+    return $edit_info;
+}
+
+/**
+ * 记录所删除的数据信息
+ * @param Model $model 数据来源模型，如：room表，device表等
+ * @param mixed $data data[1]为主键，[0]为主键对应的中文，[3]为根据主键找到的额外信息字段名，[2]为该额外信息对应的中文
+ * @return string 记录所删除的数据信息
+ */
+function get_delete_info($model, $data){
+
+    // 所删除的数据信息
+    $del_info = '';
+    if (is_array($data[1])) {// 如果是数组，组合成以','为连接符的字符串
+
+        foreach ($data[1] as $value) {
+            
+            $del_data = $model->find($value);
+            $del_info .= $del_data[$data[3]] . ",";
+        }
+
+        $del_info = $data[2] . ": " . substr($del_info, 0, strlen($del_info) - 1);
+        
+        $data[1] = implode(',', $data[1]);
+        
+        $del_info = $data[0] . ": " . $data[1] . "，" . $del_info;
+    }else{
+        
+        $del_data = $model->find($data[1]);
+        $del_info = $data[0] . ": " . $data[1] . "，". $data[2] . ": " . $del_data[$data[3]];
+    }
+    
+    return $del_info;
+}
+
+
+
+
+
+
+
+
+
+/**
+ * 检查身份证是否已注册
+ * @param string $ID_card 身份证号码
+ * @return bool或者一行记录
+ */
+function is_IDCard_exists($ID_card){
+
+    $client = M('client');
+
+    return $client->find($ID_card);// 因为身份证是主键，可以直接find($ID_card)
+}
+
+/**
+ * 检查房间号是否存在
+ * @param string $room_ID 房间号
+ * @return bool或者一行记录
+ */
+function is_Room_exists($room_ID){
+
+    $room_model = M('room');
+
+    return $room_model->where(array("room_ID" => $room_ID))->find();
+}
+
+
+/**
+ * 检查身份证合法性
+ * @param string $ID_card 身份证号码
+ * @return bool
+ */
+function check_IDCard($ID_card){
+
+    $map=array(1, 0, X, 9, 8, 7, 6, 5, 4, 3, 2);
+    $sum = 0;
+    for($i = 17; $i > 0; $i--){
+        $s=pow(2, $i) % 11;
+        $sum += $s * $ID_card[17-$i];
+    }
+
+    // echo $map[$sum % 11];//这里显示最后一位校验码
+    // echo $ID_card[strlen($ID_card) - 1];
+    
+    return $ID_card[strlen($ID_card) - 1] == $map[$sum % 11] ? true : false;
+}
+
+/**
+ * 检查手机证合法性
+ * @param string $phone 手机号
+ * @return bool
+ */
+function check_Phone($phone){
+
+    // 数字字符串，11位
+    return is_numeric($phone) && strlen($phone) == 11 ? true : false;
+}
+
+/**
+ * 检查价钱合法性
+ * @param int $price 价钱
+ * @return bool
+ */
+function check_Price($price){
+
+    // 非负数
+    return $price >= 0 ? true : false;
+}
+
+/**
+ * 检查所选设备是否合法（所选的设备的ID是否存在）
+ * @param string $device_IDs 设备IDs
+ * @return bool
+ */
+function check_DeviceIn($device_IDs){
+
+    // $device_IDs空则停止处理
+    if ($device_IDs === '') {
+        // echo "空！";
+        return false;
+    }
+
+    // echo "不空！";
+
+
+    // 以下检测所选设备是否合法
+    $device = M('device');
+    $in_Arr = $device->where('pid != 0')->getField('device_ID',true);// 所有可借设备ID的数组
+
+    p($in_Arr);
+
+    $IDs = explode(',', $device_IDs);// 需要检查的ID分解成数组
+
+    // 循环遍历检测每个ID是否都存在于$in_Arr中
+    foreach ($IDs as $val) {
+        if (!in_array($val, $in_Arr)) {
+            echo $val."不存在的设备！";
+            return false;
+        }
+    }
+
+    // $map['device_ID']  = array('in', $in_Arr);
+    return true;
+}
+
+
+
+
+/**
+ * 获取身份证上的生日
+ * @param string $ID_card 身份证号码
+ * @return date 格式如：1991-01-01
+ */
+function getBirthday($ID_card){
+
+    // echo $ID_card;
+
+    // return substr($ID_card, 6,8);
+    return date('Y-m-d',strtotime(substr($ID_card, 6,8)));
+}
+
+/**
+ * 获取当前日期时间datetime，用于插入数据库
+ * @return date 格式如：1991-01-01 14:08:27
+ */
+function getDatetime(){
+
+    return date('Y-m-d H:i:s',time());
+}
+
+/**
+ * 初始化d_record_2_stime表中记录
+ * @param int $d_id 借设备记录id
+ * @return bool
+ */
+function init_sTime($d_id){
+
+    $model = M('d_record_2_stime');
+
+    $data['d_id'] = $d_id;
+
+    return $model->add($data);
+}
+
+/**
+ * 更新d_record_2_stime表中记录
+ * @param int $d_id 借设备记录id
+ * @param int $new_status 改变的状态值
+ * @return bool
+ */
+function update_d_sTime($d_id, $new_status){
+
+    $model = M('d_record_2_stime');
+    $which = '';
+
+    switch ($new_status) {
+        case '0':
+            $which = 'cancel';
+            break;
+        case '2':
+            $which = 'response';
+            
+            $device_IDs = M('d_record')->where("d_id = $d_id")->getField('device_IDs');
+            // echo $device_IDs . "==========device_IDs<br/>";
+            update_device($device_IDs, 0);
+            break;
+        case '3':
+            $which = 'return';
+
+            $device_IDs = M('d_record')->where("d_id = $d_id")->getField('device_IDs');
+            // echo $device_IDs . "==========device_IDs<br/>";
+            update_device($device_IDs, 1);
+            break;
+        default:
+            return false;
+    }
+
+    $updata[$which] = getDatetime();
+    return $model->where("d_id = $d_id")->setField($updata);
+}
+
+/**
+ * 更新设备库存
+ * @param string $device_IDs 设备IDs
+ * @param int $type 方式，0响应减少库存，1归还增加库存
+ */
+function update_device($device_IDs, $type){
+
+    $device = M('device');
+
+    $IDs = explode(',', $device_IDs);// 需要更新的ID分解成数组
+
+    switch ($type) {
+        case 0:// 响应借出，库存减少
+        
+            // 循环遍历检测每个ID，库存-1
+            foreach ($IDs as $device_ID) {
+
+                $device->where("device_ID = $device_ID")->setDec('stock');
+            }
+            break;
+        case 1:// 归还，库存增加
+
+            // 循环遍历检测每个ID，库存+1
+            foreach ($IDs as $device_ID) {
+
+                $device->where("device_ID = $device_ID")->setInc('stock');
+            }
+            break;
+        
+        default:
+            return false;
+    }
+}
+
+
+
+
 // 获取本月的第1天和最后1天
 function getMonth_StartAndEnd($date){
     $firstday = date("Y-m-01",strtotime($date));

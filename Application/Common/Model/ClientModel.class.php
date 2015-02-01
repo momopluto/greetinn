@@ -1,22 +1,22 @@
 <?php
-namespace Admin\Model;
+namespace Common\Model;
 use Think\Model;
 
 /**
- * 工作人员信息模型
+ * 客户信息模型
  * 
  */
-class MemberModel extends Model {
+class ClientModel extends Model {
 
-	protected $tableName = 'member';// 数据表名
-	protected $fields 	 = array('member_ID', 'name','ID_card','gender','birthday','phone','position','salary','on_job','cTime');// 字段信息
-    protected $pk     	 = array('member_ID','ID_card');// 主键
+	protected $tableName = 'client';// 数据表名
+	protected $fields 	 = array('client_ID', 'name','ID_card','s_ID','gender','birthday','openid','phone','cTime');// 字段信息
+    protected $pk     	 = array('client_ID','ID_card');// 主键
 
     // 命名范围
     protected $_scope = array(
     	// 命名范围allowUpdate，允许更新的字段
     	'allowUpdateField'=>array(
-    		'field'=>'phone,position,salary,on_job',
+    		'field'=>'openid,phone',
     	),
     );
 
@@ -32,7 +32,6 @@ class MemberModel extends Model {
     // 自动完成
     protected $_auto = array (
         array('birthday','getBirthdayFromIDcard',self::MODEL_INSERT,'callback'),  // 新增的时候把调用getBirthdayFromIDcard方法从“身份证”中获取生日
-        array('on_job','1',self::MODEL_INSERT,'string') , // 新增的时候默认on_job＝1
         array('cTime','getDatetime',self::MODEL_INSERT,'function') , // 新增的时候把调用time方法写入当前时间戳
     );
 
