@@ -7,6 +7,7 @@ use Think\Controller;
  * 
  */
 class UserController extends ClientController {
+
 	/**
 	 * 个人中心
      * 若未注册，则显示为注册页面
@@ -62,22 +63,8 @@ class UserController extends ClientController {
     	$this->display();
     }
 
-    /**
-     * 我的订单
-     */
-    public function myorder(){
 
-    	$this->display();
-    }
-
-    /**
-     * 取消订单
-     */
-    public function cancel(){
-        
-        $this->display();
-    }
-
+    
     /**
      * 注册
      */

@@ -6,6 +6,13 @@ use Think\Controller;
  * 订单控制器
  */
 class OrderController extends HomeController {
+
+    // 操作状态
+    const STATUS_CANCEL          =   0;      //  状态值，取消
+    const STATUS_NEW             =   1;      //  状态值，新建
+    const STATUS_PAY             =   2;      //  状态值，支付
+    const STATUS_CHECKIN         =   3;      //  状态值，入住
+    const STATUS_CHECKOUT        =   4;      //  状态值，退房
     
     /**
      * 未完成订单

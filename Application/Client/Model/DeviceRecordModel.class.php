@@ -53,7 +53,6 @@ class DeviceRecordModel extends Model {
         array('cTime','getDatetime',self::MODEL_INSERT,'function') , // 新增的时候把调用time方法写入当前时间戳
     );
 
-    // 
     /**
      * 更新时，检查status是否合法
      * @param int $status 状态值

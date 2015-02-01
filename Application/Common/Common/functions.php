@@ -408,7 +408,7 @@ function getDatetime(){
  * @param int $d_id 借设备记录id
  * @return bool
  */
-function init_sTime($d_id){
+function init_d_sTime($d_id){
 
     $model = M('d_record_2_stime');
 
@@ -437,14 +437,14 @@ function update_d_sTime($d_id, $new_status){
             
             $device_IDs = M('d_record')->where("d_id = $d_id")->getField('device_IDs');
             // echo $device_IDs . "==========device_IDs<br/>";
-            update_device($device_IDs, 0);
+            update_device_stock($device_IDs, 0);
             break;
         case '3':
             $which = 'return';
 
             $device_IDs = M('d_record')->where("d_id = $d_id")->getField('device_IDs');
             // echo $device_IDs . "==========device_IDs<br/>";
-            update_device($device_IDs, 1);
+            update_device_stock($device_IDs, 1);
             break;
         default:
             return false;
@@ -459,7 +459,7 @@ function update_d_sTime($d_id, $new_status){
  * @param string $device_IDs 设备IDs
  * @param int $type 方式，0响应减少库存，1归还增加库存
  */
-function update_device($device_IDs, $type){
+function update_device_stock($device_IDs, $type){
 
     $device = M('device');
 

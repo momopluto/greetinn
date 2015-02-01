@@ -34,7 +34,7 @@ class DeviceController extends ClientController {
         //     $d_id = $test_model->add();
         //     dump($d_id);
 
-        //     init_sTime($d_id);// 初始化d_record_2_stime表中记录
+        //     init_d_sTime($d_id);// 初始化d_record_2_stime表中记录
             
         // }else{
 
@@ -119,7 +119,7 @@ class DeviceController extends ClientController {
             $d_id = $test_model->add();
             dump($d_id);
 
-            init_sTime($d_id);// 初始化d_record_2_stime表中记录
+            init_d_sTime($d_id);// 初始化d_record_2_stime表中记录
             
         }else{
 
