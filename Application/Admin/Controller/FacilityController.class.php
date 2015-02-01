@@ -266,18 +266,20 @@ class FacilityController extends AdminController {
             
             $device_ID = $device_model->add();
 
-            // 日志事件
-            $this->log_data['event'] = self::ADMIN_DEVICE_ADD . "，设备id: " . $device_ID;
-            
-            // 写日志
-            if (!write_log($this->log_model, $this->log_data)) {
-                // 如果不成功，rollback
-                
-                $device_model->rollback();// 回滚事务
-            }else{// 成功
+            write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_ADD, 'add', array('设备id' => $device_ID, '名称' => $new_device['name']));
 
-                $device_model->commit();// 提交事务
-            }
+            // // 日志事件
+            // $this->log_data['event'] = self::ADMIN_DEVICE_ADD . "，设备id: " . $device_ID;
+            
+            // // 写日志
+            // if (!write_log($this->log_model, $this->log_data)) {
+            //     // 如果不成功，rollback
+                
+            //     $device_model->rollback();// 回滚事务
+            // }else{// 成功
+
+            //     $device_model->commit();// 提交事务
+            // }
 
         }else{
 
@@ -298,11 +300,11 @@ class FacilityController extends AdminController {
 
         echo "编辑设备，begin<br/>";
 
-        $device_ID = 20;// 模拟操作的设备id
+        $device_ID = 24;// 模拟操作的设备id
 
         $edit_device['device_ID'] = $device_ID;// 为配合更新name，字段必须存在
         $edit_device['pid'] = '1';
-        $edit_device['name'] = '天黑请闭眼';
+        $edit_device['name'] = '阿瓦隆2';
         // $edit_device['price'] = '2';
         // $edit_device['desc'] = '可以为空';
         // $edit_device['on_use'] = '0';
@@ -327,21 +329,23 @@ class FacilityController extends AdminController {
                 echo "更新成功<br/>";
                 unset($edit_device['device_ID']);// 去掉主键
 
-                // 记录所更新的字段信息
-                $edit_info = format_edit_info($edit_device);
-                
-                // 日志事件
-                $this->log_data['event'] = self::ADMIN_DEVICE_EDIT . "，设备id: " . $device_ID . "，" . $edit_info;
-                
-                // 写日志
-                if (!write_log($this->log_model, $this->log_data)) {
-                    // 如果不成功，rollback
-                    
-                    $device_model->rollback();// 回滚事务
-                }else{// 成功
+                write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_EDIT, 'edit', array('设备id' => $device_ID), $edit_device);
 
-                    $device_model->commit();// 提交事务
-                }
+                // // 记录所更新的字段信息
+                // $edit_info = format_edit_info($edit_device);
+                
+                // // 日志事件
+                // $this->log_data['event'] = self::ADMIN_DEVICE_EDIT . "，设备id: " . $device_ID . "，" . $edit_info;
+                
+                // // 写日志
+                // if (!write_log($this->log_model, $this->log_data)) {
+                //     // 如果不成功，rollback
+                    
+                //     $device_model->rollback();// 回滚事务
+                // }else{// 成功
+
+                //     $device_model->commit();// 提交事务
+                // }
             }else{
 
                 echo "更新失败<br/>";
@@ -367,14 +371,24 @@ class FacilityController extends AdminController {
 
         echo "删除设备，begin<br/>";
 
-        $device_ID = array(22,23);// 模拟操作的设备id
+        $device_ID = array(20,24);// 模拟操作的设备id
 
-        if (is_array($device_ID)) {// 如果是数组，组合成以','为连接符的字符串
+        // if (is_array($device_ID)) {// 如果是数组，组合成以','为连接符的字符串
             
-            $device_ID = implode(',', $device_ID);
-        }
+        //     $device_ID = implode(',', $device_ID);
+        // }
         
         $device_model = M('device');
+
+
+        // 记录所删除的数据信息
+        $del_info = get_delete_info($device_model, array('设备id', $device_ID, '名称', 'name'));
+        
+        echo "组合所得的del_info =: ".$del_info."  !!!!<br/>";
+
+        if (is_array($device_ID)) {// 如果是数组，组合成以','为连接符的字符串
+            $device_ID = implode(',', $device_ID);
+        }
 
         $device_model->startTrans();// 启动事务
         
@@ -382,18 +396,20 @@ class FacilityController extends AdminController {
             
             echo "删除成功<br/>";
 
-            // 日志事件
-            $this->log_data['event'] = self::ADMIN_DEVICE_DELETE . "，设备id: " . $device_ID;
-            
-            // 写日志
-            if (!write_log($this->log_model, $this->log_data)) {
-                // 如果不成功，rollback
-                
-                $device_model->rollback();// 回滚事务
-            }else{// 成功
+            write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_DELETE, 'delete', $del_info);
 
-                $device_model->commit();// 提交事务
-            }
+            // // 日志事件
+            // $this->log_data['event'] = self::ADMIN_DEVICE_DELETE . "，设备id: " . $device_ID;
+            
+            // // 写日志
+            // if (!write_log($this->log_model, $this->log_data)) {
+            //     // 如果不成功，rollback
+                
+            //     $device_model->rollback();// 回滚事务
+            // }else{// 成功
+
+            //     $device_model->commit();// 提交事务
+            // }
         }
 
         echo "删除设备，end<br/>";
