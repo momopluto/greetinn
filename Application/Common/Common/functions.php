@@ -379,6 +379,57 @@ function check_DeviceIn($device_IDs){
 }
 
 
+/**
+ * 新增时，检查client_ID是否存在
+ * @param int $client_ID 客户id
+ * @return bool
+ */
+function check_Client($client_ID){
+
+    $client = M('client');
+
+    return $client->find($client_ID);// 因为client_ID是主键，可以直接find($client_ID)
+}
+
+/**
+ * 新增时，检查book_info是否合法
+ * @param int $book_info 客户id
+ * @return bool
+ */
+function check_BookInfo($book_info){
+
+    $book_info = json_decode($book_info, true);
+    p($book_info);
+
+    foreach ($book_info['people_info'] as $one) {
+        if ($one['name'] == ''){
+            // 入住人姓名为空
+            return false;
+        }
+        if (!check_IDCard($one['ID_card'])){
+            // 身份证不正确
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * 检查room_ID是否合法（防止1间房，在交叉的时间段，分配给多个o_id）
+ * @param Array $new_data 新的入住信息
+ * @return bool
+ */
+function check_RoomID($new_data){
+
+    if (strtotime($new_data['A_date']) >= $new_data['B_date']) {
+        // 入住时间 >= 离开时间，不合法
+        return false;
+    }
+    // status 0, 1, 2, 3
+}
+
+
 
 
 /**
@@ -403,6 +454,35 @@ function getDatetime(){
     return date('Y-m-d H:i:s',time());
 }
 
+
+
+
+
+/**
+ * 初始化o_record_2_room表中记录
+ * @param int $o_id 订单记录id
+ * @return bool
+ */
+function init_o_room($data){
+
+    $model = M('o_record_2_room');
+    return $model->add($data);
+}
+
+/**
+ * 初始化o_record_2_stime表中记录
+ * @param int $o_id 订单记录id
+ * @return bool
+ */
+function init_o_sTime($o_id){
+
+    $model = M('o_record_2_stime');
+
+    $data['o_id'] = $o_id;
+
+    return $model->add($data);
+}
+
 /**
  * 初始化d_record_2_stime表中记录
  * @param int $d_id 借设备记录id
@@ -415,6 +495,47 @@ function init_d_sTime($d_id){
     $data['d_id'] = $d_id;
 
     return $model->add($data);
+}
+
+function update_o_room($o_id, $room_ID){
+
+    $model = M('o_record_2_room');
+
+    $data['room_ID'] = $room_ID;
+
+    return $model->where("o_id = $o_id")->save($data);
+}
+
+/**
+ * 更新o_record_2_stime表中记录
+ * @param int $o_id 借设备记录id
+ * @param int $new_status 改变的状态值
+ * @return bool
+ */
+function update_o_sTime($o_id, $new_status){
+
+    $model = M('o_record_2_stime');
+    $which = '';
+
+    switch ($new_status) {
+        case '0':
+            $which = 'cancel';
+            break;
+        case '2':
+            $which = 'pay';
+            break;
+        case '3':
+            $which = 'checkIn';
+            break;
+        case '4':
+            $which = 'checkOut';
+            break;
+        default:
+            return false;
+    }
+
+    $updata[$which] = getDatetime();
+    return $model->where("o_id = $o_id")->setField($updata);
 }
 
 /**

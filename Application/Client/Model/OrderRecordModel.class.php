@@ -26,24 +26,24 @@ class OrderRecordModel extends Model {
         'new'=>array(
             'where'=>array('status'=>1),
         ),
-        // 命名范围havePay
-        'havePay'=>array(
+        // 命名范围pay
+        'pay'=>array(
             'where'=>array('status'=>2),
         ),
-        // // 命名范围occpuy
-        // 'occpuy'=>array(
+        // // 命名范围checkIn
+        // 'checkIn'=>array(
         //     'where'=>array('status'=>3),
         // ),
-        // // 命名范围leave
-        // 'leave'=>array(
+        // // 命名范围checkOut
+        // 'checkOut'=>array(
         //     'where'=>array('status'=>4),
         // ),
     );
 
     // 自动验证
     protected $_validate = array(
-        array('client_ID','check_client','用户id不存在！!',self::EXISTS_VALIDATE,'callback',self::MODEL_INSERT),
-        array('book_info','check_bookInfo','订单信息不合法!',self::EXISTS_VALIDATE,'callback',self::MODEL_BOTH),
+        array('client_ID','check_Client','用户id不存在！!',self::EXISTS_VALIDATE,'function',self::MODEL_INSERT),
+        array('book_info','check_BookInfo','订单信息不合法!',self::EXISTS_VALIDATE,'function',self::MODEL_BOTH),
         array('price','check_Price','价钱非负！',self::EXISTS_VALIDATE,'function',self::MODEL_INSERT),
         array('status','check_status','记录状态不合法！',self::EXISTS_VALIDATE,'callback',self::MODEL_UPDATE),// 更新的时候检查：status只能为1或0或2
     );
@@ -73,40 +73,6 @@ class OrderRecordModel extends Model {
             "备注": "2对耳塞"
         }
     */
-
-    /**
-     * 新增时，检查client_ID是否存在
-     * @param int $client_ID 客户id
-     * @return bool
-     */
-    protected function check_client($client_ID){
-
-        $client = M('client');
-
-        return $client->find($client_ID);// 因为client_ID是主键，可以直接find($client_ID)
-    }
-
-    /**
-     * 新增时，检查book_info是否合法
-     * @param int $book_info 客户id
-     * @return bool
-     */
-    protected function check_bookInfo($book_info){
-
-        $book_info = json_decode($book_info, true);
-        p($book_info);
-
-        foreach ($book_info['people_info'] as $one) {
-            if ($one['name'] == ''){
-                // 入住人姓名为空
-                return false;
-            }
-            if (!check_IDCard($one['ID_card'])){
-                // 身份证不正确
-                return false;
-            }
-        }
-    }
 
     /**
      * 更新时，检查status是否合法

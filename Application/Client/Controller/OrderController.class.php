@@ -17,7 +17,34 @@ class OrderController extends ClientController {
      * 酒店预订/预定
      */
     public function detail(){
+        
+    	$this->display();
+    }
+
+    /**
+     * 网上支付
+     */
+    public function payOnline(){
     	
+        // TODO
+    	$this->display();
+    }
+
+
+
+    /**
+     * 我的订单
+     */
+    public function myorder(){
+
+        $this->display();
+    }
+
+    /**
+     * 提交订单（要判断是否来自微信）
+     */
+    public function submit(){
+
         echo "酒店预订，begin<br/>";
 
         $client_ID = 1;// 模拟下单的客户
@@ -40,14 +67,19 @@ class OrderController extends ClientController {
         $book_info['note'] = '2对耳塞';
 
         $new_order['client_ID'] = $client_ID;
-        $new_order['book_info'] = json_encode($book_info, JSON_UNESCAPED_UNICODE);// unicode格式
-        $new_order['price'] = '118';
 
-
-
+        // o_record_2_room数据
         $new_order_2_room['nights'] = $book_info['nights'];
         $new_order_2_room['A_date'] = $book_info['start_date'];
         $new_order_2_room['B_date'] = $book_info['leave_date'];
+        unset($book_info['nights']);
+        unset($book_info['start_date']);
+        unset($book_info['leave_date']);
+        $new_order['book_info'] = json_encode($book_info, JSON_UNESCAPED_UNICODE);// unicode格式
+
+
+        $new_order['price'] = '118';
+
 
         p($new_order);
 
@@ -56,7 +88,14 @@ class OrderController extends ClientController {
         if ($order_model->create($new_order)) {
             echo "create成功<br/>";
             
-            // dump($order_model->add());
+
+            $o_id = $order_model->add();
+            dump($o_id);
+
+            $new_order_2_room['o_id'] = $o_id;
+            init_o_room($new_order_2_room);// 初始化o_record_2_room表中记录
+
+            init_o_sTime($o_id);// 初始化o_record_2_stime表中记录
 
         }else{
 
@@ -66,30 +105,12 @@ class OrderController extends ClientController {
         
         echo "酒店预订，end<br/>";
         die;
-        
-    	$this->display();
-    }
-
-    /**
-     * 网上支付
-     */
-    public function payOnline(){
-    	
-    	$this->display();
-    }
-
-
-
-    /**
-     * 我的订单
-     */
-    public function myorder(){
 
         $this->display();
     }
 
     /**
-     * 编辑订单
+     * 编辑订单（客户必须在微信上编辑）
      */
     public function edit(){
 
@@ -153,17 +174,25 @@ class OrderController extends ClientController {
     }
 
     /**
-     * 取消订单
+     * 取消订单（客户必须在微信上取消）
      */
     public function cancel(){
 
         echo "取消订单，begin<br>";
 
-        $o_id = 2;// 模拟操作的订单号
+        $o_id = 4;// 模拟操作的订单号
 
         $cancel['status'] = self::STATUS_CANCEL;
         
         $order_model = D('OrderRecord');
+
+        $old_status = $order_model->where("o_id = $o_id")->getField('status');
+        echo "old_status = $old_status";
+        if ($old_status == $cancel['status']) {// 状态未改变
+
+            echo "状态未改变，不需要更新<br/>";
+            return false;
+        }
 
         if ($order_model->where("o_id = $o_id")->create($cancel ,2)) {
             echo "create成功<br/>";
@@ -172,6 +201,9 @@ class OrderController extends ClientController {
 
             if ($result) {
                 echo "取消成功！<br/>";
+
+                // 需要更新d_record_2_stime表中记录
+                dump(update_o_sTime($o_id, $cancel['status']));
             }else{
 
                 echo "取消失败！<br/>";
