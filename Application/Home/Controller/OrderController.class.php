@@ -39,6 +39,13 @@ class OrderController extends HomeController {
      * 已完成订单
      */
     public function complete(){
+
+        echo "已完成订单，beign<br/>";
+
+        
+
+        echo "已完成订单，beign<br/>";
+        die;
         
         $this->display();
     }
