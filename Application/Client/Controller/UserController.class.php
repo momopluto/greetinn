@@ -16,37 +16,9 @@ class UserController extends ClientController {
 
         echo "hello!";
         
-        // // 表单名称name,ID,sex,phone
-        // $reg_data['name'] = 'MOMO';
-        // $reg_data['ID_card'] = '441423199305165018';
-        // $reg_data['gender'] = '1';
-        // $reg_data['birthday'] = $reg_data['ID_card'];// 先将ID_card赋值给birthday，用于自动完成时的输入数据
-        // $reg_data['phone'] = '18826481053';
-
-        // $test_model = D('Client');
-
-        // if ($test_model->create($reg_data)){
-        //     echo "测试，自动验证&完成，成功！";
-        //     // echo $test_model->birthday."<br/>";
-        //     echo $test_model->cTime."<br/>";
-
-        //     // p($test_model);
-
-        //     // $test_model->add();
-        // }else{
-        //     echo "测试，自动验证&完成，失败！";
-        //     echo $test_model->getError();
-        // }
 
         
-        // p($test_model);
-        
 
-        // if ($row = is_IDcard_exists('441423199305165018')) {
-        //     p($row);
-        // }else{
-        //     echo "此身份证未注册！";
-        // }
 
         echo "byebye!";
         die;

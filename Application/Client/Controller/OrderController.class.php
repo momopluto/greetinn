@@ -116,6 +116,14 @@ class OrderController extends ClientController {
 
         echo "编辑订单，begin<br>";
 
+        $o_record_model = D('OrderRecordView');
+        $o_record_data = $o_record_model->select();
+
+        p($o_record_data);
+
+        p($o_record_model);
+        die;
+
         $o_id = 2;// 模拟操作的订单号
 
         $people_info = array(// 入住人身份信息
@@ -140,7 +148,7 @@ class OrderController extends ClientController {
         // $new_order['price'] = '118';
 
 
-
+        // 还需要更新以下几项数据
         $new_order_2_room['nights'] = $book_info['nights'];
         $new_order_2_room['A_date'] = $book_info['start_date'];
         $new_order_2_room['B_date'] = $book_info['leave_date'];

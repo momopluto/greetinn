@@ -12,6 +12,7 @@ class LogModel extends Model {
     protected $fields    = array('id','oper_CATE','oper_ID','event','cTime');// 字段信息
     protected $pk        = 'id';// 主键
 
+
     // 自动验证
     protected $_validate = array(
         array('oper_CATE','require','操作者类别不能为空！',self::MUST_VALIDATE,'',self::MODEL_INSERT),

@@ -90,7 +90,7 @@ class FacilityController extends AdminController {
 
         echo "编辑房间，begin<br/>";
 
-        $r_id = 54;// 模拟操作的房间id
+        $r_id = 1;// 模拟操作的房间id
         // $room_ID = '228';// 模拟操作的房间号
 
         $edit_room['r_id'] = $r_id;// 主键也必须加上，却不对其更行更改
