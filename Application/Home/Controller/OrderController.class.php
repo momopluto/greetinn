@@ -18,6 +18,19 @@ class OrderController extends HomeController {
      * 未完成订单
      */
     public function dealing(){
+
+        echo "未完成订单，beign<br/>";
+        
+        $o_record_model = D('OrderRecordView');
+
+        $o_record_data = $o_record_model->select();
+
+        p($o_record_data);
+
+        p($o_record_model);
+
+        echo "未完成订单，beign<br/>";
+        die;
         
         $this->display();
     }
@@ -68,7 +81,7 @@ class OrderController extends HomeController {
         // $new_order['price'] = '118';
 
 
-
+        // 还需要更新以下几项数据
         $new_order_2_room['nights'] = $book_info['nights'];
         $new_order_2_room['A_date'] = $book_info['start_date'];
         $new_order_2_room['B_date'] = $book_info['leave_date'];

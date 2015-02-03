@@ -17,7 +17,20 @@ class DeviceController extends HomeController {
      * 未完成订单
      */
     public function dealing(){
+
+        echo "未完成订单，beign<br/>";
         
+        $d_record_model = D('DeviceRecordView');
+
+        $d_record_data = $d_record_model->select();
+
+        p($d_record_data);
+
+        p($d_record_model);
+
+        echo "未完成订单，beign<br/>";
+        die;
+
         $this->display();
     }
 
