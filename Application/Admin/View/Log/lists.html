@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>日志列表</title>
+</head>
+<body>
+	<include file= "./admin"/>
+	<foreach name="data" item="one" >
+		<p>日志编号：{$one['id']}</p>
+		<p>操作者类别：
+		<?php
+		$CATE_NAME = '';
+		$FIELD_NAME = '';
+		switch ($one['oper_CATE']) {
+			case 0:
+				$CATE_NAME = '客户';
+				$FIELD_NAME = 'client_name';
+				break;
+			case 1:
+				$CATE_NAME = '前台';
+				$FIELD_NAME = 'member_name';
+				break;
+			case 9:
+				$CATE_NAME = '管理员';
+				$FIELD_NAME = 'member_name';
+				break;
+			default:
+				break;
+		}
+		echo $CATE_NAME;
+		?>
+		{$one['oper_CATE']}</p>
+		<p>操作者ID：{$one['oper_ID']}({$one[$FIELD_NAME]})</p>
+		<p>事件：{$one['event']}</p>
+		<p>创建时间：{$one['cTime']}</p>
+		<hr/>
+	</foreach>
+	
+</body>
+</html>
