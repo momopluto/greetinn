@@ -56,8 +56,7 @@ if (! empty ( $_GET ['echostr'] ) && ! empty ( $_GET ["signature"] ) && ! empty 
     define('ADMIN_TITLE', '归客驿站后台管理');
     define('HOME_TITLE', '归客驿站前台系统');
     define('SYS_NAME', '归客驿站系统');
-
-
+    
     require THINK_PATH.'ThinkPHP.php'
 
 ?>

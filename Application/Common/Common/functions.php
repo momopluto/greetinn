@@ -48,6 +48,12 @@ function write_log_all_array($val){
             $val[1]['event'] .= "，" . $val[5];
 
             break;
+        case 'login':
+        
+            // 组合日志内容
+            $val[1]['event'] .= "，操作者id: " . $val[1]['oper_ID'] . "，登录IP: " . get_client_ip();
+
+            break;
         default:
             echo "<br/>"."write_log_all的$type出错了！"."<br/>";
             die;
@@ -108,6 +114,12 @@ function write_log_all($log_model, $log_data, $model, $event, $type, $data, $arr
 
             // 组合日志内容
             $log_data['event'] .= "，" . $data;
+
+            break;
+        case 'login':
+        
+            // 组合日志内容
+            $log_data['event'] .= "，操作者id: " . $log_data['oper_ID'] . "，登录IP: " . get_client_ip();
 
             break;
         default:
@@ -272,19 +284,18 @@ function get_delete_info($model, $data){
 
 
 
-
-
-
 /**
  * 检查身份证是否已注册
  * @param string $ID_card 身份证号码
+ * @param string $modelName 模型名，client / member
  * @return bool或者一行记录
  */
-function is_IDCard_exists($ID_card){
+function is_IDCard_exists($ID_card, $modelName){
 
-    $client = M('client');
+    $model = M($modelName);
+    // p($model);
 
-    return $client->find($ID_card);// 因为身份证是主键，可以直接find($ID_card)
+    return $model->where(array('ID_card'=>$ID_card))->find();
 }
 
 /**
@@ -299,6 +310,18 @@ function is_Room_exists($room_ID){
     return $room_model->where(array("room_ID" => $room_ID))->find();
 }
 
+
+
+
+/**
+ * 检测输入的验证码是否正确
+ * @param string $code 户输入的验证码字符串
+ */
+function check_verify($code, $id = ''){
+
+    $verify = new \Think\Verify();
+    return $verify->check($code, $id);
+}
 
 /**
  * 检查身份证合法性
@@ -431,6 +454,23 @@ function check_RoomID($new_data){
 
 
 
+
+/**
+ * 配置验证码
+ * @return 验证码
+ */
+function verify(){
+
+    $config =    array(
+        'fontSize'    =>    15,    // 验证码字体大小
+        'useNoise'    =>    false, // 关闭验证码杂点
+        'imageW'      =>    0,     // 验证码宽度
+        'imageH'      =>    0,     // 验证码高度
+        'length'      =>    4,     // 验证码位数
+    );
+    $Verify =     new \Think\Verify($config);
+    return $Verify->entry();
+}
 
 /**
  * 获取身份证上的生日
@@ -610,6 +650,29 @@ function update_device_stock($device_IDs, $type){
 }
 
 
+
+/**
+ * 二维键值数组，按时间降序排序
+ * @param Array $x 数组1
+ * @param Array $y 数组2
+ * @return int 
+ */
+function compare_cTime($x, $y){
+
+    $_x = strtotime($x['cTime']);
+    $_y = strtotime($y['cTime']);
+
+    if ($_x == $_y){
+        
+        return 0;
+    } elseif($_x > $_y){
+
+        return -1;
+    } else{
+
+        return 1;
+    }
+}
 
 
 // 获取本月的第1天和最后1天

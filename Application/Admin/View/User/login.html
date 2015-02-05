@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>后台登录</title>
+</head>
+<body>
+	
+	<form action="{:U('Admin/User/login')}" method="post">
+		<p>账　号：<input type="text" name="user"></p>
+		<p>密　码：<input type="password" name="pwd"></p>
+		<p>验证码：<input type="text" name="verify">
+		<img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/></p>
+		<input type="submit" value="登录" />
+	</form>
+	
+
+	<script language="JavaScript">
+		function changeVerify(){
+			var timenow = new Date().getTime();
+			document.getElementById('verifyImg').src='__URL__/verify/'+timenow;
+		}
+	</script>
+	
+</body>
+</html>
