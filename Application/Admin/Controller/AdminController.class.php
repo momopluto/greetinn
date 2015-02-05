@@ -9,11 +9,6 @@ use Think\Controller;
  */
 class AdminController extends Controller {
 
-	// 操作者类别
-    // const OPER_CATE_CLIENT        =   0;      //  客户
-    // const OPER_CATE_RECEPTIONIST  =   1;      //  前台
-    const OPER_CATE_ADMIN            =   9;      //  管理员
-
     // 操作内容
     // ***后台
     const ADMIN_LOGIN_IN        	 =   '管理员登录成功';
@@ -29,7 +24,7 @@ class AdminController extends Controller {
 
 	// 全局日志模型
 	protected $log_model;
-	// 全局日志模型
+	// 全局日志信息数组
 	protected $log_data = array();
 
 	
@@ -43,38 +38,37 @@ class AdminController extends Controller {
 	}
 
 	/**
-	 * 管理员登录
+	 * 初始化
 	 */
-	public function login(){
-
-		$this->display();
-	}
-
-	//初始化操作
 	function _initialize() {
 
-		$this->log_model = D('Log');
-
-		$this->log_data['oper_CATE'] = self::OPER_CATE_ADMIN;
-        $this->log_data['oper_ID'] = '1';// session('ADMIN_ID');
-
-		// /* 用户登录检测AMDMIN_ID */
-		//  if(!is_login()){
-		// 	// session(null);
-		// 	session('login_flag', null);
-  //           session('uid', null);
-		// 	$this->error('您还没有登录，请先登录！', U('Home/User/login'));
-		// }
+		 if(!is_login()){
+		 	// 未登录
+			session('A_LOGIN_FLAG', null);
+            session('USER_V_INFO', null);
+            
+			$this->error('您还没有登录，请先登录！', U('Admin/User/login'));
+		}
     }
-    
- //    // 退出
- //    public function quit(){    
- //        // session(null);
- //        session('login_flag', null);                
- //        session('uid', null);
- //        session('isOpen', null);
- //        redirect(U("Home/User/login"));
- //    }
+
+    /**
+     * 写登录日志
+     */
+    function login_log(){
+    	
+		// 初始化日志信息
+		$this->log_model = D('Log');
+		
+		$info = session('USER_V_INFO');
+		$this->log_data['oper_CATE'] = $info['oper_CATE'];
+        $this->log_data['oper_ID'] = $info['oper_ID'];
+
+        $this->log_model->startTrans();// 启动事务
+        // 写日志
+    	$log_Arr = array($this->log_model, $this->log_data, $this->log_model, self::ADMIN_LOGIN_IN, 'login', '');
+    	write_log_all_array($log_Arr);
+        // write_log_all($this->log_model, $this->log_data, $this->log_model, self::ADMIN_LOGIN_IN, 'login', '');
+    }
 
 }
 ?>

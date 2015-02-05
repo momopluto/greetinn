@@ -6,9 +6,19 @@
 </head>
 <body>
 
-	展示意见列表
-
-	可查看、回复，不可编辑
+	<include file= "./admin"/>
+	<foreach name="data" item="one" >
+		
+		<p>编号：{$one['opinion_ID']}</p>
+		<p>评分：{$one['grade']}</p>
+		<p>微信ID：{$one['openid']}<span>(有这项则可以向其发送信息[2天内有效]</span></p>
+		<p>姓名：{$one['name']}</p>
+		<p>邮箱：{$one['email']}</p>
+		<p>手机：{$one['phone']}</p>
+		<p>内容：{$one['content']}</p>
+		<p>创建时间：{$one['cTime']}</p>
+		<hr/>
+	</foreach>
 	
 </body>
 </html>

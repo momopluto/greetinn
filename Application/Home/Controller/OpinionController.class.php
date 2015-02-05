@@ -8,10 +8,17 @@ use Think\Controller;
 class OpinionController extends HomeController {
 
 	/**
-	 * 意见列表
-	 */
+     * 意见列表
+     */
     public function lists(){
+
+    	$model = M('opinion');
+
+    	$data = $model->order('cTime desc')->select();
         
+    	// p($data);
+
+        $this->assign('data', $data);
         $this->display();
     }
 }

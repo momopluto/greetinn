@@ -11,7 +11,7 @@ class IndexController extends AdminController {
 	 * 主页
 	 */
     public function index(){
-        
+
         $this->display();
     }
 }

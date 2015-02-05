@@ -8,8 +8,8 @@ use Think\Controller;
 class LogController extends AdminController {
 
 	// 字段范围
-	const CLIENT_LOG 	= 'id,oper_CATE,oper_ID,event,cTime,client_name';
-    const MANAGER_LOG 	= 'id,oper_CATE,oper_ID,event,cTime,member_name';
+	const CLIENT 	= 'id,oper_CATE,oper_ID,event,cTime,client_name';
+    const MANAGER 	= 'id,oper_CATE,oper_ID,event,cTime,member_name';
 
     const CLIENT_OPTION		= "oper_CATE = 0";
     const MANAGER_OPTION	= "oper_CATE = 1 or oper_CATE = 9";
@@ -23,29 +23,30 @@ class LogController extends AdminController {
 
 
 
+    	// echo "操作日志列表，begin<br/>";
 
+        // 客户操作日志
+        $logClient_model = D("LogClientView");
+        $logData_1 = $logClient_model->field(self::CLIENT)->where(self::CLIENT_OPTION)->order('cTime desc')->select();
 
-    	echo "操作日志列表，begin<br/>";
-
-    	
-
-
-
-        $log_model = D("LogView");
-        // $logData = $log_model->order('cTime desc')->select();
-        // $logData = $log_model->field(self::CLIENT_LOG)->where(self::CLIENT_OPTION)->order('cTime desc')->select();
-        $logData = $log_model->field(self::MANAGER_LOG)->where(self::MANAGER_OPTION)->order('cTime desc')->select();
-        // ->where("oper_CATE = 9")
-        p($CATE_NAME);
-        echo "-=-=-=".$logData['0'][$CATE_NAME[$logData['0']['oper_CATE']]];
-
-        p($logData);
-
-        p($log_model);
-
-    	echo "操作日志列表，end<br/>";
-    	die;
+        // 工作人员操作日志
+        $logManager_model = D("LogManagerView");
+        $logData_2 = $logManager_model->field(self::MANAGER)->where(self::MANAGER_OPTION)->order('cTime desc')->select();
         
+        // 合并为总
+        $logData = array_merge($logData_1, $logData_2);
+
+        // $logData['0'][$CATE_NAME[$logData['0']['oper_CATE']]];// 根据类别取不同字段名
+                
+        // p($logData);
+        // 按cTime降序排序
+        usort($logData, 'compare_cTime');
+        // p($logData);
+
+    	// echo "操作日志列表，end<br/>";
+    	// die;
+        
+        $this->assign('data', $logData);
         $this->display();
     }
 }
