@@ -8,33 +8,31 @@
 
 	<include file= "./admin"/>
 
-	<div class="add">
-	<fieldset>
-	<table >
-		<form action="{:U('Admin/Staff/add')}" method="post">
-			
-			<td><input type="text" name="name" placeholder="姓名"></td><!-- 不能为空，不可修改 -->
-			<td><input type="text" name="ID" placeholder="身份证"></td><!-- 不能为空，不可修改 -->
-			<td rowSpan="2">性别：<br/><!-- 不能为空，不可修改 -->
-				<input type="radio" name="sex" value="1" checked="">男
-				<input type="radio" name="sex" value="0">女
-			</td>
-			<td><input type="text" name="phone" placeholder="手机"></td><!-- 不能为空，可修改 -->
-			<td rowSpan="2">职位：<br/><!-- 不能为空，可修改 -->
-				<input type="radio" name="state" value="1" checked="">前台
-				<input type="radio" name="state" value="9">管理员
-			</td>
-			<td><input type="text" name="salary" placeholder="薪水"></td><!-- 不能为空，可修改 -->
+<div class="add">
+	<table>
+	<form action="{:U('Admin/Staff/add')}" method="post">
+		
+		<td><input type="text" name="name" placeholder="姓名"></td><!-- 不能为空，不可修改 -->
+		<td><input type="text" name="ID" placeholder="身份证"></td><!-- 不能为空，不可修改 -->
+		<td><!-- 不能为空，不可修改 -->
+			<input type="radio" name="sex" value="1" checked="">男
+			<input type="radio" name="sex" value="0">女
+		</td>
+		<td><input type="text" name="phone" placeholder="手机"></td><!-- 不能为空，可修改 -->
+		<td><!-- 不能为空，可修改 -->
+			<input type="radio" name="state" value="1" checked="">前台
+			<input type="radio" name="state" value="9">管理员
+		</td>
+		<td><input type="text" name="salary" placeholder="薪水"></td><!-- 不能为空，可修改 -->
 
-			<td><input type="submit" value="新增"></td>
+		<td><input type="submit" value="新增"></td>
 
-		</form>
+	</form>
 	</table>
-	</fieldset>
-	</div>
-<div>
+</div>
 
-<table rules="all">
+<div>
+	<table rules="all">
 	<th><input type="checkbox" name="全选" value="全选"></th>
 	<th>ID</th>
 	<th>姓名</th>
@@ -47,6 +45,7 @@
 	<th>状态</th>
 	<th>注册时间</th>
 	<th>操作</th>
+
 	<foreach name="data" item="one" >
 	<tr>
 		<td><input type="checkbox" name="id[]" value="{$one['member_ID']}"></td>
@@ -93,14 +92,14 @@
 		<td><a href="{:U('Admin/Staff/del')}?id={$one['member_ID']}"><button type="button">删除</button></a></td>
 	</tr>
 
-	<div class="edit">
+  <div class="edit">
 	<form action="{:U('Admin/Staff/edit')}?id={$one['member_ID']}" method="post">
-	<tr>
+	<tr style="color:red">
 		<td><!-- <input type="checkbox" name="id[]" value="{$one['member_ID']}"> --></td>
 		<td>ID</td>
 		<td><input type="text" name="name" value="{$one['name']}" disabled=""></td>
 		<td><input type="text" name="ID" value="{$one['ID_card']}" disabled=""></td>
-		<td><!-- <input type="radio" name="sex" value="{$one['gender']}" checked="" disabled=""> -->
+		<td>
 			<?php 
 			if ($one['gender'] == 0) {
 				echo "女";
@@ -132,10 +131,9 @@
 		<td><input type="submit" value="编辑&更新"></td>
 	</tr>
 	</form>
-	</div>
+  </div>
 	</foreach>
-</table>
+	</table>
 </div>
-
 </body>
 </html>

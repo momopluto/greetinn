@@ -18,6 +18,13 @@ class FacilityController extends AdminController {
 	 */
 	public function room(){
 
+        $Room = M('room');
+
+        $data = $Room->select();
+        // p($data);
+        // die;
+
+        $this->assign('data', $data);
 		$this->display();
 	}
 
@@ -26,61 +33,61 @@ class FacilityController extends AdminController {
      */
     public function addR(){
 
-        echo "添加房间，begin<br/>";
+        // echo "添加房间，begin<br/>";
 
-        $new_room['room_ID'] = '228 test12';
-        $new_room['price'] = '118';
-        $new_room['type'] = self::TYPE_SINGLE;
-        $new_room['desc'] = '可以为空';
+        if (IS_POST) {
+            // $new_room['room_ID'] = '228 test12';
+            // $new_room['price'] = '118';
+            // $new_room['type'] = self::TYPE_SINGLE;
+            // $new_room['desc'] = '可以为空';
 
-        $room_model = D('Room');
+            $new_room['room_ID'] = I('post.ID');
+            $new_room['price'] = I('post.price');
+            $new_room['type'] = I('post.type');
+            $new_room['desc'] = I('post.desc');
 
-        $room_model->startTrans();// 启动事务
+            $room_model = D('Room');
 
-        if ($room_model->create($new_room)) {
-            echo "create成功<br/>";
+            $room_model->startTrans();// 启动事务
 
-            $r_id = $room_model->add();// 新房间记录写入room表
-            
+            if ($room_model->create($new_room)) {
+                echo "create成功<br/>";
 
-            /* 添加房间，写日志需要信息：
+                $r_id = $room_model->add();// 新房间记录写入room表
 
-            日志事件类型self::ADMIN_ROOM_ADD
-            新增所得的           '房间id' => $r_id
-            新增的字段数据        '房间号' => $new_room['room_ID']
+                if ($r_id === false) {
+                    $this->error('写入数据库失败！');
+                    return;
+                }
                 
-            */
 
-            $log_Arr = array($this->log_model, parent::$log_data, $room_model, self::ADMIN_ROOM_ADD, 'add', array('房间id' => $r_id, '房间号' => $new_room['room_ID']));
-            //                     0                 1                2             3                4                            5
-            write_log_all_array($log_Arr);
-            // write_log_all($this->log_model, parent::$log_data, $room_model, self::ADMIN_ROOM_ADD, 'add', array('房间id' => $r_id, '房间号' => $new_room['room_ID']));
+                /* 添加房间，写日志需要信息：
 
+                日志事件类型self::ADMIN_ROOM_ADD
+                新增所得的           '房间id' => $r_id
+                新增的字段数据        '房间号' => $new_room['room_ID']
+                    
+                */
 
-            // // 日志事件
-            // parent::$log_data['event'] = self::ADMIN_ROOM_ADD . "，房间id: " . $r_id . "，房间号: " . $new_room['room_ID'];
-            
-            // // 写日志
-            // if (!write_log($this->log_model, parent::$log_data)) {
-            //     // 如果不成功，rollback
-                
-            //     $room_model->rollback();// 回滚事务
-            // }else{// 成功
+                $log_Arr = array($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_ADD, 'add', array('房间id' => $r_id, '房间号' => $new_room['room_ID']));
+                //                     0                 1                2             3                4                            5
+                write_log_all_array($log_Arr);
+                // write_log_all($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_ADD, 'add', array('房间id' => $r_id, '房间号' => $new_room['room_ID']));
 
-            //     $room_model->commit();// 提交事务
-            // }
+                $this->success('新增成功！', U('Admin/Facility/room'));
+            }else{
 
-            
-        }else{
-
-            echo "create失败<br/>";
-            echo $room_model->getError();
+                // echo "create失败<br/>";
+                // echo $room_model->getError();
+                $this->error($room_model->getError());
+                return;
+            }
         }
 
-        echo "添加房间，end<br/>";
-        die;
+        // echo "添加房间，end<br/>";
+        // die;
         
-        $this->display();
+        // $this->display();
     }
 
     /**
@@ -88,75 +95,78 @@ class FacilityController extends AdminController {
      */
     public function editR(){
 
-        echo "编辑房间，begin<br/>";
+        // p(I('post.'));die;
+        // echo "编辑房间，begin<br/>";
 
-        $r_id = 1;// 模拟操作的房间id
-        // $room_ID = '228';// 模拟操作的房间号
+        if (IS_POST) {
+            $r_id = I('get.id');
+            // $r_id = 1;// 模拟操作的房间id
+            // $room_ID = '228';// 模拟操作的房间号
 
-        $edit_room['r_id'] = $r_id;// 主键也必须加上，却不对其更行更改
-        $edit_room['room_ID'] = '228 test edit2';
-        $edit_room['price'] = '238';
-        $edit_room['type'] = self::TYPE_SINGLE;
-        // $edit_room['desc'] = '';
+            // $edit_room['r_id'] = $r_id;// 主键也必须加上，却不对其更行更改
+            // $edit_room['room_ID'] = '228 test edit2';
+            // $edit_room['price'] = '238';
+            // $edit_room['type'] = self::TYPE_SINGLE;
+            // $edit_room['desc'] = '';
 
-        $room_model = D('Room');
+            $edit_room['r_id'] = $r_id;// 主键也必须加上，却不对其更行更改
+            $edit_room['room_ID'] = I('post.ID');
+            $edit_room['price'] = I('post.price');
+            $edit_room['type'] = I('post.type');
+            $edit_room['desc'] = I('post.desc');
+            $edit_room['is_open'] = I('post.status');
 
-        $room_model->startTrans();// 启动事务
+            $Room = D('Room');
 
-        if ($room_model->where("r_id = $r_id")->create($edit_room, 2)) {// 2，显示标识此次操作为更新
-            echo "create成功<br/>";
+            $Room->startTrans();// 启动事务
 
-            // p($room_model);
+            if ($Room->where("r_id = $r_id")->create($edit_room, 2)) {// 2，显示标识此次操作为更新
+                echo "create成功<br/>";
 
-            echo "*** " . $result = $room_model->where("r_id = $r_id")->save();
-            if ($result) {
-                echo "更新成功<br/>";
-                unset($edit_room['r_id']);// 去掉主键
-                
-                /* 编辑房间，写日志需要信息：
+                // p($Room);
 
-                日志事件类型self::ADMIN_ROOM_EDIT
-                编辑的对象           '房间id' => $r_id
-                // 新增的字段数据        '房间号' => $new_room['room_ID']
-                更新的信息数组         $edit_room   需要调用format_edit_info($edit_room)得到 $edit_info
+                echo "*** " . $result = $Room->save();
+                if ($result) {
+                    echo "更新成功<br/>";
+                    unset($edit_room['r_id']);// 去掉主键
                     
-                */
+                    /* 编辑房间，写日志需要信息：
 
-                $log_Arr = array($this->log_model, parent::$log_data, $room_model, self::ADMIN_ROOM_EDIT, 'edit', array('房间id' => $r_id), $edit_room);
-                //                     0                 1                2             3                4                            5         6
-                write_log_all_array($log_Arr);
-                // write_log_all($this->log_model, parent::$log_data, $room_model, self::ADMIN_ROOM_EDIT, 'edit', array('房间id' => $r_id), $edit_room);
+                    日志事件类型self::ADMIN_ROOM_EDIT
+                    编辑的对象           '房间id' => $r_id
+                    // 新增的字段数据        '房间号' => $new_room['room_ID']
+                    更新的信息数组         $edit_room   需要调用format_edit_info($edit_room)得到 $edit_info
+                        
+                    */
 
-                // // 记录所更新的字段信息
-                // $edit_info = format_edit_info($edit_room);
+                    $log_Arr = array($this->log_model, $this->log_data, $Room, self::ADMIN_ROOM_EDIT, 'edit', array('房间id' => $r_id), $edit_room);
+                    //                     0                 1                2             3                4                            5         6
+                    write_log_all_array($log_Arr);
+                    // write_log_all($this->log_model, $this->log_data, $Room, self::ADMIN_ROOM_EDIT, 'edit', array('房间id' => $r_id), $edit_room);
 
-                // // 日志事件
-                // parent::$log_data['event'] = self::ADMIN_ROOM_EDIT . "，房间id: " . $r_id . "，" . $edit_info;
-                
-                // // 写日志
-                // if (!write_log($this->log_model, parent::$log_data)) {
-                //     // 如果不成功，rollback
-                    
-                //     $room_model->rollback();// 回滚事务
-                // }else{// 成功
+                    $this->success('更新成功！');
+                    return;
+                }else{
 
-                //     $room_model->commit();// 提交事务
-                // }
+                    // echo "更新失败<br/>";
+                    // echo $Room->getError();
+                    $this->error($Room->getError());
+                    return;
+                }
             }else{
 
-                echo "更新失败<br/>";
-                echo $room_model->getError();
+                // echo "create失败<br/>";
+                // echo $Room->getError();
+                $this->error($Room->getError());
+                return;
             }
-        }else{
-
-            echo "create失败<br/>";
-            echo $room_model->getError();
         }
-
-        echo "编辑房间，end<br/>";
-        die;
         
-        $this->display();
+
+        // echo "编辑房间，end<br/>";
+        // die;
+        
+        // $this->display();
     }
 
     /**
@@ -164,13 +174,13 @@ class FacilityController extends AdminController {
      */
     public function delR(){
 
-        echo "删除房间，begin<br/>";
+        // echo "删除房间，begin<br/>";
 
-        // $r_id = 16;
-        $r_id = array(31, 49, 54);// 模拟操作的房间id
+        $r_id = I('get.id');
+        // $r_id = array(31, 49, 54);// 模拟操作的房间id
         // $room_ID = '228';// 模拟操作的房间号
 
-        $room_model = M('room');
+        $Room = M('room');
 
         /* 删除房间，写日志需要信息：
 
@@ -181,65 +191,39 @@ class FacilityController extends AdminController {
         // 更新的信息数组         $edit_room   需要调用format_edit_info($edit_room)得到 $edit_info
             
         */
-
         
         // 记录所删除的数据信息
-        $del_info = get_delete_info($room_model, array('房间id', $r_id, '房间号', 'room_ID'));
+        $del_info = get_delete_info($Room, array('房间id', $r_id, '房间号', 'room_ID'));
         
-        echo "组合所得的del_info =: ".$del_info."  !!!!<br/>";
+        // echo "组合所得的del_info =: ".$del_info."  !!!!<br/>";
 
         if (is_array($r_id)) {// 如果是数组，组合成以','为连接符的字符串
             $r_id = implode(',', $r_id);
         }
-        // if (is_array($r_id)) {// 如果是数组，组合成以','为连接符的字符串
-
-        //     foreach ($r_id as $value) {
-        //         // echo $value."??????<br>";
-        //         $del_room_1 = $room_model->find($value);
-        //         // p($del_room_1);
-        //         $del_info .= $del_room_1['room_ID'] . ",";
-        //     }
-
-        //     $del_info = "房间号: " . substr($del_info, 0, strlen($del_info) - 1);
-            
-        //     $r_id = implode(',', $r_id);
-            
-        //     $del_info = "房间id: " . $r_id . "，" . $del_info;
-        // }else{
-            
-        //     $del_room_1 = $room_model->find($r_id);
-        //     $del_info = "房间id: " . $r_id . "，房间号: " . $del_room_1['room_ID'];
-        // }
         
-        $room_model->startTrans();// 启动事务
+        $Room->startTrans();// 启动事务
         
-        if ($room_model->delete($r_id)){
+        if ($Room->delete($r_id)){
             
             echo $r_id."删除成功<br/>";
 
-            $log_Arr = array($this->log_model, parent::$log_data, $room_model, self::ADMIN_ROOM_DELETE, 'delete', $del_info);
+            $log_Arr = array($this->log_model, $this->log_data, $Room, self::ADMIN_ROOM_DELETE, 'delete', $del_info);
             //                     0                 1                2             3                    4           5
             write_log_all_array($log_Arr);
-            // write_log_all($this->log_model, parent::$log_data, $room_model, self::ADMIN_ROOM_DELETE, 'delete', $del_info);
+            // write_log_all($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_DELETE, 'delete', $del_info);
 
-            // // 日志事件
-            // parent::$log_data['event'] = self::ADMIN_ROOM_DELETE . "，" . $del_info;
-            
-            // // 写日志
-            // if (!write_log($this->log_model, parent::$log_data)) {
-            //     // 如果不成功，rollback
-                
-            //     $room_model->rollback();// 回滚事务
-            // }else{// 成功
+            $this->success('删除成功！', U('Admin/Facility/room'));
+            return;
+        }else{
 
-            //     $room_model->commit();// 提交事务
-            // }
+            $this->error($Room->getError());
+            return;
         }
         
-        echo "删除房间，end<br/>";
-        die;
+        // echo "删除房间，end<br/>";
+        // die;
         
-        $this->display();
+        // $this->display();
     }
 
 
@@ -279,16 +263,16 @@ class FacilityController extends AdminController {
             $device_ID = $device_model->add();
 
 
-            $log_Arr = array($this->log_model, parent::$log_data, $device_model, self::ADMIN_DEVICE_ADD, 'add', array('设备id' => $device_ID, '名称' => $new_device['name']));
+            $log_Arr = array($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_ADD, 'add', array('设备id' => $device_ID, '名称' => $new_device['name']));
             //                     0                 1                2                  3               4                                 5
             write_log_all_array($log_Arr);
-            // write_log_all($this->log_model, parent::$log_data, $device_model, self::ADMIN_DEVICE_ADD, 'add', array('设备id' => $device_ID, '名称' => $new_device['name']));
+            // write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_ADD, 'add', array('设备id' => $device_ID, '名称' => $new_device['name']));
 
             // // 日志事件
-            // parent::$log_data['event'] = self::ADMIN_DEVICE_ADD . "，设备id: " . $device_ID;
+            // $this->log_data['event'] = self::ADMIN_DEVICE_ADD . "，设备id: " . $device_ID;
             
             // // 写日志
-            // if (!write_log($this->log_model, parent::$log_data)) {
+            // if (!write_log($this->log_model, $this->log_data)) {
             //     // 如果不成功，rollback
                 
             //     $device_model->rollback();// 回滚事务
@@ -346,19 +330,19 @@ class FacilityController extends AdminController {
                 unset($edit_device['device_ID']);// 去掉主键
 
 
-                $log_Arr = array($this->log_model, parent::$log_data, $device_model, self::ADMIN_DEVICE_EDIT, 'edit', array('设备id' => $device_ID), $edit_device);
+                $log_Arr = array($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_EDIT, 'edit', array('设备id' => $device_ID), $edit_device);
                 //                     0                 1                2                   3                4                   5                 6
                 write_log_all_array($log_Arr);
-                // write_log_all($this->log_model, parent::$log_data, $device_model, self::ADMIN_DEVICE_EDIT, 'edit', array('设备id' => $device_ID), $edit_device);
+                // write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_EDIT, 'edit', array('设备id' => $device_ID), $edit_device);
 
                 // // 记录所更新的字段信息
                 // $edit_info = format_edit_info($edit_device);
                 
                 // // 日志事件
-                // parent::$log_data['event'] = self::ADMIN_DEVICE_EDIT . "，设备id: " . $device_ID . "，" . $edit_info;
+                // $this->log_data['event'] = self::ADMIN_DEVICE_EDIT . "，设备id: " . $device_ID . "，" . $edit_info;
                 
                 // // 写日志
-                // if (!write_log($this->log_model, parent::$log_data)) {
+                // if (!write_log($this->log_model, $this->log_data)) {
                 //     // 如果不成功，rollback
                     
                 //     $device_model->rollback();// 回滚事务
@@ -417,16 +401,16 @@ class FacilityController extends AdminController {
             
             echo "删除成功<br/>";
 
-            $log_Arr = array($this->log_model, parent::$log_data, $device_model, self::ADMIN_DEVICE_DELETE, 'delete', $del_info);
+            $log_Arr = array($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_DELETE, 'delete', $del_info);
             //                     0                 1                2                 3                    4           5
             write_log_all_array($log_Arr);
-            // write_log_all($this->log_model, parent::$log_data, $device_model, self::ADMIN_DEVICE_DELETE, 'delete', $del_info);
+            // write_log_all($this->log_model, $this->log_data, $device_model, self::ADMIN_DEVICE_DELETE, 'delete', $del_info);
 
             // // 日志事件
-            // parent::$log_data['event'] = self::ADMIN_DEVICE_DELETE . "，设备id: " . $device_ID;
+            // $this->log_data['event'] = self::ADMIN_DEVICE_DELETE . "，设备id: " . $device_ID;
             
             // // 写日志
-            // if (!write_log($this->log_model, parent::$log_data)) {
+            // if (!write_log($this->log_model, $this->log_data)) {
             //     // 如果不成功，rollback
                 
             //     $device_model->rollback();// 回滚事务

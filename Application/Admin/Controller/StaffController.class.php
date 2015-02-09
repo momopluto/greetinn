@@ -120,9 +120,6 @@ class StaffController extends AdminController {
                 $this->error($Member->getError());
                 return;
             }
-        }else{
-            
-            $this->display();
         }
     }
 
@@ -160,6 +157,9 @@ class StaffController extends AdminController {
                     $log_Arr = array($this->log_model, $this->log_data, $Member, self::ADMIN_MEMBER_EDIT, 'edit', array('成员id' => $member_ID), $edit_member);
                     //                     0                 1                2             3                4                            5         6
                     write_log_all_array($log_Arr);
+
+                    $this->success('更新成功！');
+                    return;
                 }else{
 
                     // echo "更新失败<br/>";
@@ -213,9 +213,11 @@ class StaffController extends AdminController {
             write_log_all_array($log_Arr);
 
             $this->success('删除成功！', U('Admin/Staff/member'));
+            return;
         }else{
 
             $this->error('删除工作人员失败！');
+            return;
         }
 
         // echo "删除人员列表，end<br/>";
