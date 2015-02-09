@@ -262,6 +262,7 @@ function get_delete_info($model, $data){
         foreach ($data[1] as $value) {
             
             $del_data = $model->find($value);
+            
             $del_info .= $del_data[$data[3]] . ",";
         }
 
