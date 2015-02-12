@@ -136,6 +136,11 @@ class StaffController extends AdminController {
             // $edit_member['position'] = self::POSITION_ADMINISTRATOR;
             // $edit_member['salary'] = '800';
 
+            if (!I('get.id')) {
+                $this->error('ERROR, id不能为空！');
+                return;
+            }
+
             $member_ID = I('get.id');
             $edit_member['phone'] = I('post.phone');
             $edit_member['position'] = I('post.state');
@@ -187,6 +192,11 @@ class StaffController extends AdminController {
      * 删除人员列表
      */
     public function del(){
+
+        if (!I('get.id')) {
+            $this->error('ERROR, id不能为空！');
+            return;
+        }
 
         // echo "删除人员列表，begin<br/>";
 

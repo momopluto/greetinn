@@ -61,8 +61,8 @@
 		<tr style="color:red">
 			<td><!-- <input type="checkbox" name="id[]" value="{$one['r_id']}"> --></td>
 			<td>{$one['r_id']}</td>
-			<td><input type="text" name="ID" value="{$one['room_ID']}"></td>
-			<td><input type="text" name="price" value="{$one['price']}"></td>
+			<td><input type="text" name="ID" value="{$one['room_ID']}" placeholder="房号"></td>
+			<td><input type="text" name="price" value="{$one['price']}" placeholder="价钱"></td>
 			<td>
 				<input type="radio" name="type" value="1" <?php
 					if ($one['type'] == 1) {
@@ -75,7 +75,7 @@
 					}
 				?>>双床房
 			</td>
-			<td><input type="text" name="desc" value="{$one['desc']}"></td>
+			<td><input type="text" name="desc" value="{$one['desc']}" placeholder="描述"></td>
 			<td>
 				<input type="radio" name="status" value="1" <?php
 					if ($one['is_open'] == 1) {

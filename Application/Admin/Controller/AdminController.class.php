@@ -15,9 +15,12 @@ class AdminController extends Controller {
     const ADMIN_MEMBER_ADD       	 =   '工作人员管理，添加成功';
     const ADMIN_MEMBER_EDIT        	 =   '工作人员管理，更新信息成功';
     const ADMIN_MEMBER_DELETE      	 =   '工作人员管理，删除成功';
-    const ADMIN_DEVICE_ADD       	 =   '设备管理，添加成功';
-    const ADMIN_DEVICE_EDIT        	 =   '设备管理，更新信息成功';
-    const ADMIN_DEVICE_DELETE      	 =   '设备管理，删除成功';
+    const ADMIN_DEVICE_C_ADD       	 =   '设备管理，添加类别成功';
+    const ADMIN_DEVICE_C_EDIT      	 =   '设备管理，更新类别成功';
+    const ADMIN_DEVICE_C_DELETE    	 =   '设备管理，删除类别';
+    const ADMIN_DEVICE_ADD       	 =   '设备管理，添加设备成功';
+    const ADMIN_DEVICE_EDIT        	 =   '设备管理，更新设备成功';
+    const ADMIN_DEVICE_DELETE      	 =   '设备管理，删除设备';
     const ADMIN_ROOM_ADD       		 =   '房间管理，添加成功';
     const ADMIN_ROOM_EDIT        	 =   '房间管理，更新信息成功';
     const ADMIN_ROOM_DELETE      	 =   '房间管理，删除成功';
