@@ -5,10 +5,135 @@
 	<title>工作人员管理</title>
 </head>
 <body>
-	
-	工作人员列表
 
-	添加，编辑，删除（需确认）
+	<include file= "./admin"/>
 
+<div class="add">
+	<table>
+	<form action="{:U('Admin/Staff/add')}" method="post">
+		
+		<td><input type="text" name="name" placeholder="姓名"></td><!-- 不能为空，不可修改 -->
+		<td><input type="text" name="ID" placeholder="身份证"></td><!-- 不能为空，不可修改 -->
+		<td><!-- 不能为空，不可修改 -->
+			<input type="radio" name="sex" value="1" checked="">男
+			<input type="radio" name="sex" value="0">女
+		</td>
+		<td><input type="text" name="phone" placeholder="手机"></td><!-- 不能为空，可修改 -->
+		<td><!-- 不能为空，可修改 -->
+			<input type="radio" name="state" value="1" checked="">前台
+			<input type="radio" name="state" value="9">管理员
+		</td>
+		<td><input type="text" name="salary" placeholder="薪水"></td><!-- 不能为空，可修改 -->
+
+		<td><input type="submit" value="新增"></td>
+
+	</form>
+	</table>
+</div>
+
+<div>
+	<table rules="all">
+	<th><input type="checkbox" name="全选" value="全选"></th>
+	<th>ID</th>
+	<th>姓名</th>
+	<th>身份证</th>
+	<th>性别</th>
+	<th>生日</th>
+	<th>手机</th>
+	<th>职位</th>
+	<th>薪水</th>
+	<th>状态</th>
+	<th>注册时间</th>
+	<th>操作</th>
+
+	<foreach name="data" item="one" >
+	<tr>
+		<td><input type="checkbox" name="id[]" value="{$one['member_ID']}"></td>
+		<td>{$one['member_ID']}</td>
+		<td>{$one['name']}</td>
+		<td>{$one['ID_card']}</td>
+		<td>
+		<?php 
+		if ($one['gender'] == 0) {
+			echo "女";
+		}else{
+			echo "男";
+		}
+		?></td>
+		<td>{$one['birthday']}</td>
+		<td>{$one['phone']}</td>
+		<td><?php
+		switch ($one['position']) {
+			case 1:
+				echo "前台";
+				break;
+			// case 5:
+			// 	echo "主管";
+			// 	break;
+			case 9:
+				echo "管理员";
+				break;
+			default:
+				break;
+		}
+		?>
+		</td>
+		<td>{$one['salary']}</td>
+		<td><?php
+		if ($one['on_job'] == 1) {
+			echo "在职";
+		}elseif ($one['on_job'] == 2) {
+			echo "请假";
+		}else {
+			echo "离职";
+		}
+		?></td>
+		<td>{$one['cTime']}</td>
+		<td><a href="{:U('Admin/Staff/del')}?id={$one['member_ID']}"><button type="button">删除</button></a></td>
+	</tr>
+
+  <div class="edit">
+	<form action="{:U('Admin/Staff/edit')}?id={$one['member_ID']}" method="post">
+	<tr style="color:red">
+		<td><!-- <input type="checkbox" name="id[]" value="{$one['member_ID']}"> --></td>
+		<td>ID</td>
+		<td><input type="text" name="name" value="{$one['name']}" disabled=""></td>
+		<td><input type="text" name="ID" value="{$one['ID_card']}" disabled=""></td>
+		<td>
+			<?php 
+			if ($one['gender'] == 0) {
+				echo "女";
+			}else{
+				echo "男";
+			}
+			?></td>
+		<td>-</td>
+		<td><input type="text" name="phone" value="{$one['phone']}"></td>
+		<td><input type="radio" name="state" value="1" <?php 
+			if ($one['position'] == 1) {
+				echo 'checked=""';
+			}?>>前台
+			<input type="radio" name="state" value="9" <?php if ($one['position'] == 9) {
+				echo 'checked=""';
+			}?>>管理员</td>
+		<td><input type="text" name="salary" value="{$one['salary']}"></td>
+		<td><input type="radio" name="status" value="1" <?php 
+			if ($one['on_job'] == 1) {
+				echo 'checked=""';
+			}?>>在职
+			<input type="radio" name="status" value="2" <?php if ($one['on_job'] == 2) {
+				echo 'checked=""';
+			}?>>请假
+			<input type="radio" name="status" value="0" <?php if ($one['on_job'] == 0) {
+				echo 'checked=""';
+			}?>>离职</td>
+		<td>-</td>
+		<td><input type="submit" value="编辑&更新"></td>
+	</tr>
+	</form>
+  </div>
+	</foreach>
+	</table>
+</div>
 </body>
 </html>

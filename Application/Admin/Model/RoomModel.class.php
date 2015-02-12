@@ -37,7 +37,7 @@ class RoomModel extends Model {
         $room_model = M('room');
 
         $rs = $room_model->where(array("room_ID" => $room_ID))->find();
-
+        
         if ($rs) {
             if ($rs['r_id'] == $this->checkData['r_id']) {
                 // 防止修改时，被'自己'限制

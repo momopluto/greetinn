@@ -23,7 +23,7 @@ class OrderRecordViewModel extends ViewModel {
     [0] => Array
         (
             [client_ID] => 1
-            [book_info] => {"start_date":"2015-02-02","leave_date":"2015-02-05","nights":"3","number":1,"people_info":[{"name":"王一","ID_card":"520222196306159670"}],"note":"2对耳塞"}
+            [book_info] => {"number":1,"people_info":[{"name":"王一","ID_card":"520222196306159670"}],"note":"2对耳塞"}
             [o_price] => 118
             [o_status] => 0
             [o_cTime] => 2015-02-02 05:10:15

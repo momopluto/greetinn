@@ -6,9 +6,123 @@
 </head>
 <body>
 
-	设备列表
+	<include file= "./admin"/>
 
-	添加、编辑、删除
+<div class="add_cate">
+	<table>
+	<form action="{:U('Admin/Facility/addD_Cate')}" method="post">
+		<td><input type="text" name="name" placeholder="类别名"></td>
+		<td><input type="text" name="desc" placeholder="描述"></td>
+		<td><input type="submit" value="新增类别"></td>
+	</form>
+	</table>
+</div>
+
+<div>
+	<table rules="all">
+	<foreach name="IDs" item="pids" key="p">
+		<p>{$data[$p]['device_ID']} - {$data[$p]['name']} 
+		<label style="color:green"><?php 
+		if ($data[$p]['on_use'] == 1) {
+			echo '开放';
+		}else{
+			echo '关闭';
+		}?></label> <span class="操作"><a href="{:U('Admin/Facility/delD_Cate')}?id={$data[$p]['device_ID']}">删除</a></span></p>
+		<p>{$data[$p]['desc']} <label class="数量" style="color:green">{$data[$p]['allNum']}</label></p>
+
+		<table>
+		<form action="{:U('Admin/Facility/editD_Cate')}?id={$data[$p]['device_ID']}" method="post">
+			<td><input type="text" name="name" value="{$data[$p]['name']}" placeholder="类别名"></td>
+			<td><input type="text" name="desc" value="{$data[$p]['desc']}" placeholder="描述"></td>
+			<td><input type="submit" value="编辑&更新"></td>
+		</form>
+		</table>
+
+		<table rules="all">
+			<th><input type="checkbox" name="全选" value="全选"></th>
+			<th>ID</th>
+			<th>名称</th>
+			<th>价钱</th>
+			<th>描述</th>
+			<th>状态</th>
+			<th>总数</th>
+			<th>库存</th>
+			<th>创建时间</th>
+			<th>操作</th>
+		<foreach name="pids" item="pid" key="d_ID">
+		<tr>
+			<td><input type="checkbox" name="id[]" value="{$data[$d_ID]['device_ID']}"></td>
+			<td>{$data[$d_ID]['device_ID']}</td>
+			<td>{$data[$d_ID]['name']}</td>
+			<td>{$data[$d_ID]['price']}</td>
+			<td>{$data[$d_ID]['desc']}</td>
+			<td>
+			<?php
+				if ($data[$d_ID]['on_use'] == 1) {
+					echo "开放";
+				}else{
+					echo "关闭";
+				}
+			?></td>
+			<td>{$data[$d_ID]['allNum']}</td>
+			<td>{$data[$d_ID]['stock']}</td>
+			<td>{$data[$d_ID]['cTime']}</td>
+			<td><a href="{:U('Admin/Facility/delD')}?id={$data[$d_ID]['device_ID']}"><button type="buttom">删除</button></a></td>
+		</tr>
+		<form action="{:U('Admin/Facility/editD')}?id={$data[$d_ID]['device_ID']}" method="post">
+		<tr style="color:red">
+			<td><!-- <input type="checkbox" name="id[]" value="{$data[$d_ID]['device_ID']}"> --></td>
+			<td>{$data[$d_ID]['device_ID']}</td>
+			<td><input type="text" name="name" value="{$data[$d_ID]['name']}" placeholder="名称"></td>
+			<td><input type="text" name="price" value="{$data[$d_ID]['price']}" placeholder="价钱"></td>
+			<td><input type="text" name="desc" value="{$data[$d_ID]['desc']}" placeholder="描述"></td>
+			<td>
+				<input type="radio" name="status" value="1" <?php
+				if ($data[$d_ID]['on_use'] == 1) {
+					echo 'checked=""';
+				}
+				?>>开放
+				<input type="radio" name="status" value="0" <?php
+				if ($data[$d_ID]['on_use'] == 0) {
+					echo 'checked=""';
+				}
+				?>>关闭
+			</td>
+			<td><input type="text" name="allNum" value="{$data[$d_ID]['allNum']}" placeholder="总数"></td>
+			<td><input type="text" name="stock" value="{$data[$d_ID]['stock']}" placeholder="库存"></td>
+			<td>-</td>
+			<td>
+				<select name="pid">
+				<foreach name="IDs" item="pids" key="pp">
+					<option value="{$pp}" <?php if ($p == $pp) {
+						echo 'selected=""';
+					}?>>{$data[$pp]['name']}</option>
+				</foreach>
+				</select>
+				<input type="submit" value="编辑&更新">
+			</td>
+		</tr>
+		</form>
+		</foreach>
+		<form action="{:U('Admin/Facility/addD')}" method="post">
+		<tr style="color:green">
+			<td><!-- <input type="checkbox" name="id[]" value="{$data[$d_ID]['device_ID']}"> --></td>
+			<td></td>
+			<td><input type="text" name="name" placeholder="名称"></td>
+			<td><input type="text" name="price" placeholder="价钱"></td>
+			<td><input type="text" name="desc" placeholder="描述"></td>
+			<td></td>
+			<td><input type="text" name="allNum" placeholder="总数"></td>
+			<td></td>
+			<td></td>
+			<input type="text" name="pid" value="{$p}" hidden="">
+			<td><input type="submit" value="新增"></td>
+		</tr>
+		</form>
+		</table>
+	</foreach>
+	</table>
+</div>
 	
 </body>
 </html>

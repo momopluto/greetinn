@@ -10,7 +10,7 @@ class ClientModel extends Model {
 
 	protected $tableName = 'client';// 数据表名
 	protected $fields 	 = array('client_ID', 'name','ID_card','s_ID','gender','birthday','openid','phone','cTime');// 字段信息
-    protected $pk     	 = array('client_ID','ID_card');// 主键
+    protected $pk     	 = array('client_ID');// 主键
 
     // 命名范围
     protected $_scope = array(

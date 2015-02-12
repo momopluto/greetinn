@@ -10,7 +10,7 @@ class MemberModel extends Model {
 
 	protected $tableName = 'member';// 数据表名
 	protected $fields 	 = array('member_ID', 'name','ID_card','gender','birthday','phone','position','salary','on_job','cTime');// 字段信息
-    protected $pk     	 = array('member_ID','ID_card');// 主键
+    protected $pk     	 = array('member_ID');// 主键
 
     // 命名范围
     protected $_scope = array(
