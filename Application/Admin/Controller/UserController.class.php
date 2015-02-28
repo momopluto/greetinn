@@ -42,7 +42,7 @@ class UserController extends Controller{
 				$info['oper_ID'] = $one['member_ID'];
 				$info['oper_CATE'] = self::OPER_CATE_ADMIN;
 				// 通过验证，合法，写session
-				session('USER_V_INFO', $info);
+				session('A_USER_V_INFO', $info);
 				session('A_LOGIN_FLAG', true);
 
 				$Admin = A('admin'); 
@@ -66,7 +66,7 @@ class UserController extends Controller{
     public function quit(){
         
         session('A_LOGIN_FLAG', null);                
-        session('USER_V_INFO', null);
+        session('A_USER_V_INFO', null);
         
         redirect(U("Admin/User/login"));
     }

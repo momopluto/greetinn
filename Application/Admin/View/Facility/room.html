@@ -13,8 +13,10 @@
 		<td><input type="text" name="ID" placeholder="房号"></td>
 		<td><input type="text" name="price" placeholder="价钱"></td>
 		<td><!-- 不能为空，不可修改 -->
-			<input type="radio" name="type" value="1" checked="">大床房
-			<input type="radio" name="type" value="0">双床房
+			<input type="radio" name="type" value="1" checked="">标准单间
+			<input type="radio" name="type" value="0">标准双床
+			<input type="radio" name="type" value="3" checked="">豪华大床
+			<input type="radio" name="type" value="2">豪华双床
 		</td>
 		<td><input type="text" name="desc" placeholder="描述"></td>
 		<td><input type="submit" value="新增"></td>
@@ -40,9 +42,13 @@
 			<td>{$one['price']}</td>
 			<td><?php 
 			if ($one['type'] == 0) {
-				echo "双床房";
-			}else{
-				echo "大床房";
+				echo "标准双床";
+			}elseif ($one['type'] == 1) {
+				echo "标准单间";
+			}elseif ($one['type'] == 2) {
+				echo "豪华双床";
+			}else {
+				echo "豪华大床";
 			}
 			?></td>
 			<td>{$one['desc']}</td>

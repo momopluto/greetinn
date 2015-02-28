@@ -45,16 +45,16 @@ class AdminController extends Controller {
 	 */
 	function _initialize() {
 
-		 if(!is_login()){
+		if(!is_login()){
 		 	// 未登录
 			session('A_LOGIN_FLAG', null);
-            session('USER_V_INFO', null);
+            session('A_USER_V_INFO', null);
             
 			$this->error('您还没有登录，请先登录！', U('Admin/User/login'));
 			return;
 		}
 
-		if ($info = session('USER_V_INFO')) {
+		if ($info = session('A_USER_V_INFO')) {
 			// 初始化日志基本信息
 			
 			$this->log_data['oper_CATE'] = $info['oper_CATE'];
