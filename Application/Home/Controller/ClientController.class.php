@@ -141,9 +141,9 @@ class ClientController extends HomeController {
             }   
         }else{
 
-            $price = M('type_price')->getField('type,price');
+            $types = M('type_price')->getField('type,name,price');
 
-            $this->assign('price', $price);
+            $this->assign('types', $types);
             $this->display();
         }
     }

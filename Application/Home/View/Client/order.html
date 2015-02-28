@@ -12,12 +12,11 @@
 		<p>入住日期：<input type="date" name="aDay">*</p>
 		<p>退房日期：<input type="date" name="bDay">*</p>
 		<p>房间类型：
-			<select name="type">
-			    <option value ="1">标准单间房 ￥{$price[1]}</option>
-			    <option value ="0">标准双床房 ￥{$price[0]}</option>
-			    <option value ="3">豪华大床房 ￥{$price[3]}</option>
-			    <option value ="2">豪华双床房 ￥{$price[2]}</option>
-		    </select>
+		    <select name="type">
+			<foreach name="types" item="oneT" key="type" >
+				<option value ="{$type}">{$oneT['name']} ￥{$oneT['price']}</option>
+			</foreach>
+	      </select>
 	    </p>
 		<p>备　　注：<input type="text" name="note"></p>
 

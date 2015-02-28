@@ -20,13 +20,44 @@ class FacilityController extends AdminController {
 
         $Room = M('room');
 
-        $data = $Room->select();
+        $data = $Room->join('type_price ON type_price.type = room.type')->select();// ->order('cTime desc')
         // p($data);
         // die;
 
         $this->assign('data', $data);
+        $types = M('type_price')->getField('type,name,price');
+        $this->assign('types', $types);
 		$this->display();
 	}
+
+    /**
+     * 设备房间价格
+     */
+    public function setR(){
+        
+        if (IS_POST) {
+            // p(I('post.'));die;
+
+            $model = M('type_price');
+            $data['type'] = I('post.type');
+            $data['name'] = I('post.name');
+            $data['price'] = I('post.price');
+
+            if ($model->save($data)) {
+                echo "更新房间类型-价格成功！";
+                $this->success('更新房间类型-价格成功！', U('Admin/Facility/room'));
+                return;
+            }else{
+                echo "更新房间类型-价格失败！";
+                // echo $model->getError();
+
+                $this->error($model->getError());
+                return;
+            }
+            
+            // p($data);die;
+        }
+    }
 
     /**
      * 添加房间
@@ -42,7 +73,7 @@ class FacilityController extends AdminController {
             // $new_room['desc'] = '可以为空';
 
             $new_room['room_ID'] = I('post.ID');
-            $new_room['price'] = I('post.price');
+            // $new_room['price'] = I('post.price');
             $new_room['type'] = I('post.type');
             $new_room['desc'] = I('post.desc');
 
@@ -117,7 +148,7 @@ class FacilityController extends AdminController {
 
             $edit_room['r_id'] = $r_id;// 主键也必须加上，却不对其更行更改
             $edit_room['room_ID'] = I('post.ID');
-            $edit_room['price'] = I('post.price');
+            // $edit_room['price'] = I('post.price');
             $edit_room['type'] = I('post.type');
             $edit_room['desc'] = I('post.desc');
             $edit_room['is_open'] = I('post.status');
