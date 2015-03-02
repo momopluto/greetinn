@@ -90,7 +90,7 @@ class ClientController extends HomeController {
                 return;
             }
             // echo strtotime(I('post.aDay'))."***".NOW_TIME;die;
-            if (strtotime(I('post.aDay')) > strtotime(I('post.bDay')) || strtotime(I('post.aDay')) < NOW_TIME) {
+            if (strtotime(I('post.aDay')) > strtotime(I('post.bDay')) || strtotime(I('post.aDay')) < strtotime(date('Y-m-d',time()))) {
                 $this->error('入住/退房时间错误！');
                 return;
             }
@@ -99,9 +99,9 @@ class ClientController extends HomeController {
             $client_ID = $client['client_ID'];
             $info = I('post.info');
             // p($info);
-            if ($info[2]['name'] == '' || $info[2]['ID'] == '') {
+            if ($info[1]['name'] == '' || $info[1]['ID'] == '') {
                 // 去除入住人(二)信息
-                unset($info[2]);
+                unset($info[1]);
             }
             $people_info = $info;
             // p($info);die;

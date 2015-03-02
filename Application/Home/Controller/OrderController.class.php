@@ -257,18 +257,20 @@ class OrderController extends HomeController {
             $checkIN['status'] = self::STATUS_CHECKIN;
             $checkIN['deposit'] = I('post.deposit');
             
-            $order_model = D('OrderRecordView');
-
-            $old_data = $order_model->where("o_record.o_id = $o_id")->find();
+            $order2_model = D('OrderRecordView');
+            $old_data = $order2_model->where("o_record.o_id = $o_id")->find();
             // p($old_data);die;
-            // echo "old_status = $old_data['status']";
-            if ($old_data['status'] == $checkIN['status']) {// 状态未改变
+
+            $order_model = D('OrderRecord');
+            $old_status = $order_model->where("o_id = $o_id")->getField('status');
+            echo "old_status = $old_status";
+            if ($old_status == $checkIN['status']) {// 状态未改变
 
                 $this->error('状态未改变！');
                 return;
             }
 
-            p($checkIN);die;
+            // p($checkIN);die;
             if (strtotime($old_data['A_date']) != strtotime(date('Y-m-d',time()))) {
                 
                 $this->error('当前非预定入住时间！无法办理入住！');
@@ -282,7 +284,7 @@ class OrderController extends HomeController {
                 // die;
                 $queryStr = "o_id = $o_id AND (status = ".self::STATUS_NEW." or status = ".self::STATUS_PAY.")";
                 // echo $str;
-                echo " *** ". $result = $order_model->scope('allowUpdateField')->where($queryStr)->save();
+                echo " *** ". $result = $order_model->scope('allowUpdateField')->where($queryStr)->save();// ->scope('allowUpdateField')
 
                 // p($order_model);
 
@@ -315,9 +317,11 @@ class OrderController extends HomeController {
             }else{
 
                 echo "create失败<br/>";
-                // echo $order_model->getError();
+                echo $order_model->getError();
 
-                $this->error($order_model->getError());
+                P($order_model);die;
+
+                // $this->error($order_model->getError());
                 return;
             }
         }else{
@@ -578,7 +582,7 @@ class OrderController extends HomeController {
 
                 echo " *** ". $result = $order_model->scope('allowUpdateField, checkIN')->save();
 
-                p($order_model);
+                // p($order_model);
 
                 if ($result) {
                     echo "办理退房成功！<br/>";
@@ -620,6 +624,8 @@ class OrderController extends HomeController {
 
             $o_record_model = D('OrderRecordView');
             $data = $o_record_model->where("o_record.o_id = $o_id")->find();
+
+            // p($data);die;
 
             $this->assign('data', $data);
             $types = M('type_price')->getField('type,name,price');
