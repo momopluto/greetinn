@@ -41,7 +41,7 @@
 		    </foreach>
 		    <p>备注: {$book_info['note']}</p>
 		    </td>
-		    <td align="center">
+		    <td align="center"  title="状态改变时间: &#10;取消: {$one['cancel']}&#10;网付: {$one['pay']}&#10;入住: {$one['checkIn']}&#10;离店: {$one['checkOut']}">
 	    	<?php
 	    		$str = '';
 	    		switch ($one['status']) {
@@ -55,13 +55,18 @@
 	    				$str = "已网上支付";
 	    				break;
 	    			case 3:
-	    				$str = "入住ing";
+	    				$str = "入住ing"."<p>".$one['room_ID']."房</p>";
 	    				break;
 	    			case 4:
 	    				$str = "离店";
 	    				break;
 	    			default:
 	    				break;
+	    		}
+	    		// 换房/续住的备注
+	    		if ($one['note'] != '') {
+	    			$one['note'] = str_replace(array(';'), "<br/>", $one['note']);
+	    			$str .= "<span>". $one['note'] ."</span>";
 	    		}
 	    		echo $str;
 	    	?>

@@ -24,7 +24,7 @@ class UserController extends Controller{
 
     		if (!check_verify(I('post.verify'))) {
     			
-    			$this->error('验证码不正确！', U('Home/User/login'));
+    			$this->error('验证码不正确！');// , U('Home/User/login')
     			return;
     		}
     		

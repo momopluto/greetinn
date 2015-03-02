@@ -27,6 +27,9 @@ function write_log_all_array($val){
         case 'submit_order':
         case 'cancel':
         case 'check_in':
+        case 'stay_over':
+        case 'change_room':
+        case 'check_out':
         case 'add':
             foreach ($val[5] as $key => $value) {
                 // 组合日志内容

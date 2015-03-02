@@ -41,7 +41,7 @@
 	    </foreach>
 	    <p>备注: {$book_info['note']}</p>
 	    </td>
-	    <td align="center">
+	    <td align="center"  title="状态改变时间: &#10;取消: {$one['cancel']}&#10;网付: {$one['pay']}&#10;入住: {$one['checkIn']}&#10;离店: {$one['checkOut']}">
     	<?php
     		$str = '';
     		switch ($one['status']) {
@@ -55,13 +55,18 @@
     				$str = "已网上支付";
     				break;
     			case 3:
-    				$str = "入住ing<br/><p>".$one['room_ID']."房</p>";
+    				$str = "入住ing"."<p>".$one['room_ID']."房</p>";
     				break;
     			case 4:
     				$str = "离店";
     				break;
     			default:
     				break;
+    		}
+    		// 换房/续住的备注
+    		if ($one['note'] != '') {
+    			$one['note'] = str_replace(array(';'), "<br/>", $one['note']);
+    			$str .= "<span>". $one['note'] ."</span>";
     		}
     		echo $str;
     	?>
@@ -72,19 +77,14 @@
 	    	case 1:
 	    	case 2:
 	    		?>
-				<!-- <select name="type">
-					<foreach name="types" item="oneT" key="type" >
-						<option value ="{$type}">{$oneT['name']} ￥{$oneT['price']}</option>
-					</foreach>
-			    </select> -->
 	    		<a href="{:U('Home/Order/check_in')}?id={$one['o_id']}"><button>办理入住</button></a><br/>
 	    		<a href="{:U('Home/Order/edit')}?id={$one['o_id']}"><button>编辑<!-- 当前页面弹出框进行修改 --></button></a><a href="{:U('Home/Order/cancel')}?id={$one['o_id']}"><button>取消</button></a>
 	    		<?php
 	    		break;
 	    	case 3:
 	    		?>
-	    		<a href=""><button>续住</button></a><a href=""><button>换房</button></a><br/>
-	    		<a href=""><button>退房</button></a>
+	    		<a href="{:U('Home/Order/stay_over')}?id={$one['o_id']}"><button>续住</button></a><a href="{:U('Home/Order/change_room')}?id={$one['o_id']}"><button>换房</button></a><br/>
+	    		<a href="{:U('Home/Order/check_out')}?id={$one['o_id']}"><button>退房</button></a>
 	    		<?php
 	    		break;
 	    	default:

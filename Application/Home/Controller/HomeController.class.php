@@ -17,7 +17,8 @@ class HomeController extends Controller {
     const RECEPTIONIST_CANCEL_PAID_ORDER       		=   '已付款订单，[助]取消成功';
     const RECEPTIONIST_CANCEL_ORDER                 =   '未付款订单，[助]取消成功';
     const RECEPTIONIST_EDIT_ORDER    		   		=   '未入住订单，编辑成功';
-    const RECEPTIONIST_CHECK_IN 	   		   		=   '办理入住成功';
+    const RECEPTIONIST_CHECK_IN                     =   '办理入住成功';
+    const RECEPTIONIST_STAY_OVER 	   		   		=   '办理续住成功';
     const RECEPTIONIST_CHANGE_ROOM    		   		=   '办理换房成功';
     const RECEPTIONIST_CHECK_OUT    		   		=   '办理退房成功';
     const RECEPTIONIST_HELP_SUBMIT_BORROW_REQUEST   =   '借设备请求，[助]提交成功';

@@ -2,28 +2,28 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-	<title>办理入住</title>
+	<title>换房</title>
 </head>
 <body>
 
 	<include file= "./home"/>
 
-	办理入住
+	办理续住
 	<table border="1">
 		<th>订单编号</th>
 		<th>入住\离店日期</th>
 		<th>房间类型</th>
 		<th>总价</th>
 		<th>订单详情</th>
-		<th>分配房间</th>
+		<th>入住房间</th>
 		<th>操作</th>
 
-	<form action="{:U('Home/Order/check_in')}" method="post">
+	<form action="{:U('Home/Order/stay_over')}" method="post">
     <tr>
     	<td>{$data['o_id']}</td>
-	    <td>{$data['A_date']}<br/>{$data['B_date']}</td>
+	    <td>{$data['A_date']}<br/><input id="bDay" type="date" name="bDay" value="{$data['B_date']}" onchange="calcSpread()"></td>
 	    <td align="center">{$types[$data['type']]['name']}<br/>￥{$types[$data['type']]['price']}</td>
-	    <td>￥{$data['price']}</td>
+	    <td align="center">￥{$data['price']}<br/><span id="spreadPrice" style="color:red" hidden=""></span></td>
 	    <td>
 	    <?php
 	    $book_info = json_decode($data['book_info'],true);
@@ -36,23 +36,45 @@
 	    </foreach>
 	    <p>备注: {$book_info['note']}</p>
 	    </td>
-	    <td align="center">
-    		<select name="room">
-    			<option value ="-1">请选择</option>
-    			<foreach name="rooms" item="one" key="k" >
-    				<option value ="{$one}">{$one}</option>
-    			</foreach>
-    	    </select>
-    	    <p><input type="text" name="deposit" placeholder="请输入押金"></p>
-	    </td>
+	    <td align="center">{$data['room_ID']}房</td>
 	    <td>
 	    <input type="submit" value="确定">
 	    <input type="text" name="id" value="{$data['o_id']}" hidden="">
-	    <input type="text" name="price" value="{$data['price']}" hidden="">
 	    </td>
     </tr>
     </form>
 	</table>
+
+	<script language="JavaScript">
+		function calcSpread(){/*计算差价*/
+
+			var aDay = "<?php echo $data['A_date'];?>";
+			var old_bDay = "<?php echo $data['B_date'];?>";
+			var new_bDay = document.getElementById("bDay").value;
+			var x = document.getElementById('spreadPrice');
+
+			var _a = new Date(aDay.replace(/-/g, "/"));
+			var _old = new Date(old_bDay.replace(/-/g, "/"));
+			var _new = new Date(new_bDay.replace(/-/g, "/"));
+			if (_new <= _old) {
+				alert("续住日期错误！");
+
+				document.getElementById('bDay').value = old_bDay;
+				x.setAttribute("hidden","");
+				x.innerHTML = "";
+				return;
+			};
+
+			var all = <?php echo $data['price'];?>;// 原总价
+			var price = <?php echo $types[$data['type']]['price'];?>;// 单价
+			var nights = Math.floor((_new.getTime()-_a.getTime())/(24*3600*1000));// 入住总天数
+
+			var _price = price * nights - all;// 要补的差价
+			
+			x.innerHTML = "+ ￥" + _price;
+			x.removeAttribute("hidden");
+		}
+	</script>
 
 <!-- 	1.从状态2，帮已付款但不入住的客户处理订单，状态改成“取消订单”0
 	2.从状态1或2，办理客户入住，核对入住人信息，分配房间，确认，状态改成“正在入住”3

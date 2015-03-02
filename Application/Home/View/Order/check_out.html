@@ -2,23 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-	<title>办理入住</title>
+	<title>办理退房</title>
 </head>
 <body>
 
 	<include file= "./home"/>
 
-	办理入住
+	办理退房
 	<table border="1">
 		<th>订单编号</th>
 		<th>入住\离店日期</th>
 		<th>房间类型</th>
 		<th>总价</th>
 		<th>订单详情</th>
-		<th>分配房间</th>
+		<th>房间</th>
 		<th>操作</th>
 
-	<form action="{:U('Home/Order/check_in')}" method="post">
+	<form action="{:U('Home/Order/check_out')}" method="post">
     <tr>
     	<td>{$data['o_id']}</td>
 	    <td>{$data['A_date']}<br/>{$data['B_date']}</td>
@@ -37,18 +37,12 @@
 	    <p>备注: {$book_info['note']}</p>
 	    </td>
 	    <td align="center">
-    		<select name="room">
-    			<option value ="-1">请选择</option>
-    			<foreach name="rooms" item="one" key="k" >
-    				<option value ="{$one}">{$one}</option>
-    			</foreach>
-    	    </select>
-    	    <p><input type="text" name="deposit" placeholder="请输入押金"></p>
+    		{$data['room_ID']}房
+    		<p style="color:red">归还押金: ￥{$data['deposit']}</p>
 	    </td>
 	    <td>
 	    <input type="submit" value="确定">
 	    <input type="text" name="id" value="{$data['o_id']}" hidden="">
-	    <input type="text" name="price" value="{$data['price']}" hidden="">
 	    </td>
     </tr>
     </form>
