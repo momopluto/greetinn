@@ -11,10 +11,13 @@
 	<table>
 	<form action="{:U('Admin/Facility/addR')}" method="post">
 		<td><input type="text" name="ID" placeholder="房号"></td>
-		<td><input type="text" name="price" placeholder="价钱"></td>
+		<!-- <td><input type="text" name="price" placeholder="价钱" disabled=""></td> -->
 		<td><!-- 不能为空，不可修改 -->
-			<input type="radio" name="type" value="1" checked="">大床房
-			<input type="radio" name="type" value="0">双床房
+		  <select name="type">
+			<foreach name="types" item="oneT" key="type" >
+				<option value ="{$type}">{$oneT['name']} ￥{$oneT['price']}</option>
+			</foreach>
+	      </select>
 		</td>
 		<td><input type="text" name="desc" placeholder="描述"></td>
 		<td><input type="submit" value="新增"></td>
@@ -26,7 +29,7 @@
 		<th><input type="checkbox" name="全选" value="全选"></th>
 		<th>ID</th>
 		<th>房号</th>
-		<th>价钱</th>
+		<!-- <th>价钱</th> -->
 		<th>类型</th>
 		<th>描述</th>
 		<th>状态</th>
@@ -37,14 +40,8 @@
 			<td><input type="checkbox" name="id[]" value="{$one['r_id']}"></td>
 			<td>{$one['r_id']}</td>
 			<td>{$one['room_ID']}</td>
-			<td>{$one['price']}</td>
-			<td><?php 
-			if ($one['type'] == 0) {
-				echo "双床房";
-			}else{
-				echo "大床房";
-			}
-			?></td>
+			<!-- <td>{$one['price']}</td> -->
+			<td>{$types[$one['type']]['name']}</td>
 			<td>{$one['desc']}</td>
 			<td><?php 
 			if ($one['is_open'] == 0) {
@@ -62,18 +59,16 @@
 			<td><!-- <input type="checkbox" name="id[]" value="{$one['r_id']}"> --></td>
 			<td>{$one['r_id']}</td>
 			<td><input type="text" name="ID" value="{$one['room_ID']}" placeholder="房号"></td>
-			<td><input type="text" name="price" value="{$one['price']}" placeholder="价钱"></td>
+			<!-- <td><input type="text" name="price" value="{$one['price']}" placeholder="价钱" disabled=""></td> -->
 			<td>
-				<input type="radio" name="type" value="1" <?php
-					if ($one['type'] == 1) {
-						echo 'checked=""';
-					}
-				?>>大床房
-				<input type="radio" name="type" value="0" <?php
-					if ($one['type'] == 0) {
-						echo 'checked=""';
-					}
-				?>>双床房
+			  <select name="type">
+				<foreach name="types" item="oneT" key="type" >
+					<option value ="{$type}" <?php if ($type == $one['type']) {
+						echo 'selected=""';
+					}?>>{$oneT['name']} ￥{$oneT['price']}</option>
+				</foreach>
+		      </select>
+
 			</td>
 			<td><input type="text" name="desc" value="{$one['desc']}" placeholder="描述"></td>
 			<td>
@@ -95,6 +90,19 @@
 	</div>
 		</foreach>
 	</table>
+</div>
+<hr/>
+<div class="设置房间类型-价格">
+	<!-- <li><a href="{:U('Admin/Facility/setR')}">设置房间价格</a></li> -->
+	<li>设置房间类型-价格</li>
+	<foreach name="types" item="oneT" key="type" >
+	  <form action="{:U('Admin/Facility/setR')}" method="post">
+		<input type="text" name="type" value="{$type}" hidden="">
+		<input type="text" name="name" value="{$oneT['name']}">
+		<input type="text" name="price" value="{$oneT['price']}">
+		<input type="submit" value="更新">
+	  </form>
+	</foreach>	
 </div>
 </body>
 </html>

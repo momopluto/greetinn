@@ -8,7 +8,7 @@
  * 检查是否已登录
  */
 function is_login(){
-    if(session('?A_LOGIN_FLAG') && session('A_LOGIN_FLAG') && session('?USER_V_INFO')){
+    if(session('?A_LOGIN_FLAG') && session('A_LOGIN_FLAG') && session('?A_USER_V_INFO')){
 
         return true;
     }

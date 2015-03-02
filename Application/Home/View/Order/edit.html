@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>编辑订单</title>
+</head>
+<body>
+
+	<include file= "./home"/>
+	编辑订单
+	<form action="{:U('Home/Order/edit')}?id={$_GET['id']}" method="post">
+		<p>身份　证：<input type="text" name="ID" value="{$data['ID_card']}" disabled="">*</p>
+		<p>入住日期：<input type="date" name="aDay" value="{$data['A_date']}">*</p>
+		<p>退房日期：<input type="date" name="bDay" value="{$data['B_date']}">*</p>
+		<p>房间类型：
+		  <select name="type">
+			<foreach name="types" item="oneT" key="type" >
+				<option value ="{$type}" <?php
+				if ($type == $data['type']) {
+					echo 'selected=""';
+				}?>>{$oneT['name']} ￥{$oneT['price']}</option>
+			</foreach>
+	      </select>
+	    </p>
+		<p>备　　注：<input type="text" name="note" value="{$data['note']}"></p>
+
+		<div>
+			<p>入住人员登记</p>
+			<?php
+				$book_info = json_decode($data['book_info'], true);
+				$people_info = $book_info['people_info'];
+			?>
+			<p>
+				姓名　(一)<input type="text" name="info[1][name]" value="{$people_info[1]['name']}">*<br/>
+				身份证(一)<input type="text" name="info[1][ID_card]" value="{$people_info[1]['ID_card']}">*<br/>
+			</p>
+			<p>
+				姓名　(二)<input type="text" name="info[2][name]" value="{$people_info[2]['name']}"><br/>
+				身份证(二)<input type="text" name="info[2][ID_card]" value="{$people_info[2]['ID_card']}"><br/>
+			</p>
+		</div>
+
+		<p>手　　机：<input type="text" name="phone" value="{$data['phone']}">*</p>
+		<input type="submit" value="提交" /> <input type="button" name="back" value="返回" onclick="javascript:history.go(-1);"/>
+	</form>
+	
+</body>
+</html>

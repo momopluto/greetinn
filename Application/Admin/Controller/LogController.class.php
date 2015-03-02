@@ -28,21 +28,32 @@ class LogController extends AdminController {
         // 客户操作日志
         $logClient_model = D("LogClientView");
         $logData_1 = $logClient_model->field(self::CLIENT)->where(self::CLIENT_OPTION)->order('cTime desc')->select();
+        // p($logClient_model);
+        // p($logData_1);
 
         // 工作人员操作日志
         $logManager_model = D("LogManagerView");
         $logData_2 = $logManager_model->field(self::MANAGER)->where(self::MANAGER_OPTION)->order('cTime desc')->select();
-        
-        // 合并为总
-        $logData = array_merge($logData_1, $logData_2);
+        // p($logManager_model);
+        // p($logData_2);
+        // die;
 
-        // $logData['0'][$CATE_NAME[$logData['0']['oper_CATE']]];// 根据类别取不同字段名
-                
-        // p($logData);
-        // 按cTime降序排序
-        usort($logData, 'compare_cTime');
-        // p($logData);
+        // 避免有一方没有数据
+        if ($logData_1 && $logData_2) {
+            // 合并为总
+            $logData = array_merge($logData_1, $logData_2);
+            
+            // 按cTime降序排序
+            usort($logData, 'compare_cTime');
+        }else if ($logData_1) {
+            
+            $logData = $logData_1;
+        }else {
+            
+            $logData = $logData_2;
+        }
 
+        // p($logData);
     	// echo "操作日志列表，end<br/>";
     	// die;
         

@@ -9,7 +9,7 @@ use Think\Model;
 class RoomModel extends Model {
 
 	protected $tableName = 'room';// 数据表名
-    protected $fields    = array('r_id','room_ID','price','type','desc','is_open','cTime');// 字段信息
+    protected $fields    = array('r_id','room_ID','type','desc','is_open','cTime');// 字段信息
     protected $pk        = 'r_id';// 主键
 
     // 自动验证
@@ -18,7 +18,7 @@ class RoomModel extends Model {
         array('room_ID','require','房间号不能为空！',self::EXISTS_VALIDATE,'',self::MODEL_UPDATE),// 更新时，如果存在字段，验证
         // array('room_ID','','房间号已存在！',self::EXISTS_VALIDATE,'unique',self::MODEL_BOTH), 
         array('room_ID','check_room','房间号已存在！',self::EXISTS_VALIDATE,'callback',self::MODEL_BOTH),
-        array('price','check_Price','价钱非负！',self::EXISTS_VALIDATE,'function',self::MODEL_BOTH),
+        // array('price','check_Price','价钱非负！',self::EXISTS_VALIDATE,'function',self::MODEL_BOTH),
     );
 
     // 自动完成

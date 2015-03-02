@@ -6,9 +6,75 @@
 </head>
 <body>
 
-	显示当天的已完成的订单
+	<include file= "./home"/>
+	已完成的订单
+	<li><a href="{:U('Home/Order/dealing')}">未完成订单</a></li>
 
-	已完成订单（只能查看，不能修改）--暂时不考虑
+		<table border="1">
+			<th>订单编号</th>
+			<th>预订时间</th>
+			<th>预订人信息</th>
+			<th>入住\离店日期</th>
+			<th>房间类型</th>
+			<th>总价</th>
+			<th>订单详情</th>
+			<th>订单状态</th>
+			<th>操作</th>
+
+		<foreach name="data" item="one" key="k" >
+	    <tr>
+	    	<td>{$one['o_id']}</td>
+		    <td>{$one['cTime']}</td>
+		    <td align="center">{$one['name']}<br/>{$one['ID_card']}</td>
+		    <td>{$one['A_date']}<br/>{$one['B_date']}</td>
+		    <td align="center">{$types[$one['type']]['name']}<br/>￥{$types[$one['type']]['price']}</td>
+		    <td>￥{$one['price']}</td>
+		    <td>
+		    <?php
+		    $book_info = json_decode($one['book_info'],true);
+		    ?>
+		    <p>入住晚数: {$one['nights']}</p>
+		    <p>入住人数: {$book_info['number']}</p>
+		    <p>入住人员信息: </p>
+		    <foreach name="book_info['people_info']" item="value" >
+			    <li>{$value['name']} {$value['ID_card']}</li>
+		    </foreach>
+		    <p>备注: {$book_info['note']}</p>
+		    </td>
+		    <td align="center"  title="状态改变时间: &#10;取消: {$one['cancel']}&#10;网付: {$one['pay']}&#10;入住: {$one['checkIn']}&#10;离店: {$one['checkOut']}">
+	    	<?php
+	    		$str = '';
+	    		switch ($one['status']) {
+	    			case 0:
+	    				$str = "取消";
+	    				break;
+	    			case 1:
+	    				$str = "预订";
+	    				break;
+	    			case 2:
+	    				$str = "已网上支付";
+	    				break;
+	    			case 3:
+	    				$str = "入住ing"."<p>".$one['room_ID']."房</p>";
+	    				break;
+	    			case 4:
+	    				$str = "离店";
+	    				break;
+	    			default:
+	    				break;
+	    		}
+	    		// 换房/续住的备注
+	    		if ($one['note'] != '') {
+	    			$one['note'] = str_replace(array(';'), "<br/>", $one['note']);
+	    			$str .= "<span>". $one['note'] ."</span>";
+	    		}
+	    		echo $str;
+	    	?>
+		    </td>
+		    <td>-</td>
+	    </tr>
+		</foreach>
+		</table>
 	
 </body>
 </html>

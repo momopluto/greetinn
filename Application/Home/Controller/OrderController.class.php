@@ -18,20 +18,20 @@ class OrderController extends HomeController {
      * 未完成订单
      */
     public function dealing(){
-
-        echo "未完成订单，beign<br/>";
         
         $o_record_model = D('OrderRecordView');
 
-        $o_record_data = $o_record_model->select();
+        $data = $o_record_model->where('status != 0 AND status != 4')->order('cTime desc')->select();
 
-        p($o_record_data);
+        // p($data);die;
+        // p($o_record_model);
 
-        p($o_record_model);
-
-        echo "未完成订单，beign<br/>";
-        die;
+        // die;
         
+        $this->assign('data', $data);
+        $types = M('type_price')->getField('type,name,price');
+        // p($types);die;
+        $this->assign('types', $types);
         $this->display();
     }
 
@@ -40,13 +40,18 @@ class OrderController extends HomeController {
      */
     public function complete(){
 
-        echo "已完成订单，beign<br/>";
+        $o_record_model = D('OrderRecordView');
 
-        
+        $data = $o_record_model->where('status = 0 or status = 4')->order('cTime desc')->select();
 
-        echo "已完成订单，beign<br/>";
-        die;
+        // p($data);
+
+        // p($o_record_model);
         
+        $this->assign('data', $data);
+        $types = M('type_price')->getField('type,name,price');
+        // p($types);die;
+        $this->assign('types', $types);
         $this->display();
     }
 
@@ -62,61 +67,103 @@ class OrderController extends HomeController {
      * 编辑订单
      */
     public function edit(){
-        echo "编辑订单，begin<br>";
 
-        $o_id = 2;// 模拟操作的订单号
-
-        $people_info = array(// 入住人身份信息
-            array('name'=>'王一', 'ID_card'=>'520222196306159670'),
-            // array('name'=>'李二', 'ID_card'=>'230230197409256612')
-        );
-
-
-        $book_info['start_date'] = '2015-02-02';
-        $book_info['leave_date'] = '2015-02-05';
-
-        // 计算2个日期间隔天数
-        $interval = date_diff(date_create($book_info['start_date']), date_create($book_info['leave_date']));
-        $book_info['nights'] = $interval->format('%a');
-        
-        $book_info['number'] = count($people_info);// 入住人数
-        $book_info['people_info'] = $people_info;
-        $book_info['note'] = '2对耳塞';
-
-        // $new_order['client_ID'] = $client_ID;
-        $new_order['book_info'] = json_encode($book_info, JSON_UNESCAPED_UNICODE);// unicode格式
-        // $new_order['price'] = '118';
-
-
-        // 还需要更新以下几项数据
-        $new_order_2_room['nights'] = $book_info['nights'];
-        $new_order_2_room['A_date'] = $book_info['start_date'];
-        $new_order_2_room['B_date'] = $book_info['leave_date'];
-
-        p($new_order);
-
-        $order_model = D('OrderRecord');
-
-        if ($order_model->where("o_id = $o_id")->create($new_order, 2)) {
-            echo "create成功<br/>";
-            
-            echo " ***" . $result = $order_model->scope('allowUpdateField, new')->where("o_id = $o_id")->save();
-            if ($result) {
-                echo "更新成功！<br/>";
-            }else{
-
-                echo "更新成功！<br/>";
-                echo $order_model->getError();
-            }
-
-        }else{
-
-            echo "create失败<br/>";
-            echo $order_model->getError();
+        if (!I('get.id')) {
+            $this->error('ERROR, id不能为空！');
+            return;
         }
 
-        echo "编辑订单，end<br>";
-        die;
+        if (IS_POST) {
+            // echo strtotime(I('post.aDay'))."***".NOW_TIME;die;
+            if (strtotime(I('post.aDay')) > strtotime(I('post.bDay')) || strtotime(I('post.aDay')) < NOW_TIME) {
+                $this->error('入住/退房时间错误！');
+                return;
+            }
+            
+            $o_id = I('get.id');
+
+            $info = I('post.info');
+            // p($info);
+            if ($info[2]['name'] == '' || $info[2]['ID'] == '') {
+                // 去除入住人(二)信息
+                unset($info[2]);
+            }
+            $people_info = $info;
+
+
+            $book_info['start_date'] = I('post.aDay');
+            $book_info['leave_date'] = I('post.bDay');
+            
+            // 计算2个日期间隔天数
+            $interval = date_diff(date_create($book_info['start_date']), date_create($book_info['leave_date']));
+            $book_info['nights'] = $interval->format('%a');
+            
+            $book_info['number'] = count($people_info);// 入住人数
+            $book_info['people_info'] = $people_info;
+            $book_info['note'] = I('post.note');
+
+            // 还需要更新以下几项数据
+            $edit_order_2_room['nights'] = $book_info['nights'];
+            $edit_order_2_room['A_date'] = $book_info['start_date'];
+            $edit_order_2_room['B_date'] = $book_info['leave_date'];
+            unset($book_info['nights']);
+            unset($book_info['start_date']);
+            unset($book_info['leave_date']);
+            $edit_order['book_info'] = json_encode($book_info, JSON_UNESCAPED_UNICODE);// unicode格式
+
+            $edit_order['type'] = I('post.type');
+            $type_price = M('type_price')->find(I('post.type'));
+            // p($type_price);die;
+            $edit_order['price'] = $type_price['price'] * $edit_order_2_room['nights'];
+            $edit_order['phone'] = I('post.phone');
+
+            // p($edit_order);
+
+            $order_model = D('OrderRecord');
+
+            $order_model->startTrans();// 启动事务
+
+            if ($order_model->where("o_id = $o_id")->create($edit_order, 2)) {
+                echo "create成功<br/>";
+                
+                // 更新o_record
+                $order_model->scope('allowUpdateField')->where("o_id = $o_id")->save();
+                // 更新o_record_2_room
+                M('o_record_2_room')->where("o_id = $o_id")->save($edit_order_2_room);
+                $result = array_merge((array)$edit_order, (array)$edit_order_2_room);
+                // unset($result['book_info']);
+                // p($result);die;
+                $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_EDIT_ORDER, 'edit', array('订单id' => $o_id), $result);
+                //                     0                 1                2             3                4                            5
+                write_log_all_array($log_Arr);
+                // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_EDIT_ORDER, 'edit', array('订单id' => $o_id), $result);
+
+                $this->success('编辑订单成功！', U('Home/Order/dealing'));
+                return;
+            }else{
+
+                echo "create失败<br/>";
+                // echo $order_model->getError();
+
+                $this->error($order_model->getError());
+                return;
+            }
+        }else{
+
+            $o_id = I('get.id');
+
+            $o_record_model = D('OrderRecordView');
+            $data = $o_record_model->where("o_record.o_id = $o_id")->find();
+            // p($data);die;
+
+            $this->assign('data', $data);
+            $types = M('type_price')->getField('type,name,price');
+            // p($types);die;
+            $this->assign('types', $types);
+            $this->display();
+
+        }
+
     }
 
     /**
@@ -124,9 +171,12 @@ class OrderController extends HomeController {
      */
     public function cancel(){
 
-        echo "取消订单，begin<br>";
+        if (!I('get.id')) {
+            $this->error('ERROR, id不能为空！');
+            return;
+        }
 
-        $o_id = 3;// 模拟操作的订单号
+        $o_id = I('get.id');
 
         $cancel['status'] = self::STATUS_CANCEL;
         
@@ -136,37 +186,60 @@ class OrderController extends HomeController {
         echo "old_status = $old_status";
         if ($old_status == $cancel['status']) {// 状态未改变
 
-            echo "状态未改变，不需要更新<br/>";
-            return false;
+            $this->error('状态未改变！');
+            return;
         }
+
+        // 根据是否付款区分记录日志内容
+        if ($old_status == 1) {
+            $log_type = self::RECEPTIONIST_CANCEL_ORDER;
+            $log_type_Arr = array('订单id' => $o_id);
+        }else{
+            $log_type = self::RECEPTIONIST_CANCEL_PAID_ORDER;
+            $price = $order_model->where("o_id = $o_id")->getField('price');
+            $log_type_Arr = array('订单id' => $o_id, '总价' => "￥".$price);
+        }
+
+        $order_model->startTrans();// 启动事务
 
         if ($order_model->where("o_id = $o_id")->create($cancel ,2)) {
             echo "create成功<br/>";
 
-            $queryStr = "status = ".self::STATUS_NEW." or status = ".self::STATUS_PAY;
-            // echo $str;
+            $queryStr = "o_id = ".$o_id." and (status = ".self::STATUS_NEW." or status = ".self::STATUS_PAY.")";
+            
             echo " *** ". $result = $order_model->scope('allowUpdateField')->where($queryStr)->save();
-
+            // p($order_model);die;
+            
             if ($result) {
                 echo "取消成功！<br/>";
 
                 // 需要更新d_record_2_stime表中记录
-                dump(update_o_sTime($o_id, $cancel['status']));
+                if (update_o_sTime($o_id, $cancel['status'])) {
+                    
+                    $log_Arr = array($this->log_model, $this->log_data, $order_model, $log_type, 'cancel', $log_type_Arr);
+                    //                     0                 1                2             3                4                            5
+                    write_log_all_array($log_Arr);
+                    // write_log_all($this->log_model, $this->log_data, $order_model, $log_type, 'cancel', $log_type_Arr);
+
+                    $this->success('取消成功！', U('Home/Order/dealing'));
+                    return;
+                }
             }else{
 
                 echo "取消失败！<br/>";
-                echo $order_model->getError();
+                // echo $order_model->getError();
+
+                $this->error($order_model->getError());
+                return;
             }
         }else{
 
             echo "create失败<br/>";
-            echo $order_model->getError();
+            // echo $order_model->getError();
+            
+            $this->error($order_model->getError());
+            return;
         }
-
-        echo "取消订单，end<br>";
-        die;
-        
-        $this->display();
     }
 
     /**
@@ -174,58 +247,217 @@ class OrderController extends HomeController {
      */
     public function check_in(){
 
-        echo "办理入住，begin<br>";
+        if (IS_POST) {
 
-        $o_id = 3;// 模拟操作的订单号
+            // p(I('post.'));die;
+            
+            $o_id = I('post.id');
+            $room_ID = I('post.room');
 
-        $checkIN['status'] = self::STATUS_CHECKIN;
+            $checkIN['status'] = self::STATUS_CHECKIN;
+            $checkIN['deposit'] = I('post.deposit');
+            
+            $order_model = D('OrderRecordView');
 
-        
-        $room_ID = '228 test';// 模拟分配的房间号
+            $old_data = $order_model->where("o_record.o_id = $o_id")->find();
+            // p($old_data);die;
+            // echo "old_status = $old_data['status']";
+            if ($old_data['status'] == $checkIN['status']) {// 状态未改变
 
-        
-        $order_model = D('OrderRecord');
+                $this->error('状态未改变！');
+                return;
+            }
 
-        $old_status = $order_model->where("o_id = $o_id")->getField('status');
-        echo "old_status = $old_status";
-        if ($old_status == $checkIN['status']) {// 状态未改变
+            p($checkIN);die;
+            if (strtotime($old_data['A_date']) != strtotime(date('Y-m-d',time()))) {
+                
+                $this->error('当前非预定入住时间！无法办理入住！');
+                return;
+            }
 
-            echo "状态未改变，不需要更新<br/>";
-            return false;
-        }
+            $order_model->startTrans();// 启动事务
+            
+            if ($order_model->where("o_id = $o_id")->create($checkIN ,2)) {
+                echo "create成功<br/>";
+                // die;
+                $queryStr = "o_id = $o_id AND (status = ".self::STATUS_NEW." or status = ".self::STATUS_PAY.")";
+                // echo $str;
+                echo " *** ". $result = $order_model->scope('allowUpdateField')->where($queryStr)->save();
 
-        if ($order_model->where("o_id = $o_id")->create($checkIN ,2)) {
-            echo "create成功<br/>";
+                // p($order_model);
 
-            $queryStr = "status = ".self::STATUS_NEW." or status = ".self::STATUS_PAY;
-            // echo $str;
-            echo " *** ". $result = $order_model->scope('allowUpdateField')->where($queryStr)->save();
+                if ($result) {
+                    echo "办理入住成功！<br/>";
+                    
+                    // // 需要更新o_record_2_room表中记录
+                    // update_o_room($o_id, $room_ID);
+                    // // 需要更新o_record_2_stime表中记录
+                    // update_o_sTime($o_id, $checkIN['status']);
 
-            p($order_model);
+                    if (update_o_room($o_id, $room_ID) && update_o_sTime($o_id, $checkIN['status'])) {
+                        
+                        $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_IN, 'check_in', array('订单id' => $o_id, '总价' => I('post.price')));
+                        //                     0                 1                2             3                4                            5
+                        write_log_all_array($log_Arr);
+                        // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_IN, 'check_in', array('房间id' => $o_id, '总价' => I('post.price')));
 
-            if ($result) {
-                echo "办理入住成功！<br/>";
+                        $this->success('办理入住成功！', U('Home/Order/dealing'));
+                        return;
+                    }
+                }else{
 
-                // 需要更新o_record_2_room表中记录
-                dump(update_o_room($o_id, $room_ID));
+                    echo "办理入住失败！<br/>";
+                    // echo $order_model->getError();
 
-                // 需要更新o_record_2_stime表中记录
-                dump(update_o_sTime($o_id, $checkIN['status']));
+                    $this->error($order_model->getError());
+                    return;
+                }
             }else{
 
-                echo "办理入住失败！<br/>";
-                echo $order_model->getError();
+                echo "create失败<br/>";
+                // echo $order_model->getError();
+
+                $this->error($order_model->getError());
+                return;
             }
         }else{
+            
+            if (!I('get.id')) {
+                $this->error('ERROR, id不能为空！');
+                return;
+            }
 
-            echo "create失败<br/>";
-            echo $order_model->getError();
+            $o_id = I('get.id');
+
+            // 根据o_id得到该条订单详情，A_date,B_date
+            // 按房型type，得到该房型总开放的房间数
+            // 找到所有涉及(A_date, B_date)此区域的已分配的房间，减去，得到剩下的各房型房间
+
+            $o_record_model = D('OrderRecordView');
+            $data = $o_record_model->where("o_record.o_id = $o_id")->find();
+
+            // 保证下面queryStr中room_ID != $data['room_ID']能够正确得到结果
+            if (!$data['room_ID']) {
+                // echo "room_ID空！";die;
+                $data['room_ID'] = 0;
+            }
+
+            // room_ID非空，时间区间有交集
+            $queryStr = "room_ID is not null" . " AND "
+                        . "NOT (A_date >= '".$data['B_date']."' OR B_date <= '".$data['A_date']."')";
+            // 过滤得到空闲的房间
+            $rooms = get_available_rooms($data, $queryStr);
+
+            $this->assign('data', $data);
+            $this->assign('rooms', $rooms);
+            $types = M('type_price')->getField('type,name,price');
+            // p($types);die;
+            $this->assign('types', $types);
+            $this->display();
         }
+    }
 
-        echo "办理入住，end<br>";
-        die;
-        
-        $this->display();
+    /**
+     * 办理续住
+     */
+    public function stay_over(){
+
+        if (IS_POST) {
+            // p(I('post.'));die;
+
+            $o_id = I('post.id');
+
+            $o_record_model = D('OrderRecordView');
+            $old_data = $o_record_model->where("o_record.o_id = $o_id")->find();
+
+            // p($old_data);die;
+
+            if (strtotime(I('post.bDay')) <= strtotime($old_data['B_date'])) {
+                
+                $this->error('续住日期错误！');
+                return;
+            }
+
+            $update_2_room['B_date'] = I('post.bDay');
+            
+            // 计算2个日期间隔天数
+            $interval = date_diff(date_create($old_data['A_date']), date_create($update_2_room['B_date']));
+            $update_2_room['nights'] = $interval->format('%a');
+
+            $type_price = M('type_price')->find($old_data['type']);
+            // p($type_price);die;
+            $update_record['price'] = $type_price['price'] * $update_2_room['nights'];
+
+            $_price = $update_record['price'] - $old_data['price'];// 差价
+
+            $update_2_room['note'] = $old_data['note']."续住: ".$old_data['B_date']." -> ".$update_2_room['B_date']."(+￥".$_price."), 晚数: ".$old_data['nights']." -> ".$update_2_room['nights'].";";
+
+            echo $update_2_room['note'];
+
+            // p($update_2_room);die;
+
+             $o_room_model = M('o_record_2_room');
+             $o_room_model->startTrans();// 启动事务，此事务最后才提交
+            // 更新o_record_2_room的B_date,nights,note
+            echo "***".$res1 = $o_room_model->where("o_id = $o_id")->save($update_2_room);
+            if ($res1) {
+                echo "更新o_record_2_room成功！<br/>";
+                
+                $order_model = M('o_record');
+                $order_model->startTrans();// 启动事务
+                // 更新o_record的price
+                echo "*****".$res2 = $order_model->where("o_id = $o_id")->save($update_record);
+
+                if ($res2) {
+                    echo "更新o_record成功！<br/>";
+                    
+                    $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_STAY_OVER, 'stay_over', array('订单id' => $o_id, '补交金额' => $_price));
+                    //                     0                 1                2             3                4                            5
+                    write_log_all_array($log_Arr);
+                    // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_STAY_OVER, 'stay_over', array('房间id' => $o_id, '补交金额' => $_price));
+
+                    $o_room_model->commit();// o_record_2_room提交事务
+                    
+                    $this->success('办理续住成功！', U('Home/Order/dealing'));
+                    return;
+                }else{
+                    
+                    $o_room_model->rollback();// o_record_2_room回滚事务
+                    echo "更新o_record失败！<br/>";
+                    // echo $order_model->getError();
+
+                    $this->error($order_model->getError());
+                    return;
+                }
+                
+            }else{
+                
+                $o_room_model->rollback();// o_record_2_room回滚事务
+                echo "更新o_record_2_room失败！<br/>";
+                // echo $o_room_model->getError();
+
+                $this->error($o_room_model->getError());
+                return;
+            }
+            
+            
+        }else{
+            if (!I('get.id')) {
+                $this->error('ERROR, id不能为空！');
+                return;
+            }
+
+            $o_id = I('get.id');
+
+            $o_record_model = D('OrderRecordView');
+            $data = $o_record_model->where("o_record.o_id = $o_id")->find();
+
+            $this->assign('data', $data);
+            $types = M('type_price')->getField('type,name,price');
+            // p($types);die;
+            $this->assign('types', $types);
+            $this->display();
+        }
     }
 
     /**
@@ -233,49 +465,88 @@ class OrderController extends HomeController {
      */
     public function change_room(){
 
-        echo "办理换房，begin<br>";
+        if (IS_POST) {
+            
+            $o_id = I('post.id');
+            $new_data['room_ID'] = I('post.room');
 
-        $o_id = 3;// 模拟操作的订单号
+            $o_room_model = M('o_record_2_room');
 
-        $new_data['room_ID'] = '228';// 模拟重新分配的房间号
+            $old_data = $o_room_model->where("o_id = $o_id")->find();
+            echo "old_data[room_ID] = ".$old_data['room_ID']."<br/>";
+            if ($old_data['room_ID'] == $new_data['room_ID']) {// 房间未改变
 
-        $o_room_model = M('o_record_2_room');
+                $this->error('房间未改变！');
+                return;
+            }
 
-        $old_data = $o_room_model->where("o_id = $o_id")->find();
-        echo "old_data[room_ID] = ".$old_data['room_ID']."<br/>";
-        if ($old_data['room_ID'] == $new_room['room_ID']) {// 房间未改变
+            // 记录note
+            $new_data['note'] = $old_data['note'].'换房: '.$old_data['room_ID']." -> ".$new_data['room_ID'].";";
 
-            echo "房间未改变，不需要更新<br/>";
-            return false;
-        }
+            $o_room_model->startTrans();// 启动事务
 
-        // 记录note
-        $new_data['note'] = $old_data['note'].'换房: '.$old_data['room_ID']." -> ".$new_data['room_ID'].";";
+            if ($o_room_model->where("o_id = $o_id")->create($new_data ,2)) {
+                echo "create成功<br/>";
 
-        if ($o_room_model->where("o_id = $o_id")->create($new_data ,2)) {
-            echo "create成功<br/>";
+                echo " *** ". $result = $o_room_model->scope('allowUpdateField, checkIN')->save();
 
-            echo " *** ". $result = $o_room_model->scope('allowUpdateField, checkIN')->save();
+                // p($o_room_model);
+                
+                if ($result) {
+                    echo "办理换房成功！<br/>";
 
-            p($o_room_model);
+                    $log_Arr = array($this->log_model, $this->log_data, $o_room_model, self::RECEPTIONIST_CHANGE_ROOM, 'change_room', array('订单id' => $o_id));
+                    //                     0                 1                2             3                4                            5
+                    write_log_all_array($log_Arr);
+                    // write_log_all($this->log_model, $this->log_data, $o_room_model, self::RECEPTIONIST_CHANGE_ROOM, 'change_room', array('房间id' => $o_id));
 
-            if ($result) {
-                echo "办理换房成功！<br/>";
+                    $this->success('办理换房成功！', U('Home/Order/dealing'));
+                    return;
+                }else{
+
+                    echo "办理换房失败！<br/>";
+                    // echo $o_room_model->getError();
+
+                    $this->error($o_room_model->getError());
+                    return;
+                }
             }else{
 
-                echo "办理换房失败！<br/>";
-                echo $o_room_model->getError();
+                echo "create失败<br/>";
+                // echo $o_room_model->getError();
+
+                $this->error($o_room_model->getError());
+                return;
             }
         }else{
 
-            echo "create失败<br/>";
-            echo $o_room_model->getError();
-        }
+            if (!I('get.id')) {
+                $this->error('ERROR, id不能为空！');
+                return;
+            }
 
-        echo "办理换房，end<br>";
-        die;
-        
-        $this->display();
+            $o_id = I('get.id');
+
+            // 根据o_id得到该条订单详情，today,B_date
+            // 按房型type，得到该房型总开放的房间数
+            // 除了该订单当前正在入住的房间，找到所有涉及(today, B_date)此区域的已分配的房间，减去，得到剩下的各房型房间
+
+            $o_record_model = D('OrderRecordView');
+            $data = $o_record_model->where("o_record.o_id = $o_id")->find();
+
+            // room_ID非空，room_ID!=当前入住的房间号，时间区间有交集
+            $queryStr = "room_ID is not null AND room_ID != " . $data['room_ID'] . " AND "
+                        . "NOT (A_date >= '".$data['B_date']."' OR B_date <= '".date('Y-m-d',time())."')";
+            // 过滤得到空闲的房间
+            $rooms = get_available_rooms($data, $queryStr);
+            
+            $this->assign('data', $data);
+            $this->assign('rooms', $rooms);
+            $types = M('type_price')->getField('type,name,price');
+            // p($types);die;
+            $this->assign('types', $types);
+            $this->display();
+        }
     }
 
     /**
@@ -283,48 +554,78 @@ class OrderController extends HomeController {
      */
     public function check_out(){
 
-        echo "办理退房，begin<br>";
+        if (IS_POST) {
+            // p(I('post.'));die;
+            
+            $o_id = I('post.id');
 
-        $o_id = 3;// 模拟操作的订单号
+            $checkOut['status'] = self::STATUS_CHECKOUT;
+            
+            $order_model = D('OrderRecord');
 
-        $checkOut['status'] = self::STATUS_CHECKOUT;
-        
-        $order_model = D('OrderRecord');
+            $old_status = $order_model->where("o_id = $o_id")->getField('status');
+            echo "old_status = $old_status";
+            if ($old_status == $checkOut['status']) {// 状态未改变
 
-        $old_status = $order_model->where("o_id = $o_id")->getField('status');
-        echo "old_status = $old_status";
-        if ($old_status == $checkOut['status']) {// 状态未改变
+                echo "状态未改变，不需要更新<br/>";
+                return false;
+            }
 
-            echo "状态未改变，不需要更新<br/>";
-            return false;
-        }
+            $order_model->startTrans();// 启动事务
 
-        if ($order_model->where("o_id = $o_id")->create($checkOut ,2)) {
-            echo "create成功<br/>";
+            if ($order_model->where("o_id = $o_id")->create($checkOut ,2)) {
+                echo "create成功<br/>";
 
-            echo " *** ". $result = $order_model->scope('allowUpdateField, checkIN')->save();
+                echo " *** ". $result = $order_model->scope('allowUpdateField, checkIN')->save();
 
-            p($order_model);
+                p($order_model);
 
-            if ($result) {
-                echo "办理退房成功！<br/>";
+                if ($result) {
+                    echo "办理退房成功！<br/>";
 
-                // 需要更新d_record_2_stime表中记录
-                dump(update_o_sTime($o_id, $checkOut['status']));
+                    // 需要更新d_record_2_stime表中记录
+                    if (update_o_sTime($o_id, $checkOut['status'])) {
+                        $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_OUT, 'check_out', array('订单id' => $o_id));
+                        //                     0                 1                2             3                4                            5
+                        write_log_all_array($log_Arr);
+                        // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_OUT, 'check_out', array('房间id' => $o_id));
+
+                        $this->success('办理换退房成功！', U('Home/Order/dealing'));
+                        return;
+                    }
+                }else{
+
+                    echo "办理退房失败！<br/>";
+                    // echo $order_model->getError();
+
+                    $this->error($order_model->getError());
+                    return;
+                }
             }else{
 
-                echo "办理退房失败！<br/>";
-                echo $order_model->getError();
+                echo "create失败<br/>";
+                // echo $order_model->getError();
+
+                $this->error($order_model->getError());
+                return;
             }
         }else{
 
-            echo "create失败<br/>";
-            echo $order_model->getError();
-        }
+            if (!I('get.id')) {
+                $this->error('ERROR, id不能为空！');
+                return;
+            }
 
-        echo "办理退房，end<br>";
-        die;
-        
-        $this->display();
+            $o_id = I('get.id');
+
+            $o_record_model = D('OrderRecordView');
+            $data = $o_record_model->where("o_record.o_id = $o_id")->find();
+
+            $this->assign('data', $data);
+            $types = M('type_price')->getField('type,name,price');
+            // p($types);die;
+            $this->assign('types', $types);
+            $this->display();
+        }
     }
 }

@@ -12,7 +12,7 @@ class DeviceRecordViewModel extends ViewModel {
         'D_record'=>array('d_id','o_id','device_IDs','price'=>'d_price','openid','status'=>'d_status','cTime'=>'d_cTime','_table'=>"d_record"),
         'D_record_2_stime'=>array('cancel','response','return'=>'return_', '_on'=>'D_record.d_id=D_record_2_stime.d_id','_table'=>"d_record_2_stime"),
         
-        'O_record'=>array('client_ID','book_info','price'=>'o_price','status'=>'o_status','cTime'=>'o_cTime', '_on'=>'D_record.o_id=O_record.o_id','_table'=>"o_record"),
+        'O_record'=>array('client_ID','book_info','price'=>'o_price','deposit','status'=>'o_status','cTime'=>'o_cTime', '_on'=>'D_record.o_id=O_record.o_id','_table'=>"o_record"),
         'O_record_2_room'=>array('room_ID','nights','A_date','B_date','note', '_on'=>'O_record.o_id=O_record_2_room.o_id','_table'=>"o_record_2_room"),
     );
 
