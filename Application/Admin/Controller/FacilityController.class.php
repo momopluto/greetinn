@@ -106,6 +106,7 @@ class FacilityController extends AdminController {
                 // write_log_all($this->log_model, $this->log_data, $room_model, self::ADMIN_ROOM_ADD, 'add', array('房间id' => $r_id, '房间号' => $new_room['room_ID']));
 
                 $this->success('新增房间成功！', U('Admin/Facility/room'));
+                return;
             }else{
 
                 echo "create失败<br/>";

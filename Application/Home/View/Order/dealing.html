@@ -6,10 +6,98 @@
 </head>
 <body>
 
+	<include file= "./home"/>
+
 	未完成订单(默认)
 	<li><a href="{:U('Home/Order/complete')}">已完成订单</a></li>	
+	<table border="1">
+		<th>订单编号</th>
+		<th>预订时间</th>
+		<th>预订人信息</th>
+		<th>入住\离店日期</th>
+		<th>房间类型</th>
+		<th>总价</th>
+		<th>订单详情</th>
+		<th>订单状态</th>
+		<th>操作</th>
 
-	1.从状态2，帮已付款但不入住的客户处理订单，状态改成“取消订单”0
+	<foreach name="data" item="one" key="k" >
+    <tr>
+    	<td>{$one['o_id']}</td>
+	    <td>{$one['cTime']}</td>
+	    <td align="center">{$one['name']}<br/>{$one['ID_card']}</td>
+	    <td>{$one['A_date']}<br/>{$one['B_date']}</td>
+	    <td align="center">{$types[$one['type']]['name']}<br/>￥{$types[$one['type']]['price']}</td>
+	    <td>￥{$one['price']}</td>
+	    <td>
+	    <?php
+	    $book_info = json_decode($one['book_info'],true);
+	    ?>
+	    <p>入住晚数: {$one['nights']}</p>
+	    <p>入住人数: {$book_info['number']}</p>
+	    <p>入住人员信息: </p>
+	    <foreach name="book_info['people_info']" item="value" >
+		    <li>{$value['name']} {$value['ID_card']}</li>
+	    </foreach>
+	    <p>备注: {$book_info['note']}</p>
+	    </td>
+	    <td align="center">
+    	<?php
+    		$str = '';
+    		switch ($one['status']) {
+    			case 0:
+    				$str = "取消";
+    				break;
+    			case 1:
+    				$str = "预订";
+    				break;
+    			case 2:
+    				$str = "已网上支付";
+    				break;
+    			case 3:
+    				$str = "入住ing<br/><p>".$one['room_ID']."房</p>";
+    				break;
+    			case 4:
+    				$str = "离店";
+    				break;
+    			default:
+    				break;
+    		}
+    		echo $str;
+    	?>
+	    </td>
+	    <td>
+	    <?php
+	    switch ($one['status']) {
+	    	case 1:
+	    	case 2:
+	    		?>
+				<!-- <select name="type">
+					<foreach name="types" item="oneT" key="type" >
+						<option value ="{$type}">{$oneT['name']} ￥{$oneT['price']}</option>
+					</foreach>
+			    </select> -->
+	    		<a href="{:U('Home/Order/check_in')}?id={$one['o_id']}"><button>办理入住</button></a><br/>
+	    		<a href="{:U('Home/Order/edit')}?id={$one['o_id']}"><button>编辑<!-- 当前页面弹出框进行修改 --></button></a><a href="{:U('Home/Order/cancel')}?id={$one['o_id']}"><button>取消</button></a>
+	    		<?php
+	    		break;
+	    	case 3:
+	    		?>
+	    		<a href=""><button>续住</button></a><a href=""><button>换房</button></a><br/>
+	    		<a href=""><button>退房</button></a>
+	    		<?php
+	    		break;
+	    	default:
+	    		break;
+	    }
+	    ?>
+	    
+	    </td>
+    </tr>
+	</foreach>
+	</table>
+
+<!-- 	1.从状态2，帮已付款但不入住的客户处理订单，状态改成“取消订单”0
 	2.从状态1或2，办理客户入住，核对入住人信息，分配房间，确认，状态改成“正在入住”3
 	3.从状态3，办理客户退房（只有“正在入住”状态能看到“退房”选项），确认，状态改成“已退房”4
 	4.从状态3，帮已入住客户办理换房手续（只有“正在入住”状态能看到“换房”选项），换房，分配房间，确认，换房记录写入数据库
@@ -21,7 +109,7 @@
 	   下单，状态1->给现金，正在入住，状态3->退房，状态4
 	网上支付订房流程：（指下单后在网上自行支付了，到店只需办理入住的）
 	   下单，状态1->支付，状态2->取消，状态0
-       下单，状态1->支付，状态2->正在入住，状态3->退房，状态4
+       下单，状态1->支付，状态2->正在入住，状态3->退房，状态4 -->
 	
 </body>
 </html>

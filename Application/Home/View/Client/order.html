@@ -6,13 +6,15 @@
 </head>
 <body>
 
+	<include file= "./home"/>
+
 	帮助客户提交酒店预订订单
 	<form action="{:U('Home/Client/order')}" method="post">
 		<p>身份　证：<input type="text" name="ID">*</p>
 		<p>入住日期：<input type="date" name="aDay">*</p>
 		<p>退房日期：<input type="date" name="bDay">*</p>
 		<p>房间类型：
-		    <select name="type">
+		  <select name="type">
 			<foreach name="types" item="oneT" key="type" >
 				<option value ="{$type}">{$oneT['name']} ￥{$oneT['price']}</option>
 			</foreach>
@@ -24,11 +26,11 @@
 			<p>入住人员登记</p>
 			<p>
 				姓名　(一)<input type="text" name="info[1][name]">*<br/>
-				身份证(一)<input type="text" name="info[1][ID]">*<br/>
+				身份证(一)<input type="text" name="info[1][ID_card]">*<br/>
 			</p>
 			<p>
 				姓名　(二)<input type="text" name="info[2][name]"><br/>
-				身份证(二)<input type="text" name="info[2][ID]"><br/>
+				身份证(二)<input type="text" name="info[2][ID_card]"><br/>
 			</p>
 		</div>
 

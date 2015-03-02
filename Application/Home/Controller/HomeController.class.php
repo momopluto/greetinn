@@ -15,7 +15,8 @@ class HomeController extends Controller {
     const RECEPTIONIST_HELP_REGISTER           		=   '[助]注册成功';
     const RECEPTIONIST_HELP_SUBMIT_ORDER       		=   '[助]下单成功';
     const RECEPTIONIST_CANCEL_PAID_ORDER       		=   '已付款订单，[助]取消成功';
-    const RECEPTIONIST_CANCEL_ORDER    		   		=   '未付款订单，[助]取消成功';
+    const RECEPTIONIST_CANCEL_ORDER                 =   '未付款订单，[助]取消成功';
+    const RECEPTIONIST_EDIT_ORDER    		   		=   '未入住订单，编辑成功';
     const RECEPTIONIST_CHECK_IN 	   		   		=   '办理入住成功';
     const RECEPTIONIST_CHANGE_ROOM    		   		=   '办理换房成功';
     const RECEPTIONIST_CHECK_OUT    		   		=   '办理退房成功';
@@ -70,7 +71,7 @@ class HomeController extends Controller {
     	
 		$this->log_model->startTrans();// 启动事务
         // 写日志
-        $log_Arr = array($this->log_model, $this->log_data, $this->log_model, self::RECEPTIONIST_LOGIN_IN, 'login', '');
+        $log_Arr = array($this->log_model, $this->log_data, $this->log_model, self::RECEPTIONIST_LOGIN_IN, 'login', array('操作者id' => $this->log_data['oper_ID'], '登录IP' => get_client_ip()));
         write_log_all_array($log_Arr);
         
         // p($this->log_data);

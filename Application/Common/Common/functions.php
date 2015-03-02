@@ -22,6 +22,11 @@ function write_log_all_array($val){
     $val[4] = strtolower(trim($val[4]));
     switch ($val[4]) {
 
+        case 'login':
+        case 'reg':
+        case 'submit_order':
+        case 'cancel':
+        case 'check_in':
         case 'add':
             foreach ($val[5] as $key => $value) {
                 // 组合日志内容
@@ -46,12 +51,6 @@ function write_log_all_array($val){
 
             // 组合日志内容
             $val[1]['event'] .= "，" . $val[5];
-
-            break;
-        case 'login':
-        
-            // 组合日志内容
-            $val[1]['event'] .= "，操作者id: " . $val[1]['oper_ID'] . "，登录IP: " . get_client_ip();
 
             break;
         default:
@@ -90,6 +89,8 @@ function write_log_all($log_model, $log_data, $model, $event, $type, $data, $arr
     $type = strtolower(trim($type));
     switch ($type) {
 
+        case 'login':
+        case 'reg':
         case 'add':
             foreach ($data as $key => $value) {
                 // 组合日志内容
@@ -114,12 +115,6 @@ function write_log_all($log_model, $log_data, $model, $event, $type, $data, $arr
 
             // 组合日志内容
             $log_data['event'] .= "，" . $data;
-
-            break;
-        case 'login':
-        
-            // 组合日志内容
-            $log_data['event'] .= "，操作者id: " . $log_data['oper_ID'] . "，登录IP: " . get_client_ip();
 
             break;
         default:
@@ -423,7 +418,7 @@ function check_Client($client_ID){
 function check_BookInfo($book_info){
 
     $book_info = json_decode($book_info, true);
-    p($book_info);
+    // p($book_info);
 
     foreach ($book_info['people_info'] as $one) {
         if ($one['name'] == ''){
