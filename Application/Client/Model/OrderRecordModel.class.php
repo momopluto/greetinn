@@ -9,13 +9,13 @@ use Think\Model;
 class OrderRecordModel extends Model {
 
 	protected $tableName = 'o_record';// 数据表名
-    protected $fields    = array('o_id','client_ID','phone','book_info','type','price','deposit','status','cTime');// 字段信息
+    protected $fields    = array('o_id','client_ID','book_info','style','type','source','g_id','pay_mode','price','deposit','phone','status','cTime');// 字段信息
     protected $pk        = 'o_id';// 主键
 
 	protected $_scope = array(
         // 命名范围allowUpdate，允许更新的字段
         'allowUpdateField'=>array(
-            'field'=>'phone,book_info,type,price,deposit,status',
+            'field'=>'book_info,pay_mode,price,deposit,phone,status',
         ),
 
         // 命名范围cancel

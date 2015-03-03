@@ -10,8 +10,13 @@ class OrderRecordViewModel extends ViewModel {
 
     public $viewFields = array(
 
-        'O_record'=>array('o_id'/*,'client_ID'*/,'book_info','type','price'/*=>'o_price'*/,'deposit','phone','status'/*=>'o_status'*/,'cTime'/*=>'o_cTime'*/,'_table'=>"o_record"),
+        'O_record'=>array('o_id'/*,'client_ID'*/,'book_info','style','type','source','g_id','pay_mode','price'/*=>'o_price'*/,'deposit','phone','status'/*=>'o_status'*/,'cTime'/*=>'o_cTime'*/,'_table'=>"o_record"),
         'client'=>array('name','ID_card', '_on'=>'O_record.client_ID=client.client_ID','_table'=>"client"),
+
+        'style'=>array('name' => 'style_name', '_on'=>'O_record.style=style.style','_table'=>"style"),
+        'type'=>array('name' => 'type_name', '_on'=>'O_record.style=type.type','_table'=>"type"),
+        'order_source'=>array('name' => 'source_name', '_on'=>'O_record.source=order_source.source','_table'=>"order_source"),
+        
         'O_record_2_room'=>array('room_ID','nights','A_date','B_date','note', '_on'=>'O_record.o_id=O_record_2_room.o_id','_table'=>"o_record_2_room"),
         'O_record_2_stime'=>array('cancel'/*=>'o_cancel'*/,'pay','checkIn','checkOut', '_on'=>'O_record.o_id=O_record_2_stime.o_id','_table'=>"o_record_2_stime"),
         
