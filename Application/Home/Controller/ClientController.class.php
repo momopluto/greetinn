@@ -73,8 +73,12 @@ class ClientController extends HomeController {
      */
     public function order(){
 
+        // 存在问题：
+        // 钟点房 入住日期-退房日期，改成 入住时间，退房时间，且下单时可选择购买几份钟点房，金额累加
+
         if (IS_POST) {
             // p(I('post.'));die;
+
             if (!check_verify(I('post.verify'))) {
                 
                 $this->error('验证码不正确！');
@@ -137,10 +141,17 @@ class ClientController extends HomeController {
             unset($book_info['leave_date']);
             $new_order['book_info'] = json_encode($book_info, JSON_UNESCAPED_UNICODE);// unicode格式
 
-            $new_order['type'] = I('post.type');
-            $type_price = M('type_price')->find(I('post.type'));
-            // p($type_price);die;
-            $new_order['price'] = $type_price['price'] * $new_order_2_room['nights'];
+            $new_order['style'] = I('post.style');// 订单类型
+            $new_order['type'] = I('post.type');// 房型
+            if (!is_null(I('post.groupon'))) {
+                $new_order['g_id'] = I('post.groupon');// 团购平台
+            }
+            $new_order['source'] = I('post.source');// 来源
+            $new_order['pay_mode'] = I('post.mode');// 支付方式
+
+            // $type_price = M('type_price')->find(I('post.type'));
+            // $new_order['price'] = $type_price['price'] * $new_order_2_room['nights'];
+            $new_order['price'] = I('post.price');
             $new_order['phone'] = I('post.phone');
 
             // p($new_order);die;
@@ -165,10 +176,11 @@ class ClientController extends HomeController {
                 // init_o_sTime($o_id);// 初始化o_record_2_stime表中记录
                 if (init_o_room($new_order_2_room) && init_o_sTime($o_id)) {
 
-                    $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('订单id' => $o_id, '客户id' => $client_ID));
+                    $STgSPP = $new_order['style']."-".$new_order['type']."-".$new_order['g_id']."-".$new_order['source']."-".$new_order['pay_mode']." | ".$new_order['price'];
+                    $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('订单id' => $o_id, '客户id' => $client_ID, '订单类型' => $STgSPP));
                     //                     0                 1                2             3                4                            5
                     write_log_all_array($log_Arr);
-                    // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('房间id' => $o_id, '客户id' => $client_ID));
+                    // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('房间id' => $o_id, '客户id' => $client_ID, '订单类型' => $STgSP));
 
                     $this->success('[助]提交订单成功！', U('Home/Order/dealing'));
                     return;
@@ -184,11 +196,82 @@ class ClientController extends HomeController {
             }   
         }else{
 
-            $types = M('type_price')->getField('type,name,price');
+            // 1.选择style
+            // 2.根据style_type，AJAX加载相应的type，IN type，记录下style的编号
+            // 3.根据style的编号和type，AJAX加载相应的价格(在0_price/1_price/2_price中得到)
+            //      钟点房特殊，多出选择“份数”
+            //      团购特殊，多出选择团购平台，AJAX加载团购平台信息
 
+            // 增加“来源”   --done
+            // 增加“网上支付/现金支付”    --done
+
+
+            // $types = M('type_price')->getField('type,name,price');
+            // $this->assign('types', $types);
+
+            $styles = M('style')->getField('style,name');// 普通入住
+            $this->assign('styles', $styles);
+            $types = M('type')->getField('type,name');// 普通入住可选的房型
             $this->assign('types', $types);
+            $prices = M('0_price')->find(0);// 普通入住，标单价钱
+            $this->assign('prices', $prices);
+            // p($prices);die;
+
+            $sources = M('order_source')->getField('source,name');
+            $this->assign('sources', $sources);
             $this->display();
         }
+    }
+
+    /**
+     * [AJAX]根据style获取type
+     */
+    public function getType_PriceByStyle(){
+
+        // 1.从AJAX得到style
+        // 2.通过style在style_type表中找到对应的type字符串，在type表中 IN，得到结果types
+        // 3.通过style和结果types[0]的type，在0_price/1_price/2_price表中，得到结果prices
+        // 4.$data[] = $types;$data[] = $prices;
+
+        $style = I('post.style');
+        // $style = 2;
+
+        $typeStr = M('style_type')->find($style);
+        $map['type'] = array('in', $typeStr['map_types']);
+        $types = M('type')->where($map)->getField('type,name');//结果types
+        
+        $type = key($types);// types数组第1个键
+
+        $prices = M($style."_price")->find($type);// 结果types中第1个房型的价格
+
+        $data['types'] = $types;
+        $data['prices'] = $prices;
+
+        if ($style == 2) {// 团购
+            $data['groupons'] = M('groupon')->getField('g_id,name');
+        }
+        
+        // p($data);die;
+        $this->ajaxReturn($data, 'json');
+    }
+
+    /**
+     * [AJAX]根据style和type获取price
+     */
+    public function getPriceByStyle_Type(){
+
+        // $post = I('post.data');
+        
+        $style = I('post.style');
+        $type = I('post.type');
+
+        // $style = 0;
+        // $type = 4;
+
+        $data['prices'] = M($style."_price")->find($type);// 对应style类型和type房型的价格
+
+        // p($data);die;
+        $this->ajaxReturn($data, 'json');
     }
     
     /**
@@ -197,6 +280,17 @@ class ClientController extends HomeController {
     public function verify(){
 
         // 调用function
-        verify();
+        // verify();
+
+        $config =    array(
+            'fontSize'    =>    15,    // 验证码字体大小
+            'useNoise'    =>    false, // 关闭验证码杂点
+            'imageW'      =>    0,     // 验证码宽度
+            'imageH'      =>    0,     // 验证码高度
+            'codeSet'     =>    '123456789',//验证码字符
+            'length'      =>    3,     // 验证码位数
+        );
+        $Verify =     new \Think\Verify($config);
+        $Verify->entry();
     }
 }
