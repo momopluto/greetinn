@@ -23,11 +23,10 @@ function is_login(){
  * @param string $queryStr 过滤字符串
  * @return Array $rooms 可分配的房间
  */
-function get_available_rooms($data, $queryStr){
+function get_available_rooms($data, $self=''){
 	$room_model = M('room');
-	$rooms = $room_model->where(array('type' => $data['type']))->getField('room_ID', true);
+	$rooms = $room_model->where(array('type' => $data['type'],'is_open'=>1))->getField('room_ID', true);
 	
-	// ->where("cTime between '".$last_month_days[0]."' and '".$month_days[1]."'")
 	$_2_room_model = M('o_record_2_room');
 
 	// room_ID非空，时间区间有交集
@@ -38,7 +37,19 @@ function get_available_rooms($data, $queryStr){
 	// $queryStr = "room_ID is not null AND room_ID != " . $data['room_ID'] . " AND "
 	//             . "NOT (A_date >= '".$data['B_date']."' OR B_date <= '".$data['A_date']."')";
 	// echo $queryStr;
-	$_rooms = $_2_room_model->where($queryStr)->getField('room_ID', true);// 需要去除的房间
+
+	// $str = "( room_ID is not null AND NOT (A_date >= '".$data['B_date']."' OR B_date <= '".$data['A_date']."') )"
+	// 		." AND ( status <> 0 AND status <> 4 )";
+	$str = "( room_ID is not null";
+	if ($self) {
+		$str .= " AND room_ID != " . $self;
+	}
+	$str .= " AND NOT (A_date >= '".$data['B_date']."' OR B_date <= '".$data['A_date']."') )"
+			." AND ( status <> 0 AND status <> 4 )";
+	// echo $str;
+
+	// _rooms为要去除的房间
+	$_rooms = $_2_room_model->join('o_record ON o_record.o_id = o_record_2_room.o_id')->where($str)->getField('room_ID',true);
 
 	// p($data);
 	// p($rooms);

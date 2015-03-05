@@ -156,10 +156,20 @@ class OrderController extends HomeController {
             $data = $o_record_model->where("o_record.o_id = $o_id")->find();
             // p($data);die;
 
-            $this->assign('data', $data);
-            $types = M('type_price')->getField('type,name,price');
-            // p($types);die;
+            // $types = M('type_price')->getField('type,name,price');
+            // // p($types);die;
+            // $this->assign('types', $types);
+
+            $styles = M('style')->getField('style,name');// 普通入住
+            $types = M('type')->getField('type,name');// 普通入住可选的房型
+            $prices = M('0_price')->find(0);// 普通入住，标单价钱
+            $sources = M('order_source')->getField('source,name');// 来源
+
+            $this->assign('styles', $styles);
             $this->assign('types', $types);
+            $this->assign('prices', $prices);
+            $this->assign('sources', $sources);
+            $this->assign('data', $data);
             $this->display();
 
         }

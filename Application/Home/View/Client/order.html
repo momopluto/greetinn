@@ -10,12 +10,13 @@
 <body>
 
 	<include file= "./home"/>
+	<p>订单类型：<span><a href="{:U('Home/Client/order_0')}">普通</a></span> <span><a href="{:U('Home/Client/order_1')}">钟点</a></span> <span><a href="{:U('Home/Client/order_2')}">团购</a></span></p>
 
 	帮助客户提交酒店预订订单
 	<form action="{:U('Home/Client/order')}" method="post">
 		<p>身份　证：<input type="text" name="ID">*</p>
 		<p>入住日期：<input type="date" name="aDay">*</p>
-		<p>退房日期：<input type="date" name="bDay">*</p>
+		<p>离店日期：<input type="date" name="bDay">*</p>
 		<!-- <p>房间类型：
 		  <select name="type">
 			<foreach name="types" item="oneT" key="type" >
@@ -86,7 +87,7 @@
 
 	<script language="JavaScript">/*根据style，加载type和price*/
 		
-		var type_price_url = "{:U('Home/Client/getType_PriceByStyle')}";
+		var type_price_url = "{:U('Home/Client/getPriceByStyle_Type')}";
 		function loadType_Price(){
 			var style = $("#style").val();
 
