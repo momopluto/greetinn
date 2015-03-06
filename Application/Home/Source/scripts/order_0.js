@@ -1,6 +1,7 @@
 	// var price_url = "{:U('Home/Client/getPriceByStyle_Type')}";
+	// var rooms_url = "{:U('Home/Client/getRoomsByDate_Type')}";
 
-	/*根据date和type，加载rooms*/
+	/* 根据date和type，加载rooms */
 	function loadRooms(){
 		var limit = Array();
 		limit['aDay'] = $("#aDay").val();
@@ -46,9 +47,9 @@
 		};
 	}
 
-	/*根据style和type，加载price*/
-	function loadPrice(style){
-
+	/* 根据style和type，加载price */
+	function loadPrice(){
+		var style = 0;
 		var type = $("#type").val();
 
 		$.ajax({
@@ -59,8 +60,8 @@
         	success: function(data) {
 
         		if (data['prices']) {
-        			
-        			setPrice(style, data['prices']);
+        			// console.log(data['prices']);
+        			setPrice(data['prices']);
         		};
         	}
         })
@@ -68,15 +69,19 @@
         // loadRooms();// 加载空闲房间
 	}
 
-	/*设置相应的价格*/
-	function setPrice(style, pricesJSON){
+	/* 设置房型价格 */
+	function setPrice(pricesJSON){
 		var prices = eval(pricesJSON);
 
 		var priceHTML = '<select id="price" name="price">';
 		var PRICE = $("#price");
 
-		var subStr = '';
-		switch(style) {
+		var subStr = '<option value ="'+ prices['bid_price'] +'" selected="">标　价 | ￥'+ prices['bid_price'] +'</option>'+
+					'<option value ="'+ prices['stu_price'] +'">学生价 | ￥'+ prices['stu_price'] +'</option>'+
+					'<option value ="'+ prices['vip_price'] +'">会员价 | ￥'+ prices['vip_price'] +'</option>'+
+					'<option value ="'+ prices['corp_price'] +'">协议价 | ￥'+ prices['corp_price'] +'</option>'+
+					'<option value ="'+ prices['inner_price'] +'">内部价 | ￥'+ prices['inner_price'] +'</option>';
+		/*switch(style) {
 			case 0:
 				subStr = '<option value ="'+ prices['bid_price'] +'" selected="">标　价 | ￥'+ prices['bid_price'] +'</option>'+
 					'<option value ="'+ prices['stu_price'] +'">学生价 | ￥'+ prices['stu_price'] +'</option>'+
@@ -99,14 +104,9 @@
 				alert('无此类型！');
 				return;
 				break;
-		}
+		}*/
 
 		priceHTML += subStr + '</select>';
 
 		PRICE.html(priceHTML);
 	}
-
-	// function changeVerify(){
-	// 	var timenow = new Date().getTime();
-	// 	document.getElementById('verifyImg').src='__URL__/verify/'+timenow;
-	// }
