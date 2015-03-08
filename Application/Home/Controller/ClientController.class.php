@@ -85,6 +85,8 @@ class ClientController extends HomeController {
      */
     public function order_0(){
 
+        // 协议价，选择代理人（通过手机唯一标识）
+
         if (IS_POST) {
             // 提交订单阶段，不检查使用价格的合法性，统一在办理入住时检查
             // 即下单可以随意选择1种价格，但办理入住时会校验
@@ -354,6 +356,134 @@ class ClientController extends HomeController {
      */
     public function order_2(){
 
+        // post.source实际为g_id
+        // source固定为4
+        // 如果存在g_id不为NULL则订单类型为团购订单
+
+        if (IS_POST) {
+
+            p(I('post.'));die;
+
+            if (!check_verify(I('post.verify'))) {
+                
+                $this->error('验证码不正确！');
+                return;
+            }
+            
+            // style
+            // ID身份证,aDay,bDay,type,price,(room),source,mode,note,info,phone
+
+            $client = M('client')->where(array('ID_card'=>I('post.ID')))->find();
+            if (!$client) {
+                $this->error('该身份证未注册！', U('Home/Client/reg'));
+                return;
+            }
+
+            if (strtotime(I('post.aDay')) >= strtotime(I('post.bDay')) || strtotime(I('post.aDay')) < strtotime(date('Y-m-d',time()))) {
+                $this->error('入住/退房时间错误！');
+                return;
+            }
+
+            if (I('post.price') == '') {
+                $this->error('价格为空！请重新选择！');
+                return;
+            }
+
+            // o_record_2_room数据
+            if (I('post.room') == '') {// 防止，验证码错误导致的预分配房间信息丢失问题
+                $this->error('预分配房间信息错误！');
+                return;
+            }
+            if (I('post.room') != -1) {
+                $new_order_2_room['room_ID'] = I('post.room');
+            }
+            $new_order_2_room['A_date'] = I('post.aDay');
+            $new_order_2_room['B_date'] = I('post.bDay');
+            // 计算2个日期间隔天数
+            $interval = date_diff(date_create($new_order_2_room['A_date']), date_create($new_order_2_room['B_date']));
+            $new_order_2_room['nights'] = $interval->format('%a');
+            $new_order_2_room['A_date'] .= self::IN_TIME;// 入住时间
+            $new_order_2_room['B_date'] .= self::OUT_TIME;// 离店时间
+
+            $client_ID = $client['client_ID'];// 客户ID
+            $people_info = I('post.info');
+            if ($people_info[1]['name'] == '' || $people_info[1]['ID'] == '') {
+                // 去除入住人(二)信息
+                unset($people_info[1]);
+            }
+
+            if (I('post.number') == '') {
+                $book_info['number'] = count($people_info);// 入住人数
+            }else{
+                $book_info['number'] = I('post.number');// 入住人数
+            }
+            
+            // book_info字段，JSON格式
+            // $book_info['number'] = count($people_info);// 入住人数
+            $book_info['people_info'] = $people_info;
+            $book_info['note'] = I('post.note');
+
+            // o_record数据
+            $new_order['client_ID'] = $client_ID;
+            $new_order['book_info'] = json_encode($book_info, JSON_UNESCAPED_UNICODE);// unicode格式
+
+            $new_order['style'] = self::STYLE_0;// 订单类型
+            $new_order['type'] = I('post.type');// 房型
+            $new_order['price'] = I('post.price');// 总价
+            $new_order['source'] = 4;// 来源固定为“团购”
+            $new_order['g_id'] = I('post.source');// 团购平台id
+            $new_order['pay_mode'] = I('post.mode');// 支付方式
+            $new_order['phone'] = I('post.phone');// 联系手机
+
+
+            p($new_order);
+            p($new_order_2_room);
+            die;
+
+            $order_model = D('OrderRecord');
+
+            $order_model->startTrans();// 启动事务
+
+            if ($order_model->create($new_order)) {
+                echo "create成功<br/>";
+                
+                $o_id = $order_model->add();
+
+                if ($o_id === false) {
+                    $this->error('写入数据库失败！');
+                    return;
+                }
+                
+                $new_order_2_room['o_id'] = $o_id;
+                if (init_o_room($new_order_2_room) && init_o_sTime($o_id)) {
+                    // 初始化o_record_2_room表中记录 && 初始化o_record_2_stime表中记录
+                    
+                    // 订单信息标志
+                    $STPGPR = $new_order['style']."-".$new_order['type'].".".$new_order['price'].".".$new_order['g_id']."-".$new_order['pay_mode']."-".$new_order_2_room['room_ID'];
+                    $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('订单id' => $o_id, '客户id' => $client_ID, '订单类型' => $STPGPR));
+                    //                     0                 1                2             3                4                            5
+                    write_log_all_array($log_Arr);
+
+                    $this->success('[助]提交订单成功！', U('Home/Order/dealing'));
+                    return;
+                }
+            }
+            
+        }else{
+
+            $typeStr = M('style_type')->where("style = ". self::STYLE_2)->getField('map_types');// 符合的房型字符串
+            $map['type'] = array('in', $typeStr);
+            $types = M('type')->where($map)->getField('type,name');// 团购入住可选的房型
+            $prices = M(self::STYLE_2.'_price')->find(0);// 团购入住，标单价钱
+            $sources = M('groupon')->getField('g_id,name');// 来源
+
+            // p($types);die;
+
+            $this->assign('types', $types);
+            $this->assign('prices', $prices);
+            $this->assign('sources', $sources);
+            $this->display();
+        }
     }
 
     /**

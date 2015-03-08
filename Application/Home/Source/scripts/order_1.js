@@ -29,6 +29,10 @@
         			for (var i in rooms) {
         				subStr += '<option value ="'+ rooms[i] +'">'+ rooms[i] +'</option>';
         			}
+        			if (rooms.length == 0) {
+						subStr += '<option value ="-1">无空闲房间</option>';
+					};
+					
         			roomsHTML += subStr + '</select>';
         			ROOM.html(roomsHTML);
         		};
@@ -56,6 +60,10 @@
         		};
         	}
         });
+
+        $("#room").html('<select id="room" name="room">'
+	        							+'<option value ="-1">预分配房间</option>'
+	        			+'</select>');
 	}
 
 	/* 设置房型价格 */
