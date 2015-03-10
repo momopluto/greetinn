@@ -14,6 +14,42 @@ class OrderController extends HomeController {
     const STATUS_CHECKIN         =   3;      //  状态值，入住
     const STATUS_CHECKOUT        =   4;      //  状态值，退房
     
+
+    /*
+    (
+        [o_id] => 31126
+        [book_info] => {"number":1,"people_info":[{"name":"刘恩坚","ID_card":"441423199305165018"}],"note":""}
+        [style] => 0
+        [type] => 4
+        [source] => 4
+        [a_id] => 3
+        [g_id] => 12
+        [pay_mode] => 0
+        [price] => 808
+        [deposit] => 0
+        [phone] => 18826481053
+        [status] => 1
+        [cTime] => 2015-03-08 10:13:23
+        [name] => 刘恩坚
+        [ID_card] => 441423199305165018
+        [style_name] => 普通
+        [type_name] => 标准单间
+        [source_name] => 团购 (不可选)
+        [groupon_name] => 去哪儿网
+        [agent_name] => 黄冠龙
+        [a_phone] => 15017528599
+        [a_price] => 
+        [room_ID] => 413
+        [nights] => 1
+        [A_date] => 2015-03-08 12:00:00
+        [B_date] => 2015-03-09 12:00:00
+        [note] => 
+        [cancel] => 
+        [pay] => 
+        [checkIn] => 
+        [checkOut] => 
+    )
+    */
     /**
      * 未完成订单
      */
@@ -29,9 +65,9 @@ class OrderController extends HomeController {
         // die;
         
         $this->assign('data', $data);
-        $types = M('type_price')->getField('type,name,price');
+        // $types = M('type_price')->getField('type,name,price');
         // p($types);die;
-        $this->assign('types', $types);
+        // $this->assign('types', $types);
         $this->display();
     }
 
@@ -54,14 +90,6 @@ class OrderController extends HomeController {
         $this->assign('types', $types);
         $this->display();
     }
-
-    // /**
-    //  * [助]客户下单----直接使用Client/Order/submit
-    //  */
-    // public function detail(){
-        
-    //     $this->display();
-    // }
 
     /**
      * 编辑订单

@@ -74,7 +74,52 @@
 	        							+'<option value ="-1">预分配房间</option>'
 	        			+'</select>');
 
+        if ($("#agent")) {/* 存在agent */
+        	$("span#agent").remove();
+        	$("select#agent").remove();
+        };
+
         // loadRooms();// 加载空闲房间
+	}
+
+	/* 展示协议人信息 */
+	function showAgent(){
+
+        var PRICE = $("#price");
+        if (PRICE[0].selectedIndex == 3) {/* 协议价 */
+
+			$.ajax({
+	        	url: agent_url,
+	        	type: 'post',
+	        	// data: {style: style, type: type},
+	        	dataType: 'json',
+	        	success: function(data) {
+
+	        		if (data['agents']) {
+	        			// console.log(data['agents']);
+	        			var agents = data['agents'];
+	        			
+	        			var agentHTML = '<span id="agent">协议人：</span><select id="agent" name="agent">';
+	        			var subStr = '';
+
+	        			for (var i in agents) {
+	        				// alert(agents[i]['name']);
+	        				subStr += '<option value ="'+ agents[i]['a_id'] +'">' + agents[i]['name'] +' | **'+ agents[i]['phone'].substr(7) + '</option>';
+	        			}
+
+	        			agentHTML += subStr + '</select>';
+
+    			        var SOURCE = $("#source");
+    					SOURCE.after(agentHTML);
+	        		};
+	        	}
+	        });
+        }else{
+        	if ($("#agent")) {/* 存在agent */
+        		$("span#agent").remove();
+        		$("select#agent").remove();
+        	};
+        }
 	}
 
 	/* 设置房型价格 */

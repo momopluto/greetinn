@@ -81,6 +81,14 @@ class ClientController extends HomeController {
     const OUT_TIME_2                  =   " 13:00:00";// 会员离店时间
 
     /**
+     * [助]提交订单
+     */
+    public function order(){
+
+        $this->display();
+    }
+
+    /**
      * [助]提交订单，普通
      */
     public function order_0(){
@@ -158,6 +166,9 @@ class ClientController extends HomeController {
             $new_order['type'] = I('post.type');// 房型
             $new_order['price'] = I('post.price');// 总价
             $new_order['source'] = I('post.source');// 来源
+            if (I('post.agent')) {
+                $new_order['a_id'] = I('post.agent');// 协议人
+            }
             $new_order['pay_mode'] = I('post.mode');// 支付方式
             $new_order['phone'] = I('post.phone');// 联系手机
 
@@ -185,8 +196,8 @@ class ClientController extends HomeController {
                     // 初始化o_record_2_room表中记录 && 初始化o_record_2_stime表中记录
                     
                     // 订单信息标志
-                    $STPSPR = $new_order['style']."-".$new_order['type'].".".$new_order['price'].".".$new_order['source']."-".$new_order['pay_mode']."-".$new_order_2_room['room_ID'];
-                    $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('订单id' => $o_id, '客户id' => $client_ID, '订单类型' => $STPSPR));
+                    $STPSaPR = $new_order['style']."-".$new_order['type'].".".$new_order['price'].".".$new_order['source']."-.".$new_order['a_id'].".-".$new_order['pay_mode']."-".$new_order_2_room['room_ID'];
+                    $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('订单id' => $o_id, '客户id' => $client_ID, '订单类型' => $STPSaPR));
                     //                     0                 1                2             3                4                            5
                     write_log_all_array($log_Arr);
 
@@ -362,7 +373,7 @@ class ClientController extends HomeController {
 
         if (IS_POST) {
 
-            p(I('post.'));die;
+            // p(I('post.'));die;
 
             if (!check_verify(I('post.verify'))) {
                 
@@ -436,9 +447,9 @@ class ClientController extends HomeController {
             $new_order['phone'] = I('post.phone');// 联系手机
 
 
-            p($new_order);
-            p($new_order_2_room);
-            die;
+            // p($new_order);
+            // p($new_order_2_room);
+            // die;
 
             $order_model = D('OrderRecord');
 
@@ -479,160 +490,6 @@ class ClientController extends HomeController {
 
             // p($types);die;
 
-            $this->assign('types', $types);
-            $this->assign('prices', $prices);
-            $this->assign('sources', $sources);
-            $this->display();
-        }
-    }
-
-    /**
-     * [助]提交订单
-     */
-    public function order(){
-
-        // 存在问题：
-        // 钟点房 入住日期-退房日期，改成 入住时间，退房时间，且下单时可选择购买几份钟点房，金额累加
-
-        if (IS_POST) {
-            // p(I('post.'));die;
-
-            if (!check_verify(I('post.verify'))) {
-                
-                $this->error('验证码不正确！');
-                return;
-            }
-            
-            // ID身份证,aDay,bDay,type对应价钱,note,info,phone
-
-            $client = M('client')->where(array('ID_card'=>I('post.ID')))->find();
-
-            if (!$client) {
-                $this->error('该身份证未注册！', U('Home/Client/reg'));
-                return;
-            }
-            // echo strtotime(I('post.aDay'))."***".NOW_TIME;die;
-            if (strtotime(I('post.aDay')) > strtotime(I('post.bDay')) || strtotime(I('post.aDay')) < strtotime(date('Y-m-d',time()))) {
-                $this->error('入住/退房时间错误！');
-                return;
-            }
-            
-            // p($client);die;
-            $client_ID = $client['client_ID'];
-            $info = I('post.info');
-            // p($info);
-            if ($info[1]['name'] == '' || $info[1]['ID'] == '') {
-                // 去除入住人(二)信息
-                unset($info[1]);
-            }
-            $people_info = $info;
-            // p($info);die;
-
-            $book_info['start_date'] = I('post.aDay');
-            $book_info['leave_date'] = I('post.bDay');
-
-            // $people_info = array(// 入住人身份信息
-            //     array('name'=>'王一', 'ID_card'=>'520222196306159670'),
-            //     array('name'=>'李二', 'ID_card'=>'230230197409256612')
-            // );
-
-
-            // $book_info['start_date'] = '2015-02-02';
-            // $book_info['leave_date'] = '2015-02-03';
-
-            // 计算2个日期间隔天数
-            $interval = date_diff(date_create($book_info['start_date']), date_create($book_info['leave_date']));
-            $book_info['nights'] = $interval->format('%a');
-            
-            $book_info['number'] = count($people_info);// 入住人数
-            $book_info['people_info'] = $people_info;
-            $book_info['note'] = I('post.note');
-
-            $new_order['client_ID'] = $client_ID;
-
-            // o_record_2_room数据
-            $new_order_2_room['nights'] = $book_info['nights'];
-            $new_order_2_room['A_date'] = $book_info['start_date'];
-            $new_order_2_room['B_date'] = $book_info['leave_date'];
-            unset($book_info['nights']);
-            unset($book_info['start_date']);
-            unset($book_info['leave_date']);
-            $new_order['book_info'] = json_encode($book_info, JSON_UNESCAPED_UNICODE);// unicode格式
-
-            $new_order['style'] = I('post.style');// 订单类型
-            $new_order['type'] = I('post.type');// 房型
-            if (!is_null(I('post.groupon'))) {
-                $new_order['g_id'] = I('post.groupon');// 团购平台
-            }
-            $new_order['source'] = I('post.source');// 来源
-            $new_order['pay_mode'] = I('post.mode');// 支付方式
-
-            // $type_price = M('type_price')->find(I('post.type'));
-            // $new_order['price'] = $type_price['price'] * $new_order_2_room['nights'];
-            $new_order['price'] = I('post.price');
-            $new_order['phone'] = I('post.phone');
-
-            // p($new_order);die;
-
-            $order_model = D('OrderRecord');
-
-            $order_model->startTrans();// 启动事务
-
-            if ($order_model->create($new_order)) {
-                echo "create成功<br/>";
-                
-                $o_id = $order_model->add();
-
-                if ($o_id === false) {
-                    $this->error('写入数据库失败！');
-                    return;
-                }
-
-                $new_order_2_room['o_id'] = $o_id;
-
-                // init_o_room($new_order_2_room);// 初始化o_record_2_room表中记录
-                // init_o_sTime($o_id);// 初始化o_record_2_stime表中记录
-                if (init_o_room($new_order_2_room) && init_o_sTime($o_id)) {
-
-                    $STgSPP = $new_order['style']."-".$new_order['type']."-".$new_order['g_id']."-".$new_order['source']."-".$new_order['pay_mode']." | ".$new_order['price'];
-                    $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('订单id' => $o_id, '客户id' => $client_ID, '订单类型' => $STgSPP));
-                    //                     0                 1                2             3                4                            5
-                    write_log_all_array($log_Arr);
-                    // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('房间id' => $o_id, '客户id' => $client_ID, '订单类型' => $STgSP));
-
-                    $this->success('[助]提交订单成功！', U('Home/Order/dealing'));
-                    return;
-                }
-
-            }else{
-
-                echo "create失败<br/>";
-                echo $order_model->getError();
-
-                // $this->error($order_model->getError());
-                return;
-            }
-        }else{
-
-            // 1.选择style
-            // 2.根据style_type，AJAX加载相应的type，IN type，记录下style的编号
-            // 3.根据style的编号和type，AJAX加载相应的价格(在0_price/1_price/2_price中得到)
-            //      钟点房特殊，多出选择“份数”
-            //      团购特殊，多出选择团购平台，AJAX加载团购平台信息，输入平台的订单号/券号
-
-            // 增加“来源”   --done
-            // 增加“网上支付/现金支付”    --done
-
-
-            // $types = M('type_price')->getField('type,name,price');
-            // $this->assign('types', $types);
-
-            $styles = M('style')->getField('style,name');// 普通入住
-            $types = M('type')->getField('type,name');// 普通入住可选的房型
-            $prices = M('0_price')->find(0);// 普通入住，标单价钱
-            $sources = M('order_source')->getField('source,name');// 来源
-
-            $this->assign('styles', $styles);
             $this->assign('types', $types);
             $this->assign('prices', $prices);
             $this->assign('sources', $sources);
@@ -706,6 +563,17 @@ class ClientController extends HomeController {
         
         $data['rooms'] = get_available_rooms($limit);
         
+        $this->ajaxReturn($data, 'json');
+    }
+
+    /**
+     * [AJAX]获取代理人信息agents
+     */
+    public function getAgent(){
+
+
+        $data['agents'] = M("agent")->field('a_id, name, phone')->select();;
+
         $this->ajaxReturn($data, 'json');
     }
     
