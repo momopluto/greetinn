@@ -172,6 +172,14 @@ class ClientController extends HomeController {
             $new_order['pay_mode'] = I('post.mode');// 支付方式
             $new_order['phone'] = I('post.phone');// 联系手机
 
+            // 会员卡支付
+            // 1、检查该会员卡合法性，余额是否足够支付
+            // 2.合法，扣除相应金额，status = 2
+            if (I('post.paid')) {
+                $new_order['status'] = 2;// 已支付状态
+            }
+            
+
 
             // p($new_order);
             // p($new_order_2_room);
@@ -186,6 +194,8 @@ class ClientController extends HomeController {
                 
                 $o_id = $order_model->add();
 
+                // p($order_model);die;
+
                 if ($o_id === false) {
                     $this->error('写入数据库失败！');
                     return;
@@ -196,7 +206,12 @@ class ClientController extends HomeController {
                     // 初始化o_record_2_room表中记录 && 初始化o_record_2_stime表中记录
                     
                     // 订单信息标志
-                    $STPSaPR = $new_order['style']."-".$new_order['type'].".".$new_order['price'].".".$new_order['source']."-.".$new_order['a_id'].".-".$new_order['pay_mode']."-".$new_order_2_room['room_ID'];
+                    $STPSaPR = $new_order['style']."-".$new_order['type'].".".$new_order['price'].".".$new_order['source']."-.".$new_order['a_id'].".-".$new_order['pay_mode']."-".$new_order_2_room['room_ID']."-";
+                    if ($new_order['status'] == 2) {
+                        $STPSaPR .= "已支付";
+                    }else{
+                        $STPSaPR .= "未付款";
+                    }
                     $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('订单id' => $o_id, '客户id' => $client_ID, '订单类型' => $STPSaPR));
                     //                     0                 1                2             3                4                            5
                     write_log_all_array($log_Arr);
@@ -303,6 +318,13 @@ class ClientController extends HomeController {
             $new_order['pay_mode'] = I('post.mode');// 支付方式
             $new_order['phone'] = I('post.phone');// 联系手机
 
+            // 会员卡支付
+            // 1、检查该会员卡合法性，余额是否足够支付
+            // 2.合法，扣除相应金额，status = 2
+            if (I('post.paid')) {
+                $new_order['status'] = 2;// 已支付状态
+            }
+
 
             // p($new_order);
             // p($new_order_2_room);
@@ -327,7 +349,12 @@ class ClientController extends HomeController {
                     // 初始化o_record_2_room表中记录 && 初始化o_record_2_stime表中记录
                     
                     // 订单信息标志
-                    $STPSPR = $new_order['style']."-".$new_order['type'].".".$new_order['price'].".".$new_order['source']."-".$new_order['pay_mode']."-".$new_order_2_room['room_ID'];
+                    $STPSPR = $new_order['style']."-".$new_order['type'].".".$new_order['price'].".".$new_order['source']."-".$new_order['pay_mode']."-".$new_order_2_room['room_ID']."-";
+                    if ($new_order['status'] == 2) {
+                        $STPSPR .= "已支付";
+                    }else{
+                        $STPSPR .= "未付款";
+                    }
                     $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('订单id' => $o_id, '客户id' => $client_ID, '订单类型' => $STPSPR));
                     //                     0                 1                2             3                4                            5
                     write_log_all_array($log_Arr);
@@ -446,6 +473,9 @@ class ClientController extends HomeController {
             $new_order['pay_mode'] = I('post.mode');// 支付方式
             $new_order['phone'] = I('post.phone');// 联系手机
 
+            if (I('post.paid')) {
+                $new_order['status'] = 2;// 已支付状态
+            }
 
             // p($new_order);
             // p($new_order_2_room);
@@ -470,7 +500,12 @@ class ClientController extends HomeController {
                     // 初始化o_record_2_room表中记录 && 初始化o_record_2_stime表中记录
                     
                     // 订单信息标志
-                    $STPGPR = $new_order['style']."-".$new_order['type'].".".$new_order['price'].".".$new_order['g_id']."-".$new_order['pay_mode']."-".$new_order_2_room['room_ID'];
+                    $STPGPR = $new_order['style']."-".$new_order['type'].".".$new_order['price'].".".$new_order['g_id']."-".$new_order['pay_mode']."-".$new_order_2_room['room_ID']."-";
+                    if ($new_order['status'] == 2) {
+                        $STPGPR .= "已支付";
+                    }else{
+                        $STPGPR .= "未付款";
+                    }
                     $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('订单id' => $o_id, '客户id' => $client_ID, '订单类型' => $STPGPR));
                     //                     0                 1                2             3                4                            5
                     write_log_all_array($log_Arr);
@@ -487,6 +522,7 @@ class ClientController extends HomeController {
             $types = M('type')->where($map)->getField('type,name');// 团购入住可选的房型
             $prices = M(self::STYLE_2.'_price')->find(0);// 团购入住，标单价钱
             $sources = M('groupon')->getField('g_id,name');// 来源
+            unset($sources[2]);
 
             // p($types);die;
 

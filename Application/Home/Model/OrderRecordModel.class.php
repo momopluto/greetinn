@@ -51,7 +51,8 @@ class OrderRecordModel extends Model {
 
     // 自动完成
     protected $_auto = array (
-        array('status','1',self::MODEL_INSERT,'string'),  // 新增的时候status=1
+        // array('status','1',self::MODEL_INSERT,'string'),  // 新增的时候status=1
+        array('status','getStatus',self::MODEL_INSERT,'callback'),  // 新新增时，判断status是否给出
         array('cTime','getDatetime',self::MODEL_INSERT,'function') , // 新增的时候把调用time方法写入当前时间戳
     );
 
@@ -89,6 +90,20 @@ class OrderRecordModel extends Model {
 
         // echo "wrong<br/>";
         return false;
+    }
+
+    /**
+     * 新增时，判断status是否给出
+     * @param int $status 状态值
+     * @return bool
+     */
+    protected function getStatus($status){
+
+        if (isset($status)) {// 给出
+            return $status;
+        }else{// 默认为1
+            return 1;
+        }
     }
 
 }

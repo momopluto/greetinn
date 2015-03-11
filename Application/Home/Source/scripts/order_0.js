@@ -119,6 +119,14 @@
         		$("span#agent").remove();
         		$("select#agent").remove();
         	};
+
+        	if (PRICE[0].selectedIndex == 2) {/* 会员价 */
+        		$("#mode")[0].selectedIndex = 2;// 会员卡支付
+        		// $(".paid").attr('hidden','');
+        	}else{
+        		$("#mode")[0].selectedIndex = 0;
+        		// $(".paid").removeAttr('hidden');
+        	}
         }
 	}
 

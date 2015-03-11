@@ -220,22 +220,38 @@ class OrderController extends HomeController {
         
         $order_model = D('OrderRecord');
 
-        $old_status = $order_model->where("o_id = $o_id")->getField('status');
-        echo "old_status = $old_status";
-        if ($old_status == $cancel['status']) {// 状态未改变
+        $old_data = $order_model->where("o_id = $o_id")->find();
+        if (!$old_data) {
+            $this->error('ERROR, 不存在此订单！');
+            return;
+        }
+        echo "old_status = ".$old_data['status'];
+        if ($old_data['status'] == $cancel['status']) {// 状态未改变
 
             $this->error('状态未改变！');
             return;
         }
 
+        // pay_mode，支付方式
+        // price，总价
+        // status，从1/2变成0
+
+        // p($old_data);die;
+
         // 根据是否付款区分记录日志内容
-        if ($old_status == 1) {
+        if ($old_data['status'] == 1) {
             $log_type = self::RECEPTIONIST_CANCEL_ORDER;
             $log_type_Arr = array('订单id' => $o_id);
         }else{
+
             $log_type = self::RECEPTIONIST_CANCEL_PAID_ORDER;
             $price = $order_model->where("o_id = $o_id")->getField('price');
-            $log_type_Arr = array('订单id' => $o_id, '总价' => "￥".$price);
+            $log_type_Arr = array('订单id' => $o_id, '总价' => "￥".$price, '支付方式' => $old_data['pay_mode']);
+
+            // pay_mode = 0，返还现金
+            // pay_mode = 1，网上返还
+            // 会员卡余额加回去
+            // pay_mode = 2
         }
 
         $order_model->startTrans();// 启动事务

@@ -105,6 +105,14 @@
 
 		$("span#totalPrice").text("￥" + totalPrice);
 		// $("input#totalPrice").val(totalPrice);
+
+		if ($("#price")[0].selectedIndex == 2) {/* 会员价 */
+			$("#mode")[0].selectedIndex = 2;// 会员卡支付
+			// $(".paid").attr('hidden','');
+		}else{
+			$("#mode")[0].selectedIndex = 0;
+			// $(".paid").removeAttr('hidden');
+		}
 	}
 
 	/* 得到未来addHours个小时的时间，字符串 */
