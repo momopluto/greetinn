@@ -315,22 +315,22 @@ class OrderController extends HomeController {
             $old_data = $order2_model->where("o_record.o_id = $o_id")->find();
             // p($old_data);die;
 
-            $order_model = D('OrderRecord');
-            $old_status = $order_model->where("o_id = $o_id")->getField('status');
-            echo "old_status = $old_status";
-            if ($old_status == $checkIN['status']) {// 状态未改变
+            echo "old_status = ".$old_data['status'];
+            if ($old_data['status'] == $checkIN['status']) {// 状态未改变
 
                 $this->error('状态未改变！');
                 return;
             }
 
             // p($checkIN);die;
-            if (strtotime($old_data['A_date']) != strtotime(date('Y-m-d',time()))) {
-                
+            $now = strtotime(date('Y-m-d',time())." 14:00:00");
+            if (strtotime(date('Y-m-d',time())) < strtotime($old_data['A_date']) ||  $now >= strtotime($old_data['B_date'])) {
+
                 $this->error('当前非预定入住时间！无法办理入住！');
                 return;
             }
 
+            $order_model = D('OrderRecord');
             $order_model->startTrans();// 启动事务
             
             if ($order_model->where("o_id = $o_id")->create($checkIN ,2)) {
@@ -387,30 +387,18 @@ class OrderController extends HomeController {
 
             $o_id = I('get.id');
 
-            // 根据o_id得到该条订单详情，A_date,B_date
-            // 按房型type，得到该房型总开放的房间数
-            // 找到所有涉及(A_date, B_date)此区域的已分配的房间，减去，得到剩下的各房型房间
-
             $o_record_model = D('OrderRecordView');
             $data = $o_record_model->where("o_record.o_id = $o_id")->find();
 
-            // 保证下面queryStr中room_ID != $data['room_ID']能够正确得到结果
-            if (!$data['room_ID']) {
-                // echo "room_ID空！";die;
-                $data['room_ID'] = 0;
-            }
-
-            // room_ID非空，时间区间有交集
-            $queryStr = "room_ID is not null" . " AND "
-                        . "NOT (A_date >= '".$data['B_date']."' OR B_date <= '".$data['A_date']."')";
             // 过滤得到空闲的房间
-            $rooms = get_available_rooms($data, $queryStr);
+            $rooms = get_available_rooms($data, $data['room_ID']);
+
+            // p($data);
+            // p($rooms);
+            // die;
 
             $this->assign('data', $data);
             $this->assign('rooms', $rooms);
-            $types = M('type_price')->getField('type,name,price');
-            // p($types);die;
-            $this->assign('types', $types);
             $this->display();
         }
     }
@@ -592,17 +580,11 @@ class OrderController extends HomeController {
             $o_record_model = D('OrderRecordView');
             $data = $o_record_model->where("o_record.o_id = $o_id")->find();
 
-            // room_ID非空，room_ID!=当前入住的房间号，时间区间有交集
-            $queryStr = "room_ID is not null AND room_ID != " . $data['room_ID'] . " AND "
-                        . "NOT (A_date >= '".$data['B_date']."' OR B_date <= '".date('Y-m-d',time())."')";
             // 过滤得到空闲的房间
-            $rooms = get_available_rooms($data, $queryStr);
+            $rooms = get_available_rooms($data, $data['room_ID']);
             
             $this->assign('data', $data);
             $this->assign('rooms', $rooms);
-            $types = M('type_price')->getField('type,name,price');
-            // p($types);die;
-            $this->assign('types', $types);
             $this->display();
         }
     }
@@ -682,9 +664,6 @@ class OrderController extends HomeController {
             // p($data);die;
 
             $this->assign('data', $data);
-            $types = M('type_price')->getField('type,name,price');
-            // p($types);die;
-            $this->assign('types', $types);
             $this->display();
         }
     }

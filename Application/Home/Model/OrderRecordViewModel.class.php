@@ -14,7 +14,7 @@ class OrderRecordViewModel extends ViewModel {
         'client'=>array('name','ID_card', '_on'=>'O_record.client_ID=client.client_ID','_table'=>"client"),
 
         'style'=>array('name' => 'style_name', '_on'=>'O_record.style=style.style','_table'=>"style"),
-        'type'=>array('name' => 'type_name', '_on'=>'O_record.style=type.type','_table'=>"type"),
+        'type'=>array('name' => 'type_name', '_on'=>'O_record.type=type.type','_table'=>"type"),
         'order_source'=>array('name' => 'source_name', '_on'=>'O_record.source=order_source.source','_table'=>"order_source",'_type'=>'LEFT'),
         'groupon'=>array('name' => 'groupon_name', '_on'=>'O_record.g_id=groupon.g_id','_table'=>"groupon",'_type'=>'LEFT'),
         'agent'=>array('name' => 'agent_name','phone' => 'a_phone','a_price', '_on'=>'O_record.a_id=agent.a_id','_table'=>"agent"),

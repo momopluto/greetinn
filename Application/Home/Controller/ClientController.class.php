@@ -76,7 +76,7 @@ class ClientController extends HomeController {
     const STYLE_1                     =   1;// 钟点
     const STYLE_2                     =   2;// 团购
 
-    const IN_TIME                     =   " 12:00:00";// 入住时间
+    const IN_TIME                     =   " 14:00:00";// 入住时间
     const OUT_TIME                    =   " 12:00:00";// 离店时间
     const OUT_TIME_2                  =   " 13:00:00";// 会员离店时间
 
@@ -202,7 +202,7 @@ class ClientController extends HomeController {
                 }
                 
                 $new_order_2_room['o_id'] = $o_id;
-                if (init_o_room($new_order_2_room) && init_o_sTime($o_id)) {
+                if (init_o_room($new_order_2_room) && init_o_sTime($o_id,$new_order['status'])) {
                     // 初始化o_record_2_room表中记录 && 初始化o_record_2_stime表中记录
                     
                     // 订单信息标志
@@ -236,6 +236,7 @@ class ClientController extends HomeController {
             $types = M('type')->where($map)->getField('type,name');// 普通入住可选的房型
             $prices = M(self::STYLE_0.'_price')->find(0);// 普通入住，标单价钱
             $sources = M('order_source')->getField('source,name');// 来源
+            unset($sources[4]);
 
             // p($types);die;
 
@@ -345,7 +346,7 @@ class ClientController extends HomeController {
                 }
                 
                 $new_order_2_room['o_id'] = $o_id;
-                if (init_o_room($new_order_2_room) && init_o_sTime($o_id)) {
+                if (init_o_room($new_order_2_room) && init_o_sTime($o_id,$new_order['status'])) {
                     // 初始化o_record_2_room表中记录 && 初始化o_record_2_stime表中记录
                     
                     // 订单信息标志
@@ -378,6 +379,7 @@ class ClientController extends HomeController {
             $types = M('type')->where($map)->getField('type,name');// 钟点房可选的房型
             $prices = M(self::STYLE_1.'_price')->find(0);// 钟点房，标单价钱
             $sources = M('order_source')->getField('source,name');// 来源
+            unset($sources[4]);
 
             // p($types);die;
 
@@ -496,7 +498,7 @@ class ClientController extends HomeController {
                 }
                 
                 $new_order_2_room['o_id'] = $o_id;
-                if (init_o_room($new_order_2_room) && init_o_sTime($o_id)) {
+                if (init_o_room($new_order_2_room) && init_o_sTime($o_id,$new_order['status'])) {
                     // 初始化o_record_2_room表中记录 && 初始化o_record_2_stime表中记录
                     
                     // 订单信息标志
@@ -522,7 +524,9 @@ class ClientController extends HomeController {
             $types = M('type')->where($map)->getField('type,name');// 团购入住可选的房型
             $prices = M(self::STYLE_2.'_price')->find(0);// 团购入住，标单价钱
             $sources = M('groupon')->getField('g_id,name');// 来源
-            unset($sources[2]);
+            // p($sources);
+            // unset($sources[4]);
+            // p($sources);die;
 
             // p($types);die;
 
