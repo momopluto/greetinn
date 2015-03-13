@@ -71,14 +71,14 @@ class ClientController extends HomeController {
         }
     }
 
-    // 订单类型
-    const STYLE_0                     =   0;// 普通
-    const STYLE_1                     =   1;// 钟点
-    const STYLE_2                     =   2;// 团购
+    // // 订单类型
+    // const STYLE_0                     =   0;// 普通
+    // const STYLE_1                     =   1;// 钟点
+    // const STYLE_2                     =   2;// 团购
 
-    const IN_TIME                     =   " 14:00:00";// 入住时间
-    const OUT_TIME                    =   " 12:00:00";// 离店时间
-    const OUT_TIME_2                  =   " 13:00:00";// 会员离店时间
+    // const IN_TIME                     =   " 14:00:00";// 入住时间
+    // const OUT_TIME                    =   " 12:00:00";// 离店时间
+    // const OUT_TIME_2                  =   " 13:00:00";// 会员离店时间
 
     /**
      * [助]提交订单
@@ -467,7 +467,7 @@ class ClientController extends HomeController {
             $new_order['client_ID'] = $client_ID;
             $new_order['book_info'] = json_encode($book_info, JSON_UNESCAPED_UNICODE);// unicode格式
 
-            $new_order['style'] = self::STYLE_0;// 订单类型
+            $new_order['style'] = self::STYLE_2;// 订单类型
             $new_order['type'] = I('post.type');// 房型
             $new_order['price'] = I('post.price');// 总价
             $new_order['source'] = 4;// 来源固定为“团购”
@@ -596,12 +596,17 @@ class ClientController extends HomeController {
         $limit['type'] = I('post.type');
         $limit['A_date'] = I('post.aDay');
         $limit['B_date'] = I('post.bDay');
+        
+        if (I('post.id')) {
+            $row = M('o_record_2_room')->find(I('post.id'));
+        }
+        
 
         // $limit['type'] = 0;
         // $limit['A_date'] = "2015-03-05";
         // $limit['B_date'] = "2015-03-06";
         
-        $data['rooms'] = get_available_rooms($limit);
+        $data['rooms'] = get_available_rooms($limit, $row['room_ID']);
         
         $this->ajaxReturn($data, 'json');
     }

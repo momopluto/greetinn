@@ -18,10 +18,14 @@
 
 			limit['type'] = $("#type").val();
 
+			if (typeof o_id == "undefined") {
+				o_id = '';
+			}
+
 			$.ajax({
 	        	url: rooms_url,
 	        	type: 'post',
-	        	data: {type: limit['type'], aDay: limit['aDay'], bDay: limit['bDay']},
+	        	data: {type: limit['type'], aDay: limit['aDay'], bDay: limit['bDay'], id: o_id},
 	        	dataType: 'json',
 	        	success: function(data) {
 
@@ -85,7 +89,13 @@
 	/* 展示协议人信息 */
 	function showAgent(){
 
+
         var PRICE = $("#price");
+		if (PRICE.after() != null) {
+			// alert("已存在！");
+			// return;
+			PRICE.after('');
+		};
         if (PRICE[0].selectedIndex == 3) {/* 协议价 */
 
 			$.ajax({
@@ -99,7 +109,7 @@
 	        			// console.log(data['agents']);
 	        			var agents = data['agents'];
 	        			
-	        			var agentHTML = '<span id="agent">协议人：</span><select id="agent" name="agent">';
+	        			var agentHTML = ' <span id="agent">协议人：</span><select id="agent" name="agent">';
 	        			var subStr = '';
 
 	        			for (var i in agents) {

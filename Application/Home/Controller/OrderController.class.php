@@ -95,6 +95,183 @@ class OrderController extends HomeController {
      * 编辑订单
      */
     public function edit(){
+        
+        if (!I('get.id')) {
+            $this->error('ERROR, id不能为空！');
+            return;
+        }
+
+        if (IS_POST) {
+            
+        }else{
+
+            $o_id = I('get.id');
+
+            $o_record_model = D('OrderRecordView');
+            $data = $o_record_model->where("o_record.o_id = $o_id")->find();
+            $data['A_date'] = explode(' ', $data['A_date'])[0];
+            $data['B_date'] = explode(' ', $data['B_date'])[0];
+            // p($data);die;
+
+            $types = M('type')->getField('type,name');// 普通入住可选的房型
+            $prices = M('0_price')->find($data['type']);// 普通入住，对应房型价钱
+            
+            // 根据不同类型订单，作相应处理
+            if ($data['style'] == 0 || $data['style'] == 1) {
+                $sources = M('order_source')->getField('source,name');// 来源
+                unset($sources[4]);
+                $agents = M("agent")->field('a_id, name, phone')->select();;
+                $this->assign('agents', $agents);
+            }else{
+                $sources = M('groupon')->getField('g_id,name');// 来源
+            }
+            
+            // p($sources);die;
+
+            $this->assign('types', $types);
+            $this->assign('prices', $prices);
+            $this->assign('sources', $sources);
+            $this->assign('data', $data);
+            $this->display('edit_'.$data['style']);
+        }
+    }
+
+    public function edit_0(){
+
+        if (!I('get.id')) {
+            $this->error('ERROR, id不能为空！');
+            return;
+        }
+
+        if (IS_POST) {
+            // p(I('post.'));die;
+
+            // if (!check_verify(I('post.verify'))) {
+                
+            //     $this->error('验证码不正确！');
+            //     return;
+            // }
+            
+            // style
+            // ID身份证,aDay,bDay,type,price,(room),source,mode,note,info,phone
+
+            // $client = M('client')->where(array('ID_card'=>I('post.ID')))->find();
+            // if (!$client) {
+            //     $this->error('该身份证未注册！', U('Home/Client/reg'));
+            //     return;
+            // }
+
+            $o_id = I('get.id');
+
+            if (strtotime(I('post.aDay')) >= strtotime(I('post.bDay')) || strtotime(I('post.aDay')) < strtotime(date('Y-m-d',time()))) {
+                $this->error('入住/退房时间错误！');
+                return;
+            }
+
+            if (I('post.price') == '') {
+                $this->error('价格为空！请重新选择！');
+                return;
+            }
+
+            // o_record_2_room数据
+            if (I('post.room') == '') {// 防止，验证码错误导致的预分配房间信息丢失问题
+                $this->error('预分配房间信息错误！');
+                return;
+            }
+            if (I('post.room') != -1) {
+                $edit_order_2_room['room_ID'] = I('post.room');
+            }else{
+                $edit_order_2_room['room_ID'] = '';
+            }
+            $edit_order_2_room['A_date'] = I('post.aDay');
+            $edit_order_2_room['B_date'] = I('post.bDay');
+            // 计算2个日期间隔天数
+            $interval = date_diff(date_create($edit_order_2_room['A_date']), date_create($edit_order_2_room['B_date']));
+            $edit_order_2_room['nights'] = $interval->format('%a');
+            $edit_order_2_room['A_date'] .= self::IN_TIME;// 入住时间
+            if (I('post.mode') == 2) {
+                $edit_order_2_room['B_date'] .= self::OUT_TIME_2;// 会员离店时间
+            }else{
+                $edit_order_2_room['B_date'] .= self::OUT_TIME;// 离店时间
+            }
+
+            // $client_ID = $client['client_ID'];// 客户ID
+            $people_info = I('post.info');
+            if ($people_info[1]['name'] == '' || $people_info[1]['ID'] == '') {
+                // 去除入住人(二)信息
+                unset($people_info[1]);
+            }
+            
+            // book_info字段，JSON格式
+            $book_info['number'] = count($people_info);// 入住人数
+            $book_info['people_info'] = $people_info;
+            $book_info['note'] = I('post.note');
+
+            // o_record数据
+            // $edit_order['client_ID'] = $client_ID;
+            $edit_order['book_info'] = json_encode($book_info, JSON_UNESCAPED_UNICODE);// unicode格式
+
+            // $edit_order['style'] = self::STYLE_0;// 订单类型
+            $edit_order['type'] = I('post.type');// 房型
+            $edit_order['price'] = I('post.price');// 总价
+            $edit_order['source'] = I('post.source');// 来源
+            if (I('post.agent')) {
+                $edit_order['a_id'] = I('post.agent');// 协议人
+            }
+            $edit_order['pay_mode'] = I('post.mode');// 支付方式
+            $edit_order['phone'] = I('post.phone');// 联系手机
+
+            // 会员卡支付
+            // 1、检查该会员卡合法性，余额是否足够支付
+            // 2.合法，扣除相应金额，status = 2
+            if (I('post.paid') == 1) {
+                $edit_order['status'] = 2;// 已支付状态
+            }
+            
+
+
+            // p($edit_order);
+            // p($edit_order_2_room);
+            // die;
+
+            $order_model = D('OrderRecord');
+
+            $order_model->startTrans();// 启动事务
+
+            if ($order_model->where("o_id = $o_id")->create($edit_order, 2)) {
+                echo "create成功<br/>";
+                
+                // 更新o_record
+                $order_model->scope('allowUpdateField')->where("o_id = $o_id")->save();
+                // 更新o_record_2_room
+                echo "*******".M('o_record_2_room')->where("o_id = $o_id")->save($edit_order_2_room);
+
+                // die;
+                $result = array_merge((array)$edit_order, (array)$edit_order_2_room);
+                // unset($result['book_info']);
+                // p($result);die;
+                $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_EDIT_ORDER, 'edit', array('订单id' => $o_id), $result);
+                //                     0                 1                2             3                4                            5
+                write_log_all_array($log_Arr);
+                // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_EDIT_ORDER, 'edit', array('订单id' => $o_id), $result);
+
+                $this->success('编辑订单成功！', U('Home/Order/dealing'));
+                return;
+            }else{
+
+                echo "create失败<br/>";
+                // echo $order_model->getError();
+
+                $this->error($order_model->getError());
+                return;
+            }
+        }
+    }
+
+    /**
+     * 编辑订单
+     */
+    public function edit_old(){
 
         if (!I('get.id')) {
             $this->error('ERROR, id不能为空！');
@@ -322,13 +499,20 @@ class OrderController extends HomeController {
                 return;
             }
 
-            // p($checkIN);die;
-            $now = strtotime(date('Y-m-d',time())." 14:00:00");
-            if (strtotime(date('Y-m-d',time())) < strtotime($old_data['A_date']) ||  $now >= strtotime($old_data['B_date'])) {
-
+            $day_IN = strtotime(date('Y-m-d',$old_data['A_date']));
+            if (!($day_IN < NOW_TIME && NOW_TIME < strtotime($old_data['B_date']))) {
+                
                 $this->error('当前非预定入住时间！无法办理入住！');
                 return;
             }
+
+            // p($checkIN);die;
+            // $now = strtotime(date('Y-m-d',time())." 14:00:00");
+            // if (strtotime(date('Y-m-d',time())) < strtotime($old_data['A_date']) ||  $now >= strtotime($old_data['B_date'])) {
+
+            //     $this->error('当前非预定入住时间！无法办理入住！');
+            //     return;
+            // }
 
             $order_model = D('OrderRecord');
             $order_model->startTrans();// 启动事务

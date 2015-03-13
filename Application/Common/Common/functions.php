@@ -572,6 +572,10 @@ function update_o_sTime($o_id, $new_status){
             $which = 'pay';
             break;
         case '3':
+            if (is_null($model->where("o_id = $o_id")->getField('pay'))) {
+                
+                $updata['pay'] = getDatetime();
+            }
             $which = 'checkIn';
             break;
         case '4':

@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>编辑订单 - 普通</title>
+	<?php $SRC = HOME_SRC; ?>
+	<script type="text/javascript" src="{$SRC}/scripts/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="{$SRC}/scripts/order_0.js"></script>
+</head>
+<body>
+
+	<include file= "./home"/>
+	<p style="color:green">订单类型：普通</p>
+	<form action="{:U('Home/Order/edit_0')}?id={$data['o_id']}" method="post">
+		<p>身份　证：{$data['ID_card']}</p>
+		<p>入住日期：<input id="aDay" type="date" name="aDay" value="{$data['A_date']}">*</p>
+		<p>离店日期：<input id="bDay" type="date" name="bDay" value="{$data['B_date']}">*</p>
+
+	    <p>房　　型：
+	      <select id="type" name="type" onchange="loadPrice(0)">
+			<foreach name="types" item="name" key="type" >
+				<option value ="{$type}" <?php
+				if ($type == $data['type']) {
+					echo 'selected=""';
+				}
+				?>>{$name}</option>
+			</foreach>
+	      </select>
+
+	      <select id="price" name="price" onchange="showAgent()"><!--  onmouseover="loadPrice(0)" -->
+			<option value ="{$prices['bid_price']}" <?php
+				if ($prices['bid_price'] == $data['price']) {
+					echo 'selected=""';
+				}
+				?>>标　价 | ￥{$prices['bid_price']}</option>
+			<option value ="{$prices['stu_price']}" <?php
+				if ($prices['stu_price'] == $data['price']) {
+					echo 'selected=""';
+				}
+				?>>学生价 | ￥{$prices['stu_price']}</option>
+			<option value ="{$prices['vip_price']}" <?php
+				if ($prices['vip_price'] == $data['price']) {
+					echo 'selected=""';
+				}
+				?>>会员价 | ￥{$prices['vip_price']}</option>
+			<option value ="{$prices['corp_price']}" <?php
+				if ($prices['corp_price'] == $data['price']) {
+					echo 'selected=""';
+				}
+				?>>协议价 | ￥{$prices['corp_price']}</option>
+			<option value ="{$prices['inner_price']}" <?php
+				if ($prices['inner_price'] == $data['price']) {
+					echo 'selected=""';
+				}
+				?>>内部价 | ￥{$prices['inner_price']}</option>
+	      </select>
+
+      	  <select id="room" name="room" onmouseover="loadRooms()">
+      	  <?php
+      	  	if (!$data['room_ID']) {
+      	  		echo '<option value ="-1">预分配房间</option>';
+      	  	}else{
+      	  		echo '<option value ="'.$data['room_ID'].'">'. $data['room_ID'] .'</option>';
+      	  	}
+      	  ?>
+          </select>
+	    </p>
+
+	    <p>订单来源：
+          <select id="source" name="source">
+      		<foreach name="sources" item="name" key="source" >
+      			<option value ="{$source}" <?php
+				if ($source == $data['source']) {
+					echo 'selected=""';
+				}
+				?>>{$name}</option>
+      		</foreach>
+          </select>
+          <present name="data['a_id']">
+          <span id="agent">协议人：</span>
+          <select id="agent" name="agent">
+          	<foreach name="agents" item="agent">
+          		<option value="{$agent['a_id']}" <?php
+          		if ($agent['a_id'] == $data['a_id']) {
+          			echo 'selected=""';
+          		}
+          		?>>{$agent['name']} | ** <?php echo substr($agent['phone'], 7);?></option>
+          	</foreach>
+          </select>
+          </present>
+	    </p>
+	    
+	    <p>支付方式：
+	      <select id="mode" name="mode">
+      		<option value ="0" <?php
+				if (0 == $data['pay_mode']) {
+					echo 'selected=""';
+				}
+				?>>现金支付</option>
+      		<option value ="1" <?php
+				if (1 == $data['pay_mode']) {
+					echo 'selected=""';
+				}
+				?>>网上支付</option>
+      		<option value ="2" <?php
+				if (2 == $data['pay_mode']) {
+					echo 'selected=""';
+				}
+				?>>会员卡支付</option>
+          </select>
+          <span class="paid" >
+	          <input type="radio" name="paid" value="0" <?php
+	            if ($data['status'] == 1) {
+	            	echo 'checked=""';
+	            }
+				?>>未支付
+	          <input type="radio" name="paid" value="1" <?php
+				if ($data['status'] == 2) {
+	            	echo 'checked=""';
+	            }
+				?>>已支付
+          </span>
+	    </p>
+	    <?php
+	    $book_info = json_decode($data['book_info'],true);
+	    $people = $book_info['people_info'];
+	    ?>
+		<p>备　　注：<input type="text" name="note" value="{$book_info['note']}"></p>
+
+		<div>
+			<p>入住人员登记</p>
+			<p>
+				姓名　(一)<input type="text" name="info[0][name]" value="{$people[0]['name']}">*<br/>
+				身份证(一)<input type="text" name="info[0][ID_card]" value="{$people[0]['ID_card']}">*<br/>
+			</p>
+			<p>
+				姓名　(二)<input type="text" name="info[1][name]" value="{$people[1]['name']}"><br/>
+				身份证(二)<input type="text" name="info[1][ID_card]" value="{$people[1]['ID_card']}"><br/>
+			</p>
+		</div>
+
+		<p>手　　机：<input type="text" name="phone" value="{$data['phone']}">*</p>
+		<input type="submit" value="提交" />
+	</form>
+	
+
+	<script language="JavaScript">
+
+		var price_url = "{:U('Home/Client/getPriceByStyle_Type')}";
+		var rooms_url = "{:U('Home/Client/getRoomsByDate_Type')}";
+		var agent_url = "{:U('Home/Client/getAgent')}";
+		var o_id = "{$data['o_id']}";
+
+		// loadPrice(0);// 页面加载完后，价格直接由type相应加载
+
+	</script>
+	
+</body>
+</html>
