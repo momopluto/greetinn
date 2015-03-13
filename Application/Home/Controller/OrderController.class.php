@@ -543,6 +543,13 @@ class OrderController extends HomeController {
 
                         $this->success('办理入住成功！', U('Home/Order/dealing'));
                         return;
+                    }else{
+
+                        echo "更新房间信息失败！<br/>";
+                        // echo $order_model->getError();
+
+                        $this->error($order_model->getError());
+                        return;
                     }
                 }else{
 

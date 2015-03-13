@@ -148,7 +148,7 @@ class ClientController extends HomeController {
 
             $client_ID = $client['client_ID'];// 客户ID
             $people_info = I('post.info');
-            if ($people_info[1]['name'] == '' || $people_info[1]['ID'] == '') {
+            if ($people_info[1]['name'] == '' || $people_info[1]['ID_card'] == '') {
                 // 去除入住人(二)信息
                 unset($people_info[1]);
             }
@@ -298,7 +298,7 @@ class ClientController extends HomeController {
 
             $client_ID = $client['client_ID'];// 客户ID
             $people_info = I('post.info');
-            if ($people_info[1]['name'] == '' || $people_info[1]['ID'] == '') {
+            if ($people_info[1]['name'] == '' || $people_info[1]['ID_card'] == '') {
                 // 去除入住人(二)信息
                 unset($people_info[1]);
             }
@@ -447,7 +447,7 @@ class ClientController extends HomeController {
 
             $client_ID = $client['client_ID'];// 客户ID
             $people_info = I('post.info');
-            if ($people_info[1]['name'] == '' || $people_info[1]['ID'] == '') {
+            if ($people_info[1]['name'] == '' || $people_info[1]['ID_card'] == '') {
                 // 去除入住人(二)信息
                 unset($people_info[1]);
             }
@@ -515,6 +515,13 @@ class ClientController extends HomeController {
                     $this->success('[助]提交订单成功！', U('Home/Order/dealing'));
                     return;
                 }
+            }else{
+
+                echo "create失败<br/>";
+                // echo $order_model->getError();
+
+                $this->error($order_model->getError());
+                return;
             }
             
         }else{
