@@ -15,7 +15,7 @@
 	<p>订单类型：<span><a href="{:U('Home/Client/order_0')}">普通</a></span> <span><a href="{:U('Home/Client/order_1')}">钟点</a></span> <span><a href="{:U('Home/Client/order_2')}">团购</a></span></p>
 	<p style="color:green">订单类型：团购</p>
 	<form action="{:U('Home/Client/order_2')}" method="post">
-		<p>身份　证：<input type="text" name="ID">*</p>
+		<p>身份　证：<input id="ID" type="text" name="ID" value="{$data['ID_card']}" onblur="loadInfo()">* <span id="ID_tips" style="color:red"></span></p>
 		<p>入住日期：<input id="aDay" type="date" name="aDay" >*</p>
 		<p>离店日期：<input id="bDay" type="date" name="bDay" >*</p>
 
@@ -62,17 +62,17 @@
 		<div>
 			<p>入住人员登记</p>
 			<p>
-				姓名　(一)<input type="text" name="info[0][name]">*<br/>
-				身份证(一)<input type="text" name="info[0][ID_card]">*<br/>
+				姓名　(一)<input id="name_0" type="text" name="info[0][name]" value="{$data['name']}">*<br/>
+				身份证(一)<input id="ID_0" type="text" name="info[0][ID_card]" value="{$data['ID_card']}">*<br/>
 			</p>
 			<p>
 				姓名　(二)<input type="text" name="info[1][name]"><br/>
 				身份证(二)<input type="text" name="info[1][ID_card]"><br/>
 			</p>
-			<p>总人　数：<input type="number" min="1" name="number"><span style="color:purple">(复式才需要填)</span></p>
+			<p id="number" hidden="">总人　数：<input type="number" min="1" name="number">*</p>
 		</div>
 
-		<p>手　　机：<input type="text" name="phone">*</p>
+		<p>手　　机：<input type="text" name="phone" value="{$data['phone']}">*</p>
 		<p>验证　码：<input type="text" name="verify">
 		<img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/></p>
 		<input type="submit" value="提交" />
@@ -83,6 +83,7 @@
 
 		var price_url = "{:U('Home/Client/getPriceByStyle_Type')}";
 		var rooms_url = "{:U('Home/Client/getRoomsByDate_Type')}";
+		var info_url = "{:U('Home/Client/getPeopleInfo')}";
 
 		// loadPrice(2);// 页面加载完后，价格直接由type相应加载
 		

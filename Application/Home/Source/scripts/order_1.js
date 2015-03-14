@@ -141,3 +141,42 @@
 		var leaveTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min;
 		return leaveTime;
 	}
+
+	/* 加载入住人信息 */
+	function loadInfo() {
+		
+		var ID = $("#ID");
+		var ID_TIPS = $("#ID_tips");
+
+		if (ID.val().length != 18) {
+			ID_TIPS.text("身份证长度不正确！应为18位！");
+			ID.focus();
+			return;
+		};
+
+
+		$.ajax({
+        	url: info_url,
+        	type: 'post',
+        	data: {ID: ID.val()},
+        	dataType: 'json',
+        	success: function(data) {
+
+        		if (data['info'] === false) {
+        			ID_TIPS.text("身份证不合法！请检查是否输入正确！");
+        			ID.focus();
+        			return;
+        		};
+
+        		if (data['info']) {
+        			ID_TIPS.text("");
+        			// console.log(data['info']);
+        			var info = eval(data['info']);
+
+        			$("#name_0").val(info['name']);/*姓名(一)*/
+        			$("#ID_0").val(info['ID_card']);/*身份证(一)*/
+        		};
+        	}
+        });
+		
+	}

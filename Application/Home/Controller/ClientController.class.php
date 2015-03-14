@@ -56,7 +56,7 @@ class ClientController extends HomeController {
                 write_log_all_array($log_Arr);
                 // write_log_all($this->log_model, $this->log_data, $Client, self::RECEPTIONIST_HELP_REGISTER, 'reg', array('客户id' => $client_ID, '身份证' => $reg_data['ID_card']));
 
-                $this->success('注册成功！', U('Home/Client/order'));
+                $this->success('注册成功！', U('Home/Client/order')."?id=".$reg_data['ID_card']);
                 return;
             }else{
                 echo "测试，自动验证&完成，失败！";
@@ -85,7 +85,13 @@ class ClientController extends HomeController {
      */
     public function order(){
 
-        $this->display();
+        if (I('get.id')) {
+            cookie('ID_card', I('get.id'));
+        }else{
+            cookie('ID_card', null);
+        }
+
+        $this->display('order');
     }
 
     /**
@@ -238,11 +244,18 @@ class ClientController extends HomeController {
             $sources = M('order_source')->getField('source,name');// 来源
             unset($sources[4]);
 
-            // p($types);die;
+            if (cookie('ID_card')) {
+                
+                $data = M("client")->where(array('ID_card'=>cookie('ID_card')))->field('ID_card, name, phone')->find();
+                $this->assign('data', $data);
+            }
+
+            // p($data);die;
 
             $this->assign('types', $types);
             $this->assign('prices', $prices);
             $this->assign('sources', $sources);
+            
             $this->display();
         }
     }
@@ -380,6 +393,12 @@ class ClientController extends HomeController {
             $prices = M(self::STYLE_1.'_price')->find(0);// 钟点房，标单价钱
             $sources = M('order_source')->getField('source,name');// 来源
             unset($sources[4]);
+
+            if (cookie('ID_card')) {
+                
+                $data = M("client")->where(array('ID_card'=>cookie('ID_card')))->field('ID_card, name, phone')->find();
+                $this->assign('data', $data);
+            }
 
             // p($types);die;
 
@@ -535,6 +554,12 @@ class ClientController extends HomeController {
             // unset($sources[4]);
             // p($sources);die;
 
+            if (cookie('ID_card')) {
+                
+                $data = M("client")->where(array('ID_card'=>cookie('ID_card')))->field('ID_card, name, phone')->find();
+                $this->assign('data', $data);
+            }
+
             // p($types);die;
 
             $this->assign('types', $types);
@@ -601,8 +626,8 @@ class ClientController extends HomeController {
         // $this->ajaxReturn(I('post.type'));return;
         
         $limit['type'] = I('post.type');
-        $limit['A_date'] = I('post.aDay');
-        $limit['B_date'] = I('post.bDay');
+        $limit['A_date'] = I('post.aDay').self::IN_TIME;
+        $limit['B_date'] = I('post.bDay').self::OUT_TIME;// 此处未细分OUT_TIME 和 OUT_TIME_2
         
         if (I('post.id')) {
             $row = M('o_record_2_room')->find(I('post.id'));
@@ -625,6 +650,24 @@ class ClientController extends HomeController {
 
 
         $data['agents'] = M("agent")->field('a_id, name, phone')->select();;
+
+        $this->ajaxReturn($data, 'json');
+    }
+
+    /**
+     * [AJAX]获取入住人信息info
+     */
+    public function getPeopleInfo(){
+
+        $map['ID_card'] = I('post.ID');
+
+        if (!check_IDCard($map['ID_card'])) {
+            
+            $data['info'] = false;
+        }else{
+            
+            $data['info'] = M("client")->where($map)->field('ID_card, name, phone')->find();
+        }
 
         $this->ajaxReturn($data, 'json');
     }

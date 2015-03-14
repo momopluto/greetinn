@@ -60,6 +60,12 @@
 		// var style = 0;
 		var type = $("#type").val();
 
+		if (type == 4 || type == 5) {/* 复式 */
+			$("#number").removeAttr('hidden');
+		}else{
+			$("#number").attr('hidden', '');
+		}
+
 		$.ajax({
         	url: price_url,
         	type: 'post',
@@ -86,7 +92,7 @@
         // loadRooms();// 加载空闲房间
 	}
 
-	/* 展示协议人信息 */
+	/* 展示代理人信息 */
 	function showAgent(){
 
 
@@ -109,7 +115,7 @@
 	        			// console.log(data['agents']);
 	        			var agents = data['agents'];
 	        			
-	        			var agentHTML = ' <span id="agent">协议人：</span><select id="agent" name="agent">';
+	        			var agentHTML = ' <span id="agent">代理人：</span><select id="agent" name="agent">';
 	        			var subStr = '';
 
 	        			for (var i in agents) {
@@ -154,7 +160,8 @@
 				subStr = '<option value ="'+ prices['bid_price'] +'" selected="">标　价 | ￥'+ prices['bid_price'] +'</option>'+
 					'<option value ="'+ prices['stu_price'] +'">学生价 | ￥'+ prices['stu_price'] +'</option>'+
 					'<option value ="'+ prices['vip_price'] +'">会员价 | ￥'+ prices['vip_price'] +'</option>'+
-					'<option value ="'+ prices['corp_price'] +'">协议价 | ￥'+ prices['corp_price'] +'</option>'+
+					'<option value ="'+ prices['agent_price'] +'">代理价 | ￥'+ prices['agent_price'] +'</option>'+
+					// '<option value ="'+ prices['corp_price'] +'">协议价 | ￥'+ prices['corp_price'] +'</option>'+
 					'<option value ="'+ prices['inner_price'] +'">内部价 | ￥'+ prices['inner_price'] +'</option>';
 				// alert(0);
 				break;
@@ -177,4 +184,43 @@
 		priceHTML += subStr + '</select>';
 
 		PRICE.html(priceHTML);
+	}
+
+	/* 加载入住人信息 */
+	function loadInfo() {
+		
+		var ID = $("#ID");
+		var ID_TIPS = $("#ID_tips");
+
+		if (ID.val().length != 18) {
+			ID_TIPS.text("身份证长度不正确！应为18位！");
+			ID.focus();
+			return;
+		};
+
+
+		$.ajax({
+        	url: info_url,
+        	type: 'post',
+        	data: {ID: ID.val()},
+        	dataType: 'json',
+        	success: function(data) {
+
+        		if (data['info'] === false) {
+        			ID_TIPS.text("身份证不合法！请检查是否输入正确！");
+        			ID.focus();
+        			return;
+        		};
+
+        		if (data['info']) {
+        			ID_TIPS.text("");
+        			// console.log(data['info']);
+        			var info = eval(data['info']);
+
+        			$("#name_0").val(info['name']);/*姓名(一)*/
+        			$("#ID_0").val(info['ID_card']);/*身份证(一)*/
+        		};
+        	}
+        });
+		
 	}

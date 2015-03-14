@@ -15,7 +15,7 @@
 	<p>订单类型：<span><a href="{:U('Home/Client/order_0')}">普通</a></span> <span><a href="{:U('Home/Client/order_1')}">钟点</a></span> <span><a href="{:U('Home/Client/order_2')}">团购</a></span></p>
 	<p style="color:green">订单类型：普通</p>
 	<form action="{:U('Home/Client/order_0')}" method="post">
-		<p>身份　证：<input type="text" name="ID">*</p>
+		<p>身份　证：<input id="ID" type="text" name="ID" value="{$data['ID_card']}" onblur="loadInfo()">* <span id="ID_tips" style="color:red"></span></p>
 		<p>入住日期：<input id="aDay" type="date" name="aDay" >*</p><!-- onchange="loadRooms()" -->
 		<p>离店日期：<input id="bDay" type="date" name="bDay" >*</p>
 
@@ -31,7 +31,8 @@
 			<option value ="{$prices['bid_price']}">标　价 | ￥{$prices['bid_price']}</option>
 			<option value ="{$prices['stu_price']}">学生价 | ￥{$prices['stu_price']}</option>
 			<option value ="{$prices['vip_price']}">会员价 | ￥{$prices['vip_price']}</option>
-			<option value ="{$prices['corp_price']}">协议价 | ￥{$prices['corp_price']}</option>
+			<option value ="{$prices['agent_price']}">代理价 | ￥{$prices['agent_price']}</option>
+			<!-- <option value ="{$prices['corp_price']}">协议价 | ￥{$prices['corp_price']}</option> -->
 			<option value ="{$prices['inner_price']}">内部价 | ￥{$prices['inner_price']}</option>
 	      </select>
 
@@ -67,16 +68,17 @@
 		<div>
 			<p>入住人员登记</p>
 			<p>
-				姓名　(一)<input type="text" name="info[0][name]">*<br/>
-				身份证(一)<input type="text" name="info[0][ID_card]">*<br/>
+				姓名　(一)<input id="name_0" type="text" name="info[0][name]" value="{$data['name']}">*<br/>
+				身份证(一)<input id="ID_0" type="text" name="info[0][ID_card]" value="{$data['ID_card']}">*<br/>
 			</p>
 			<p>
 				姓名　(二)<input type="text" name="info[1][name]"><br/>
 				身份证(二)<input type="text" name="info[1][ID_card]"><br/>
 			</p>
+			<p id="number" hidden="">总人　数：<input type="number" min="1" name="number">*</p>
 		</div>
 
-		<p>手　　机：<input type="text" name="phone">*</p>
+		<p>手　　机：<input type="text" name="phone" value="{$data['phone']}">*</p>
 		<p>验证　码：<input type="text" name="verify">
 		<img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/></p>
 		<input type="submit" value="提交" />
@@ -88,6 +90,7 @@
 		var price_url = "{:U('Home/Client/getPriceByStyle_Type')}";
 		var rooms_url = "{:U('Home/Client/getRoomsByDate_Type')}";
 		var agent_url = "{:U('Home/Client/getAgent')}";
+		var info_url = "{:U('Home/Client/getPeopleInfo')}";
 
 		// loadPrice(0);// 页面加载完后，价格直接由type相应加载
 		
