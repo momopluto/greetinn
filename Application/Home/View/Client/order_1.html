@@ -84,7 +84,7 @@
 			</p>
 		</div>
 
-		<p>手　　机：<input type="text" name="phone" value="{$data['phone']}">*</p>
+		<p>手　　机：<input id="phone" type="text" name="phone" value="{$data['phone']}">*</p>
 		<p>验证　码：<input type="text" name="verify">
 		<img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/></p>
 		<input type="submit" value="提交" />
