@@ -57,7 +57,7 @@ class OrderController extends HomeController {
         
         $o_record_model = D('OrderRecordView');
 
-        $data = $o_record_model->where('status != 0 AND status != 4')->order('cTime desc')->select();
+        $data = $o_record_model->where('status != 0 AND status != 4')->order('room_ID,cTime desc')->select();
 
         // p($data);die;
         // p($o_record_model);

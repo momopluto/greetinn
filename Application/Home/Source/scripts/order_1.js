@@ -176,7 +176,9 @@
         			$("#name_0").val(info['name']);/*姓名(一)*/
         			$("#ID_0").val(info['ID_card']);/*身份证(一)*/
         			$("#phone").val(info['phone']);/*手机*/
-        		};
+        		}else{
+        			ID_TIPS.text("");
+        		}
         	}
         });
 		

@@ -122,7 +122,11 @@ class ClientController extends HomeController {
                 return;
             }
 
-            if (strtotime(I('post.aDay')) >= strtotime(I('post.bDay')) || strtotime(I('post.aDay')) < strtotime(date('Y-m-d',time()))) {
+            
+            $today = date("Y-m-d");
+            $yesterday = date("Y-m-d",strtotime("$today -1 day"));
+            if (strtotime(I('post.aDay')) >= strtotime(I('post.bDay')) || strtotime(I('post.aDay')) < strtotime($yesterday)) {
+                // (入住时间 < 离店时间) && (入住时间 >= 昨天)
                 $this->error('入住/退房时间错误！');
                 return;
             }
@@ -170,7 +174,7 @@ class ClientController extends HomeController {
 
             $new_order['style'] = self::STYLE_0;// 订单类型
             $new_order['type'] = I('post.type');// 房型
-            $new_order['price'] = I('post.price');// 总价
+            $new_order['price'] = I('post.price') * $new_order_2_room['nights'];// 总价
             $new_order['source'] = I('post.source');// 来源
             if (I('post.agent')) {
                 $new_order['a_id'] = I('post.agent');// 协议人
@@ -438,7 +442,10 @@ class ClientController extends HomeController {
                 return;
             }
 
-            if (strtotime(I('post.aDay')) >= strtotime(I('post.bDay')) || strtotime(I('post.aDay')) < strtotime(date('Y-m-d',time()))) {
+            $today = date("Y-m-d");
+            $yesterday = date("Y-m-d",strtotime("$today -1 day"));
+            if (strtotime(I('post.aDay')) >= strtotime(I('post.bDay')) || strtotime(I('post.aDay')) < strtotime($yesterday)) {
+                // (入住时间 < 离店时间) && (入住时间 >= 昨天)
                 $this->error('入住/退房时间错误！');
                 return;
             }
@@ -488,7 +495,7 @@ class ClientController extends HomeController {
 
             $new_order['style'] = self::STYLE_2;// 订单类型
             $new_order['type'] = I('post.type');// 房型
-            $new_order['price'] = I('post.price');// 总价
+            $new_order['price'] = I('post.price') * $new_order_2_room['nights'];// 总价
             $new_order['source'] = 4;// 来源固定为“团购”
             $new_order['g_id'] = I('post.source');// 团购平台id
             $new_order['pay_mode'] = I('post.mode');// 支付方式
