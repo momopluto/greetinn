@@ -15,7 +15,7 @@ class OrderRecordModel extends Model {
     protected $_scope = array(
         // 命名范围allowUpdate，允许更新的字段
         'allowUpdateField'=>array(
-            'field'=>'book_info,type,source,a_id,g_id,pay_mode,price,deposit,phone,status',
+            'field'=>'client_ID,book_info,type,source,a_id,g_id,pay_mode,price,deposit,phone,status',
         ),
 
         // 命名范围cancel

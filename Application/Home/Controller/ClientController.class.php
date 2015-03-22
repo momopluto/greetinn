@@ -673,7 +673,7 @@ class ClientController extends HomeController {
             $data['info'] = false;
         }else{
             
-            $data['info'] = M("client")->where($map)->field('ID_card, name, phone')->find();
+            $data['info'] = M("client")->where($map)->field('ID_card, name, phone, gender, s_ID')->find();
         }
 
         $this->ajaxReturn($data, 'json');

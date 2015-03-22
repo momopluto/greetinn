@@ -91,6 +91,117 @@ class OrderController extends HomeController {
         $this->display();
     }
 
+
+    /**
+     * 完善客户信息
+     */
+    public function perfect(){
+
+        if (IS_POST) {
+            
+            // p(I('post.'));die;
+
+            $o_id = I('post.id');
+
+            $row = is_IDCard_exists(I('post.ID'), 'client');
+            // p($row);die;
+            if ($row) {// 存在
+                
+                $update['client_ID'] = $row['client_ID'];
+                // 姓名、手机
+                if (!I('post.name')) {
+                    $this->error('姓名不能为空！');
+                }
+                if (!I('post.phone')) {
+                    $this->error('手机不能为空！');
+                }
+
+            }else{// 不存在，注册取得client_ID
+
+                // 验证必要信息是否合法
+                $reg_data['name'] = I('post.name');// '刘momo';//
+                $reg_data['ID_card'] = I('post.ID');// '441423199305165018';//
+                $reg_data['gender'] = I('post.sex');
+                $reg_data['phone'] = I('post.phone');
+
+                $Client = D('Client');
+
+                $Client->startTrans();// 启动事务
+
+                if ($Client->create($reg_data)){
+                    echo "测试，自动验证&完成，成功！";
+
+                    $client_ID = $Client->add();
+
+                    if ($client_ID === false) {
+                        $this->error('写入数据库失败！');
+                        return;
+                    }
+
+                    $log_Arr = array($this->log_model, $this->log_data, $Client, self::RECEPTIONIST_HELP_REGISTER, 'reg', array('客户id' => $client_ID, '身份证' => $reg_data['ID_card']));
+                    //                     0                 1                2             3                4                            5
+                    write_log_all_array($log_Arr);
+                    // write_log_all($this->log_model, $this->log_data, $Client, self::RECEPTIONIST_HELP_REGISTER, 'reg', array('客户id' => $client_ID, '身份证' => $reg_data['ID_card']));
+
+                    // $this->success('注册成功！', U('Home/Client/order')."?id=".$reg_data['ID_card']);
+
+                    $update['client_ID'] = $client_ID;
+                }else{
+                    echo "测试，自动验证&完成，失败！";
+                    // echo $Client->getError();
+
+                    $this->error($Client->getError());
+                    return;
+                }
+            }
+
+            // die;
+
+            $order_model = M('o_record');
+
+            $old_data = $order_model->find($o_id);
+            // p($old_data);die;
+
+            $book_info = json_decode($old_data['book_info'], true);
+            $book_info['people_info'][0]['name'] = I('post.name');
+            $book_info['people_info'][0]['ID_card'] = I('post.ID');
+
+            $update['book_info'] = json_encode($book_info, JSON_UNESCAPED_UNICODE);
+            $update['phone'] = I('post.phone');
+            // 更新o_id订单的client_ID
+            if ($order_model->where("o_id = $o_id")->setField($update)) {
+                
+                // echo "完善信息成功！";
+                $this->success('完善信息成功！', U('Home/Order/dealing'));
+                return;
+            }else{
+                
+                $this->error("完善信息更新失败！");
+                return;
+            }
+            
+        }else{
+
+            if (!I('get.id')) {
+                $this->error('ERROR, id不能为空！');
+                return;
+            }
+
+            $o_id = I('get.id');
+
+            $o_record_model = D('OrderRecordView');
+            $data = $o_record_model->where("o_record.o_id = $o_id")->find();
+
+            $info['o_id'] = $o_id;
+            $book_info = json_decode($data['book_info'], true);
+            $info['name'] = $book_info['people_info'][0]['name'];
+            $info['phone'] = $data['phone'];
+            // p($info);die;
+            $this->assign('data', $info);
+            $this->display('reg');
+        }
+    }
+
     /**
      * 编辑订单
      */

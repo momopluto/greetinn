@@ -27,7 +27,11 @@
 		<th>操作</th>
 
 	<foreach name="data" item="one" key="k" >
-    <tr>
+    <tr <?php if ($one['status'] == 3) {/*入住ing*/
+    	echo 'style="background:green"';
+    }elseif ($one['ID_card'] == "111111111111111110") {
+    	echo 'style="background:gray"';
+    }?>>
     	<td align="center">{$one['style_name']}</td>
     	<td align="center">{$one['o_id']}</td>
 	    <td align="center">
@@ -133,7 +137,18 @@
 	    	case 1:
 	    	case 2:
 	    		?>
-	    		<a href="{:U('Home/Order/check_in')}?id={$one['o_id']}"><button>办理入住</button></a><br/>
+	    		<?php 
+	    			if ($one['ID_card'] == "111111111111111110") {
+				    	
+				    	?>
+				    	<a href="{:U('Home/Order/perfect')}?id={$one['o_id']}"><button>完善信息</button></a><br/>
+				    	<?php
+				    }else {
+				    	?>
+				    	<a href="{:U('Home/Order/check_in')}?id={$one['o_id']}"><button>办理入住</button></a><br/>
+				    	<?php
+				    }
+	    		?>
 	    		<a href="{:U('Home/Order/edit')}?id={$one['o_id']}"><button>编辑<!-- 当前页面弹出框进行修改 --></button></a><a href="{:U('Home/Order/cancel')}?id={$one['o_id']}"><button>取消</button></a>
 	    		<?php
 	    		break;
