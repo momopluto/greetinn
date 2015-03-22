@@ -10,20 +10,22 @@
 
 	办理退房
 	<table border="1">
+		<th>订单类型</th>
 		<th>订单编号</th>
 		<th>入住\离店日期</th>
+		<th>订单详情</th>
+		<th>支付方式</th>
 		<th>房间类型</th>
 		<th>总价</th>
-		<th>订单详情</th>
-		<th>房间</th>
+		<th>订单状态</th>
+		<th>押金</th>
 		<th>操作</th>
 
 	<form action="{:U('Home/Order/check_out')}" method="post">
     <tr>
-    	<td>{$data['o_id']}</td>
-	    <td>{$data['A_date']}<br/>{$data['B_date']}</td>
-	    <td align="center">{$types[$data['type']]['name']}<br/>￥{$types[$data['type']]['price']}</td>
-	    <td>￥{$data['price']}</td>
+    	<td align="center">{$data['style_name']}</td>
+    	<td align="center">{$data['o_id']}</td>
+	    <td><p>{$data['A_date']}</p><p>{$data['B_date']}</p></td>
 	    <td>
 	    <?php
 	    $book_info = json_decode($data['book_info'],true);
@@ -37,8 +39,59 @@
 	    <p>备注: {$book_info['note']}</p>
 	    </td>
 	    <td align="center">
-    		{$data['room_ID']}房
-    		<p style="color:red">归还押金: ￥{$data['deposit']}</p>
+	    <?php
+	    	$mode = '';
+	    	switch ($data['pay_mode']) {
+	    		case 0:
+	    			$mode = "现金支付";
+	    			break;
+	    		case 1:
+	    			$mode = "网上支付";
+	    			break;
+	    		case 2:
+	    			$mode = "会员卡支付";
+	    			break;
+	    		default:
+	    			break;
+	    	}
+	    	echo $mode;
+	    ?>
+	    </td>
+	    <td align="center">{$data['type_name']}</td>
+	    <!-- <td align="center">{$types[$data['type']]['name']}<br/>￥{$types[$data['type']]['price']}</td> -->
+	    <td align="center">￥{$data['price']}</td>
+	    <td align="center"  title="状态改变时间: &#10;取消: {$data['cancel']}&#10;支付: {$data['pay']}&#10;入住: {$data['checkIn']}&#10;离店: {$data['checkOut']}">
+    	<?php
+    		$str = '';
+    		switch ($data['status']) {
+    			case 0:
+    				$str = "取消";
+    				break;
+    			case 1:
+    				$str = '<span style="color:red">预订</span>';// 红色警示，未付款
+    				break;
+    			case 2:
+    				$str = "已支付";
+    				break;
+    			case 3:
+    				$str = "入住ing"."<p>".$data['room_ID']."房</p>";
+    				break;
+    			case 4:
+    				$str = "离店";
+    				break;
+    			default:
+    				break;
+    		}
+    		// 换房/续住的备注
+    		if ($data['note'] != '') {
+    			$data['note'] = str_replace(array(';'), "<br/>", $data['note']);
+    			$str .= "<span>". $data['note'] ."</span>";
+    		}
+    		echo $str;
+    	?>
+    	</td>
+	    <td align="center">
+    		<p style="color:red">归还: ￥{$data['deposit']}</p>
 	    </td>
 	    <td>
 	    <input type="submit" value="确定">

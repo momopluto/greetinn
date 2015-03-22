@@ -513,11 +513,14 @@ function init_o_room($data){
  * @param int $o_id 订单记录id
  * @return bool
  */
-function init_o_sTime($o_id){
+function init_o_sTime($o_id, $status=''){
 
     $model = M('o_record_2_stime');
 
     $data['o_id'] = $o_id;
+    if ($status == 2) {// 已支付
+        $data['pay'] = getDatetime();
+    }
 
     return $model->add($data);
 }
@@ -540,8 +543,13 @@ function update_o_room($o_id, $room_ID){
 
     $model = M('o_record_2_room');
 
-    $data['room_ID'] = $room_ID;
+    $data = $model->find($o_id);
 
+    if ($data['room_ID'] == $room_ID) {
+        return true;
+    }
+    
+    $data['room_ID'] = $room_ID;
     return $model->where("o_id = $o_id")->save($data);
 }
 
@@ -564,6 +572,10 @@ function update_o_sTime($o_id, $new_status){
             $which = 'pay';
             break;
         case '3':
+            if (is_null($model->where("o_id = $o_id")->getField('pay'))) {
+                
+                $updata['pay'] = getDatetime();
+            }
             $which = 'checkIn';
             break;
         case '4':

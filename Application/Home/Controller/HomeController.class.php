@@ -26,6 +26,15 @@ class HomeController extends Controller {
     const RECEPTIONIST_RESPONSE_BORROW_REQUEST  	=   '响应借设备请求';
     const RECEPTIONIST_CONFIRM_RETURN_BORROWED  	=   '确认归还设备';
 
+    // 订单类型
+    const STYLE_0                     =   0;// 普通
+    const STYLE_1                     =   1;// 钟点
+    const STYLE_2                     =   2;// 团购
+
+    const IN_TIME                     =   " 14:00:00";// 入住时间
+    const OUT_TIME                    =   " 12:00:00";// 离店时间
+    const OUT_TIME_2                  =   " 13:00:00";// 会员离店时间
+
     // 全局日志模型
 	protected $log_model;
 	// 全局日志信息数组

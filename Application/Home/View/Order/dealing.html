@@ -11,24 +11,46 @@
 	未完成订单(默认)
 	<li><a href="{:U('Home/Order/complete')}">已完成订单</a></li>	
 	<table border="1">
+		<th>订单类型</th>
 		<th>订单编号</th>
 		<th>预订时间</th>
 		<th>预订人信息</th>
-		<th>入住\离店日期</th>
+		<th>代理人</th>
+		<th>入住\离店时间</th>
+		<th>订单详情</th>
+		<th>来源</th>
+		<th>支付方式</th>
 		<th>房间类型</th>
 		<th>总价</th>
-		<th>订单详情</th>
+		<th>分配房间</th>
 		<th>订单状态</th>
 		<th>操作</th>
 
 	<foreach name="data" item="one" key="k" >
-    <tr>
-    	<td>{$one['o_id']}</td>
-	    <td>{$one['cTime']}</td>
-	    <td align="center">{$one['name']}<br/>{$one['ID_card']}</td>
-	    <td>{$one['A_date']}<br/>{$one['B_date']}</td>
-	    <td align="center">{$types[$one['type']]['name']}<br/>￥{$types[$one['type']]['price']}</td>
-	    <td>￥{$one['price']}</td>
+    <tr <?php if ($one['status'] == 3) {/*入住ing*/
+    	echo 'style="background:green"';
+    }elseif ($one['ID_card'] == "111111111111111110") {
+    	echo 'style="background:gray"';
+    }?>>
+    	<td align="center">{$one['style_name']}</td>
+    	<td align="center">{$one['o_id']}</td>
+	    <td align="center">
+	    <?php
+	    	$t = explode(' ', $one['cTime']);
+	    ?>
+	    <p>{$t[0]}</p><p>{$t[1]}</p>
+	    </td>
+	    <td align="center"><p>{$one['name']}</p><p>{$one['ID_card']}</p><p>手机{$one['phone']}</p></td>
+	    <td align="center">
+	    <?php
+	    	if ($one['agent_name']) {
+	    		echo "<p>".$one['agent_name']."</p><p>**".substr($one['a_phone'], 7)."</p>";
+	    	}else{
+	    		echo " - ";
+	    	}
+	    ?>
+	    </td>
+	    <td><p>{$one['A_date']}</p><p>{$one['B_date']}</p></td>
 	    <td>
 	    <?php
 	    $book_info = json_decode($one['book_info'],true);
@@ -41,7 +63,50 @@
 	    </foreach>
 	    <p>备注: {$book_info['note']}</p>
 	    </td>
-	    <td align="center"  title="状态改变时间: &#10;取消: {$one['cancel']}&#10;网付: {$one['pay']}&#10;入住: {$one['checkIn']}&#10;离店: {$one['checkOut']}">
+	    <td align="center">{$one['source_name']}
+	    <?php
+	    	if ($one['groupon_name']) {
+	    		echo "<p>".$one['groupon_name']."</p>";
+	    	}
+	    ?>
+	    </td>
+		<td align="center">
+		<?php
+			$mode = '';
+			switch ($one['pay_mode']) {
+				case 0:
+					$mode = "现金支付";
+					break;
+				case 1:
+					$mode = "网上支付";
+					break;
+				case 2:
+					$mode = "会员卡支付";
+					break;
+				default:
+					break;
+			}
+			echo $mode;
+		?>
+		</td>
+	    <td align="center">{$one['type_name']}</td>
+	    <td align="center">￥{$one['price']}</td>
+	    <td align="center" title="<?php echo str_replace(array(';'), '&#10', $one['note']);?>">
+	    <?php
+	    	if ($one['room_ID']) {
+	    		echo $one['room_ID']."房";
+	    	}else{
+	    		echo "未分配";
+	    	}
+
+	    	// // 换房/续住的备注
+    		// if ($one['note'] != '') {
+    		// 	$one['note'] = str_replace(array(';'), "<br/>", $one['note']);
+    		// 	echo "<span>". $one['note'] ."</span>";
+    		// }
+	    ?>
+	    </td>
+	    <td align="center" title="状态改变时间: &#10;取消: {$one['cancel']}&#10;支付: {$one['pay']}&#10;入住: {$one['checkIn']}&#10;离店: {$one['checkOut']}">
     	<?php
     		$str = '';
     		switch ($one['status']) {
@@ -52,21 +117,16 @@
     				$str = "预订";
     				break;
     			case 2:
-    				$str = "已网上支付";
+    				$str = "已支付";
     				break;
     			case 3:
-    				$str = "入住ing"."<p>".$one['room_ID']."房</p>";
+    				$str = "入住ing";/*."<p>".$one['room_ID']."房</p>"*/
     				break;
     			case 4:
     				$str = "离店";
     				break;
     			default:
     				break;
-    		}
-    		// 换房/续住的备注
-    		if ($one['note'] != '') {
-    			$one['note'] = str_replace(array(';'), "<br/>", $one['note']);
-    			$str .= "<span>". $one['note'] ."</span>";
     		}
     		echo $str;
     	?>
@@ -77,7 +137,18 @@
 	    	case 1:
 	    	case 2:
 	    		?>
-	    		<a href="{:U('Home/Order/check_in')}?id={$one['o_id']}"><button>办理入住</button></a><br/>
+	    		<?php 
+	    			if ($one['ID_card'] == "111111111111111110") {
+				    	
+				    	?>
+				    	<a href="{:U('Home/Order/perfect')}?id={$one['o_id']}"><button>完善信息</button></a><br/>
+				    	<?php
+				    }else {
+				    	?>
+				    	<a href="{:U('Home/Order/check_in')}?id={$one['o_id']}"><button>办理入住</button></a><br/>
+				    	<?php
+				    }
+	    		?>
 	    		<a href="{:U('Home/Order/edit')}?id={$one['o_id']}"><button>编辑<!-- 当前页面弹出框进行修改 --></button></a><a href="{:U('Home/Order/cancel')}?id={$one['o_id']}"><button>取消</button></a>
 	    		<?php
 	    		break;
