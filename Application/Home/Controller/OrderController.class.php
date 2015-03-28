@@ -610,6 +610,16 @@ class OrderController extends HomeController {
                 return;
             }
 
+            // $vipModel = M('vip');
+            // $whe['client_ID'] = $old_data['client_ID'];
+            // $old_VipData = $vipModel->where($whe)->find();// 会员卡信息
+
+            // if ($old_data['price'] == 0 && $old_VipData['first_free'] == 0) {
+
+            //     $this->error('此会员已享用过首住免费！');
+            //     return;
+            // }
+
             $day_IN = strtotime(date('Y-m-d',$old_data['A_date']));
             if (!($day_IN < NOW_TIME && NOW_TIME < strtotime($old_data['B_date']))) {
                 
@@ -654,9 +664,9 @@ class OrderController extends HomeController {
 
                             // p($old_data);die;
 
-                            // $old_data['price'] = 
+                            $vipModel = M('vip');
                             $whe['client_ID'] = $old_data['client_ID'];
-                            $old_VipData = M('vip')->where($whe)->find();
+                            $old_VipData = $vipModel->where($whe)->find();
 
                             if ($old_VipData['balance'] < $old_data['price']) {// 余额不够支付
 
@@ -664,11 +674,21 @@ class OrderController extends HomeController {
                                 return;
                             }
 
-                            if (M('vip')->where($whe)->setDec('balance', $old_data['price']) == false) {
+                            if ($vipModel->where($whe)->setDec('balance', $old_data['price']) === false) {
                                  
                                  echo "会员卡扣费失败！";
                                  $flag = false;
-                             }
+                            }
+
+                            if ($old_data['price'] == 0 && $old_VipData['first_free'] == 1) {
+
+                                $update_VipData['first_free'] = 0;
+                                if ($vipModel->where($whe)->setField($update_VipData) === false) {
+                                    
+                                    echo "会员首住失败！";
+                                    $flag = false;
+                                }
+                            }
                         }
 
                         if ($flag) {

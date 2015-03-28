@@ -194,6 +194,45 @@ class VipController extends HomeController{
     }
 
     /**
+     * 首住免费
+     */
+    public function first_free(){
+
+        
+        // 0元订单信息
+        // 入住人信息，默认为会员，从client表中获得
+        // style = 0, type = 0, source = 0, pay_mode = 2, price = 0, phone, status = 2
+        // 预分配房间
+
+        // deposit和room_ID在办理入住时输入
+        // first_free标志
+
+        if (IS_POST) {
+
+            if ($v_data = D('VipView')->where(array('ID_card'=>I('post.ID')))->find()) {
+                
+                if ($v_data['first_free'] == 0) {
+
+                    $this->error('此会员已享用过首住免费！');
+                    return;
+                }
+
+                $Client = A('Client');
+                $Client->order_0();// 跨控制器调用
+
+            }else{
+
+                $this->error('该身份证未开通会员！');
+                return;
+            }
+            
+        }else{
+
+            $this->display();
+        }
+    }
+
+    /**
      * [AJAX]获取会员信息info
      */
     public function getVipInfo(){
