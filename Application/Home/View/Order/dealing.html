@@ -27,7 +27,9 @@
 		<th>操作</th>
 
 	<foreach name="data" item="one" key="k" >
-    <tr <?php if ($one['status'] == 3) {/*入住ing*/
+    <tr <?php if ($one['pay_mode'] == 2 && $one['price'] == 0) {/*会员首住免费*/
+    	echo 'style="background:purple"';
+    }elseif ($one['status'] == 3) {/*入住ing*/
     	echo 'style="background:green"';
     }elseif ($one['ID_card'] == "111111111111111110") {
     	echo 'style="background:gray"';

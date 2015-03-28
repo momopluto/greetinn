@@ -104,6 +104,10 @@ class ClientController extends HomeController {
      */
     public function order_0(){
 
+        // echo "跨控制器调用";
+        // p(I('post.'));
+        // die;
+
         // 协议价，选择代理人（通过手机唯一标识）
 
         if (IS_POST) {
