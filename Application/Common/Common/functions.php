@@ -30,6 +30,8 @@ function write_log_all_array($val){
         case 'stay_over':
         case 'change_room':
         case 'check_out':
+        case 'open_vip':
+        case 'recharge_vip':
         case 'add':
             foreach ($val[5] as $key => $value) {
                 // 组合日志内容
@@ -281,7 +283,18 @@ function get_delete_info($model, $data){
 
 
 
+/**
+ * 检查会员卡是否已开通
+ * @param string $card_ID 会员卡号
+ * @return bool或者一行记录
+ */
+function is_VipCard_exists($card_ID){
 
+    $model = D('VipView');
+    // p($model);
+
+    return $model->where(array('card_ID'=>$card_ID))->find();
+}
 
 /**
  * 检查身份证是否已注册

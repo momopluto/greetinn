@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>会员开通</title>
+	<?php $SRC = HOME_SRC; ?>
+	<script type="text/javascript" src="{$SRC}/scripts/jquery-1.8.3.min.js"></script>
+</head>
+<body>
+
+	<include file= "./home"/>
+
+	会员充值
+	<form action="{:U('Home/Vip/recharge')}" method="post">
+		<!-- <p>身份证：<input id="ID" type="text" name="ID" onblur="checkVip()">* <span id="ID_tips" style="color:red"></span></p> -->
+		<p>会员卡：<input id="card" type="text" name="card" required="" onblur="checkCard()">* <span id="CARD_tips" style="color:red"></span></p>
+		<div class="info" style="background:green" hidden="">
+			<p>姓名：<span id="name"></span></p>
+			<p>身份证：<span id="ID"></span></p>
+			<p>当前余额：<span id="curBalance"></span></p>
+		</div>
+		<p>充值金额：<input id="money" type="text" name="money" required="" onblur="calGift()">*</p>
+		<p>赠送：<span id="gift"></span></p>
+		<p>充值后余额：<span id="newBalance"></span></p>
+
+		<p>验证码：<input type="text" name="verify">
+		<img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/></p>
+		<input type="submit" value="开通" />
+	</form>
+	
+
+	<script language="JavaScript">
+
+		$("#card").focus();/* 初始页面焦点 */
+		var isVip;
+
+		var vipInfo_url = "{:U('Home/Vip/getVipInfo')}";
+		// var reg_url = "{:U('Home/Vip/reg')}";
+
+		/* 加载会员信息 */
+		function checkCard() {
+
+			if ($("#card").val().trim() == '') {
+				return;
+			};
+
+			var card = $("#card");
+			var CARD_TIPS = $("#CARD_tips");
+
+			$.ajax({
+	        	url: vipInfo_url,
+	        	type: 'post',
+	        	data: {card: card.val()},
+	        	dataType: 'json',
+	        	success: function(data) {
+
+	        		// console.log(data);
+
+	        		if (data['info']) {
+	        			isVip = true;
+	        			CARD_TIPS.text("");
+	        			$(".info").removeAttr('hidden');
+
+	        			info = eval(data['info']);
+
+	        			$("div.info #name").text(info['name']);
+	        			$("div.info #ID").text(info['ID_card']);
+	        			$("div.info #curBalance").text(info['balance']);
+
+	        			calGift();
+
+	        		}else{
+	        			isVip = false;
+	        			$(".info").attr('hidden', '');
+	        			$("#gift").text('');
+	        			$("#newBalance").text('');
+
+	        			CARD_TIPS.text("该会员卡未开通！");
+	        			card.focus();
+	        			return;
+	        		}
+	        	}
+	        });
+		}
+
+		function calGift () {
+
+			var amount = $("#money").val();
+			
+			if (amount.trim() == '') {
+				$("#gift").text('');
+    			$("#newBalance").text('');
+				return;
+			};
+
+			if (!isVip) {
+
+				$("#gift").text('');
+    			$("#newBalance").text('');
+    			return;
+			};
+
+			if (amount >= 300) {
+
+				$("#gift").text(0.1 * amount);
+
+				var all = 1.1 * amount + parseInt($("div.info #curBalance").text());
+				$("#newBalance").text(parseFloat(all).toFixed(1));
+			}else{
+				
+				$("#gift").text(0);
+				var all = 1 * amount + parseInt($("div.info #curBalance").text());
+				$("#newBalance").text(parseFloat(all).toFixed(1));
+			}
+
+		}
+
+		function changeVerify(){
+			var timenow = new Date().getTime();
+			document.getElementById('verifyImg').src='__URL__/verify/'+timenow;
+		}
+	</script>
+	
+</body>
+</html>

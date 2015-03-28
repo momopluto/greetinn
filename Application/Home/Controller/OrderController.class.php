@@ -527,7 +527,7 @@ class OrderController extends HomeController {
         // p($old_data);die;
 
         // 根据是否付款区分记录日志内容
-        if ($old_data['status'] == 1) {
+        if ($old_data['status'] == self::STATUS_NEW) {
             $log_type = self::RECEPTIONIST_CANCEL_ORDER;
             $log_type_Arr = array('订单id' => $o_id);
         }else{
@@ -646,14 +646,49 @@ class OrderController extends HomeController {
                     // update_o_sTime($o_id, $checkIN['status']);
 
                     if (update_o_room($o_id, $room_ID) && update_o_sTime($o_id, $checkIN['status'])) {
-                        
-                        $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_IN, 'check_in', array('订单id' => $o_id, '总价' => I('post.price')));
-                        //                     0                 1                2             3                4                            5
-                        write_log_all_array($log_Arr);
-                        // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_IN, 'check_in', array('房间id' => $o_id, '总价' => I('post.price')));
 
-                        $this->success('办理入住成功！', U('Home/Order/dealing'));
-                        return;
+                        $flag = true;
+                        if ($old_data['pay_mode'] == 2 && $old_data['status'] == self::STATUS_NEW) {// 会员卡消费，未支付，扣除会员卡费用
+
+                            // echo "进这里来啦？！";die;
+
+                            // p($old_data);die;
+
+                            // $old_data['price'] = 
+                            $whe['client_ID'] = $old_data['client_ID'];
+                            $old_VipData = M('vip')->where($whe)->find();
+
+                            if ($old_VipData['balance'] < $old_data['price']) {// 余额不够支付
+
+                                $this->error('会员卡余额不足，请充值！');
+                                return;
+                            }
+
+                            if (M('vip')->where($whe)->setDec('balance', $old_data['price']) == false) {
+                                 
+                                 echo "会员卡扣费失败！";
+                                 $flag = false;
+                             }
+                        }
+
+                        if ($flag) {
+                            
+                            $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_IN, 'check_in', array('订单id' => $o_id, '总价' => $old_data['price']));
+                            //                     0                 1                2             3                4                            5
+                            write_log_all_array($log_Arr);
+                            // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_IN, 'check_in', array('房间id' => $o_id, '总价' => I('post.price')));
+
+                            $this->success('办理入住成功！', U('Home/Order/dealing'));
+                            return;
+                        }else{
+
+                            echo "会员卡消费，扣费失败！<br/>";
+                            // echo $order_model->getError();
+
+                            $this->error('会员卡消费，扣费失败！');
+                            return;
+                        }
+
                     }else{
 
                         echo "更新房间信息失败！<br/>";
