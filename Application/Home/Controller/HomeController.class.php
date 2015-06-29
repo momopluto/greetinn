@@ -32,6 +32,7 @@ class HomeController extends Controller {
     const STYLE_0                     =   0;// 普通
     const STYLE_1                     =   1;// 钟点
     const STYLE_2                     =   2;// 团购
+    const STYLE_3                     =   3;// (节假日)普通
 
     const IN_TIME                     =   " 14:00:00";// 入住时间
     const OUT_TIME                    =   " 12:00:00";// 离店时间

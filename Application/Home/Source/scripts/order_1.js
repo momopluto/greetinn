@@ -61,6 +61,11 @@
         	}
         });
 
+		// $("span#leaveTime").text('');
+		$("#price")[0][0].selected = true;// 重置价钱为标价
+		$("#quantity")[0][0].selected = true;// 重置份数为1
+		setTotalPrice_leaveTime();
+		// alert('?');
         $("#room").html('<select id="room" name="room">'
 	        							+'<option value ="-1">预分配房间</option>'
 	        			+'</select>');
@@ -73,10 +78,10 @@
 		var priceHTML = '<select id="price" name="price">';
 		var PRICE = $("#price");
 
-		var subStr = '<option value ="'+ prices['bid_price'] +'" selected="">标　价 | ￥'+ prices['bid_price'] +'</option>'+
-					'<option value ="'+ prices['stu_price'] +'">学生价 | ￥'+ prices['stu_price'] +'</option>'+
-					'<option value ="'+ prices['vip_price'] +'">会员价 | ￥'+ prices['vip_price'] +'</option>'+
-					'<option value ="'+ prices['inner_price'] +'">特殊价 | ￥'+ prices['inner_price'] +'</option>';
+		var subStr = '<option value ="'+ prices['bid_price'] +'" selected="">标　价 | ￥'+ prices['bid_price'] +' /3小时</option>'+
+					'<option value ="'+ prices['stu_price'] +'">学生价 | ￥'+ prices['stu_price'] +' /3小时</option>'+
+					'<option value ="'+ prices['vip_price'] +'">会员价 | ￥'+ prices['vip_price'] +' /3小时</option>'+
+					'<option value ="'+ prices['inner_price'] +'">特殊价 | ￥'+ prices['inner_price'] +' /1小时</option>';
 
 		priceHTML += subStr + '</select>';
 
@@ -89,12 +94,18 @@
 
 		// 得到quantity.val, 当前时间
 		// 计算得出退房时间，设置
-		var leaveTime = now_add_hours(parseInt($("#quantity").val()));
+		var hour;
+		if ($("#price")[0].selectedIndex == 3) {/* 特殊价 */
+			hour = parseInt($("#quantity").val());// 计1个钟/份
+		}else {
+			hour = parseInt($("#quantity").val()) * 3;// 计3个钟/份
+		}
+		var leaveTime = now_add_hours(hour);
 
 		$("span#leaveTime").text(leaveTime);
-
+		// alert(hour + "--" + leaveTime);
 		$("#aDay").val(now_add_hours(0));
-		$("#bDay").val(now_add_hours(parseInt($("#quantity").val())));
+		$("#bDay").val(leaveTime);
 	}
 
 	/* 设置总价 */

@@ -80,6 +80,7 @@ class ClientController extends HomeController {
     // const STYLE_0                     =   0;// 普通
     // const STYLE_1                     =   1;// 钟点
     // const STYLE_2                     =   2;// 团购
+    // const STYLE_3                     =   3;// (节假日)普通
 
     // const IN_TIME                     =   " 14:00:00";// 入住时间
     // const OUT_TIME                    =   " 12:00:00";// 离店时间
@@ -581,6 +582,181 @@ class ClientController extends HomeController {
             $this->assign('types', $types);
             $this->assign('prices', $prices);
             $this->assign('sources', $sources);
+            $this->display();
+        }
+    }
+
+    /**
+     * [助]提交订单，(节假日)普通
+     * 与order_0几乎完全一样的代码，但有STYLE_0和STYLE_3的区别，display出来的页面分别为order_0和order_3
+     */
+    public function order_3(){
+
+        // echo "跨控制器调用";
+        // p(I('post.'));
+        // die;
+
+        // 协议价，选择代理人（通过手机唯一标识）
+
+        if (IS_POST) {
+            // 提交订单阶段，不检查使用价格的合法性，统一在办理入住时检查
+            // 即下单可以随意选择1种价格，但办理入住时会校验
+            
+            // p(I('post.'));die;
+
+            if (!check_verify(I('post.verify'))) {
+                
+                $this->error('验证码不正确！');
+                return;
+            }
+            
+            // style
+            // ID身份证,aDay,bDay,type,price,(room),source,mode,note,info,phone
+
+            $client = M('client')->where(array('ID_card'=>I('post.ID')))->find();
+            if (!$client) {
+                $this->error('该身份证未注册！', U('Home/Client/reg'));
+                return;
+            }
+
+            
+            $today = date("Y-m-d");
+            $yesterday = date("Y-m-d",strtotime("$today -1 day"));
+            if (strtotime(I('post.aDay')) >= strtotime(I('post.bDay')) || strtotime(I('post.aDay')) < strtotime($yesterday)) {
+                // (入住时间 < 离店时间) && (入住时间 >= 昨天)
+                $this->error('入住/退房时间错误！');
+                return;
+            }
+
+            if (I('post.price') == '') {
+                $this->error('价格为空！请重新选择！');
+                return;
+            }
+
+            // o_record_2_room数据
+            if (I('post.room') == '') {// 防止，验证码错误导致的预分配房间信息丢失问题
+                $this->error('预分配房间信息错误！');
+                return;
+            }
+            if (I('post.room') != -1) {
+                $new_order_2_room['room_ID'] = I('post.room');
+            }
+            $new_order_2_room['A_date'] = I('post.aDay');
+            $new_order_2_room['B_date'] = I('post.bDay');
+            // 计算2个日期间隔天数
+            $interval = date_diff(date_create($new_order_2_room['A_date']), date_create($new_order_2_room['B_date']));
+            $new_order_2_room['nights'] = $interval->format('%a');
+            $new_order_2_room['A_date'] .= self::IN_TIME;// 入住时间
+            if (I('post.mode') == 2) {
+                $new_order_2_room['B_date'] .= self::OUT_TIME_2;// 会员离店时间
+            }else{
+                $new_order_2_room['B_date'] .= self::OUT_TIME;// 离店时间
+            }
+
+            $client_ID = $client['client_ID'];// 客户ID
+            $people_info = I('post.info');
+            if ($people_info[1]['name'] == '' || $people_info[1]['ID_card'] == '') {
+                // 去除入住人(二)信息
+                unset($people_info[1]);
+            }
+            
+            // book_info字段，JSON格式
+            $book_info['number'] = count($people_info);// 入住人数
+            $book_info['people_info'] = $people_info;
+            $book_info['note'] = I('post.note');
+
+            // o_record数据
+            $new_order['client_ID'] = $client_ID;
+            $new_order['book_info'] = json_encode($book_info, JSON_UNESCAPED_UNICODE);// unicode格式
+
+            $new_order['style'] = self::STYLE_3;// 订单类型
+            $new_order['type'] = I('post.type');// 房型
+            $new_order['price'] = I('post.price') * $new_order_2_room['nights'];// 总价
+            $new_order['source'] = I('post.source');// 来源
+            if (I('post.agent')) {
+                $new_order['a_id'] = I('post.agent');// 协议人
+            }
+            $new_order['pay_mode'] = I('post.mode');// 支付方式
+            $new_order['phone'] = I('post.phone');// 联系手机
+
+            // 会员卡支付
+            // 1、检查该会员卡合法性，余额是否足够支付
+            // 2.合法，扣除相应金额，status = 2
+            if (I('post.paid')) {
+                $new_order['status'] = 2;// 已支付状态
+            }
+            
+
+
+            // p($new_order);
+            // p($new_order_2_room);
+            // die;
+
+            $order_model = D('OrderRecord');
+
+            $order_model->startTrans();// 启动事务
+
+            if ($order_model->create($new_order)) {
+                echo "create成功<br/>";
+                
+                $o_id = $order_model->add();
+
+                // p($order_model);die;
+
+                if ($o_id === false) {
+                    $this->error('写入数据库失败！');
+                    return;
+                }
+                
+                $new_order_2_room['o_id'] = $o_id;
+                if (init_o_room($new_order_2_room) && init_o_sTime($o_id,$new_order['status'])) {
+                    // 初始化o_record_2_room表中记录 && 初始化o_record_2_stime表中记录
+                    
+                    // 订单信息标志
+                    $STPSaPR = $new_order['style']."-".$new_order['type'].".".$new_order['price'].".".$new_order['source']."-.".$new_order['a_id'].".-".$new_order['pay_mode']."-".$new_order_2_room['room_ID']."-";
+                    if ($new_order['status'] == 2) {
+                        $STPSaPR .= "已支付";
+                    }else{
+                        $STPSaPR .= "未付款";
+                    }
+                    $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_HELP_SUBMIT_ORDER, 'submit_order', array('订单id' => $o_id, '客户id' => $client_ID, '订单类型' => $STPSaPR));
+                    //                     0                 1                2             3                4                            5
+                    write_log_all_array($log_Arr);
+
+                    $this->success('[助]提交订单成功！', U('Home/Order/dealing'));
+                    return;
+                }
+
+            }else{
+
+                echo "create失败<br/>";
+                // echo $order_model->getError();
+
+                $this->error($order_model->getError());
+                return;
+            }
+        }else{
+
+            // $styles = M('style')->getField('style,name');// 普通入住
+            $typeStr = M('style_type')->where("style = ". self::STYLE_3)->getField('map_types');// 符合的房型字符串
+            $map['type'] = array('in', $typeStr);
+            $types = M('type')->where($map)->getField('type,name');// 普通入住可选的房型
+            $prices = M(self::STYLE_3.'_price')->find(0);// 普通入住，标单价钱
+            $sources = M('order_source')->getField('source,name');// 来源
+            unset($sources[4]);
+
+            if (cookie('ID_card')) {
+                
+                $data = M("client")->where(array('ID_card'=>cookie('ID_card')))->field('ID_card, name, phone')->find();
+                $this->assign('data', $data);
+            }
+
+            // p($data);die;
+
+            $this->assign('types', $types);
+            $this->assign('prices', $prices);
+            $this->assign('sources', $sources);
+            
             $this->display();
         }
     }
