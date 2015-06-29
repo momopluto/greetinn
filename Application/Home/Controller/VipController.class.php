@@ -114,7 +114,7 @@ class VipController extends HomeController{
 
             // 身份证+会员卡号（检测该身份证是否是会员）
             // 充值金额
-            // >=300，送10%
+            // 一次性充值200以上500以下，赠送7%，500以上赠送10%
 
             // ID, card, money
             // $data['card_ID'] = '1220';
@@ -128,11 +128,13 @@ class VipController extends HomeController{
                 return;
             }
 
-            $amount = 300;// 充值金额
-            // $amount = I('post.money');// 充值金额
+            // $amount = 300;// 充值金额
+            $amount = I('post.money');// 充值金额
 
             $gift = 0;
-            if ($amount >= 300) {
+            if ($amount >= 200 && $amount < 500) {
+                $gift = 0.07 * $amount;
+            }elseif ($amount >= 500) {
                 $gift = 0.1 * $amount;
             }
 
