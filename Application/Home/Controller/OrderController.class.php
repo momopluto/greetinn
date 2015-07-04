@@ -55,19 +55,27 @@ class OrderController extends HomeController {
      */
     public function dealing(){
         
+        // var_dump(I('get.date'));die;
+        $f_sql = "";
+        if (($fliter = I('get.date') /*'2015-05-26'*/) != '') {
+
+            // 过滤条件为"入住时间"
+            $f_sql = "checkIn BETWEEN '" . $fliter." 00:00:00" . "' AND '" . $fliter." 23:59:59" . "' AND ";
+        }
+
+        // echo $f_sql;
+        
         $o_record_model = D('OrderRecordView');
 
-        $data = $o_record_model->where('status != 0 AND status != 4')->order('room_ID,cTime desc')->select();
+        $data = $o_record_model->where($f_sql . '(status != 0 AND status != 4)')->order('room_ID,cTime desc')->select();
 
+        // p($o_record_model);
         // p($data);die;
         // p($o_record_model);
 
         // die;
         
         $this->assign('data', $data);
-        // $types = M('type_price')->getField('type,name,price');
-        // p($types);die;
-        // $this->assign('types', $types);
         $this->display();
     }
 
@@ -76,18 +84,24 @@ class OrderController extends HomeController {
      */
     public function complete(){
 
+        $f_sql = "";
+        if (($fliter = I('get.date') /*'2015-05-26'*/) != '') {
+
+            // 过滤条件为"入住时间"
+            $f_sql = "checkIn BETWEEN '" . $fliter." 00:00:00" . "' AND '" . $fliter." 23:59:59" . "' AND ";
+        }
+
+        // echo $f_sql;
+        
         $o_record_model = D('OrderRecordView');
 
-        $data = $o_record_model->where('status = 0 or status = 4')->order('cTime desc')->select();
+        $data = $o_record_model->where($f_sql . '(status = 0 or status = 4)')->order('cTime desc')->select();
 
-        // p($data);
+        // p($data);die;
 
         // p($o_record_model);
         
         $this->assign('data', $data);
-        $types = M('type_price')->getField('type,name,price');
-        // p($types);die;
-        $this->assign('types', $types);
         $this->display();
     }
 

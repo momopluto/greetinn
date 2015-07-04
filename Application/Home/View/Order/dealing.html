@@ -9,6 +9,11 @@
 	<include file= "./home"/>
 
 	未完成订单(默认)
+	<form action="{:U('Home/Order/dealing')}" method="get">
+        <span>入住日期：</span>
+        <span><input id="date" type="date" name="date" placeholder="选择日期" value="{:I('get.date')}"></span><!-- {:date('Y-m-d',time())} -->
+        <input type="submit" name="" value="查询" class="submit">
+    </form>
 	<li><a href="{:U('Home/Order/complete')}">已完成订单</a></li>	
 	<table border="1">
 		<th>订单类型</th>
