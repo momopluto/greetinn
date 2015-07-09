@@ -268,6 +268,8 @@ class ClientController extends HomeController {
 
             $this->assign('types', $types);
             $this->assign('prices', $prices);
+            // p($types);
+            // p($prices);die;
             $this->assign('sources', $sources);
             
             $this->display();

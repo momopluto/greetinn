@@ -31,7 +31,7 @@
 
 	        		if (data['rooms']) {
 	        			
-	        			// alert("空间房间加载完成！");
+	        			// alert("空闲房间加载完成！");
 	        			var rooms = eval(data['rooms']);
 	        			var ROOM = $("#room");
 	        			
