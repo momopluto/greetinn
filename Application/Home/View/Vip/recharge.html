@@ -19,13 +19,13 @@
 			<p>身份证：<span id="ID"></span></p>
 			<p>当前余额：<span id="curBalance"></span></p>
 		</div>
-		<p>充值金额：<input id="money" type="text" name="money" required="" onblur="calGift()">*</p>
+		<p>充值金额：<input id="money" type="text" name="money" required="" onblur="calGift()">*</p><!--  不设置 type="number" step="100" min="0"，为了可以充值负数金额，修改会员卡余额 -->
 		<p>赠送：<span id="gift"></span></p>
 		<p>充值后余额：<span id="newBalance"></span></p>
 
 		<p>验证码：<input type="text" name="verify">
 		<img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/></p>
-		<input type="submit" value="开通" />
+		<input type="submit" value="充值" />
 	</form>
 	
 
@@ -100,18 +100,25 @@
     			return;
 			};
 
-			if (amount >= 300) {
+			var charge = 0;
+			if (amount >= 200 && amount < 500) {
+
+				$("#gift").text(parseFloat(0.07 * amount).toFixed(1));
+				charge = 1.07 * amount;
+
+			}else if(amount >= 500) {
 
 				$("#gift").text(0.1 * amount);
+				charge = 1.1 * amount;
 
-				var all = 1.1 * amount + parseInt($("div.info #curBalance").text());
-				$("#newBalance").text(parseFloat(all).toFixed(1));
-			}else{
-				
+			}else {
+
 				$("#gift").text(0);
-				var all = 1 * amount + parseInt($("div.info #curBalance").text());
-				$("#newBalance").text(parseFloat(all).toFixed(1));
+				charge = 1.0 * amount;
 			}
+
+			var all = charge + parseInt($("div.info #curBalance").text());
+			$("#newBalance").text(parseFloat(all).toFixed(1));
 
 		}
 
