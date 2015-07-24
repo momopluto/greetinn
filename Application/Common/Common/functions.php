@@ -291,9 +291,22 @@ function get_delete_info($model, $data){
 function is_VipCard_exists($card_ID){
 
     $model = D('VipView');
-    // p($model);
+    $map['card_ID'] = $card_ID;
 
-    return $model->where(array('card_ID'=>$card_ID))->find();
+    return $model->where($map)->find();
+}
+
+/**
+ * 检查身份证是否已开通会员
+ * @param  string  $ID_card 身份证号
+ * @return bool或者一行记录
+ */
+function is_IDcard_Vip($ID_card){
+
+    $model = D('VipView');
+    $map['ID_card'] = $ID_card;
+
+    return $model->where($map)->find();
 }
 
 /**

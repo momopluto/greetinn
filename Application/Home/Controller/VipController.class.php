@@ -247,6 +247,17 @@ class VipController extends HomeController{
     }
 
     /**
+     * [AJAX]通过身份证关联，获取会员卡信息
+     */
+    public function getVipInfoBy_IDCard(){
+        $ID_card = I('post.id');
+
+        $data['info'] = is_IDcard_Vip($ID_card);
+
+        $this->ajaxReturn($data, 'json');
+    }
+
+    /**
      * 获取验证码
      */
     public function verify(){
