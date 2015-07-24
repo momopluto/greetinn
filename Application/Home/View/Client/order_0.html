@@ -6,7 +6,7 @@
 
 	<?php $SRC = HOME_SRC; ?>
 	<script type="text/javascript" src="{$SRC}/scripts/jquery-1.8.3.min.js"></script>
-	<script type="text/javascript" src="{$SRC}/scripts/order_0.js"></script>
+	<script type="text/javascript" src="{$SRC}/scripts/order.js"></script>
 </head>
 <body>
 
@@ -20,47 +20,61 @@
 		<p>离店日期：<input id="bDay" type="date" name="bDay" >*</p>
 
 	    <p>房　　型：
-
-	      <select id="type" name="type" onchange="loadPrice(0)">
+	    <span id="type">
+	    	<?php $_i = 0;?>
 			<foreach name="types" item="name" key="type" >
-				<option value ="{$type}">{$name}</option>
-			</foreach>
-	      </select>
+	      		<label><input class="type" type="radio" name="type" onclick="loadPrice(0, $(this).val())" value="{$type}" <?php if ($_i == 0) {
+	      			echo "checked";
+	      			$_i++;
+	      		} ?>>{$name}</label>
+	      	</foreach>
+	    </span>
+		</p>
 
-	      <select id="price" name="price" onmouseover="loadPrice(0)" onchange="showAgent()">
-			<option value ="{$prices['bid_price']}">标　价 | ￥{$prices['bid_price']}</option>
-			<option value ="{$prices['stu_price']}">学生价 | ￥{$prices['stu_price']}</option>
-			<option value ="{$prices['vip_price']}">会员价 | ￥{$prices['vip_price']}</option>
-			<option value ="{$prices['agent_price']}">代理价 | ￥{$prices['agent_price']}</option>
-			<!-- <option value ="{$prices['corp_price']}">协议价 | ￥{$prices['corp_price']}</option> -->
-			<option value ="{$prices['inner_price']}">内部价 | ￥{$prices['inner_price']}</option>
-	      </select>
+		<p>价　　格：
+		<span id="price">
+			<label><input class="price" id="bid"   type="radio" name="price" value="{$prices['bid_price']}" onclick="hideInfo()" checked="">标价￥<span>{$prices['bid_price']}</span></label>
+			<label><input class="price" id="stu"   type="radio" name="price" value="{$prices['stu_price']}" onclick="hideInfo()">学生价￥<span>{$prices['stu_price']}</span></label>
+			<label><input class="price" id="vip"   type="radio" name="price" value="{$prices['vip_price']}" onclick="showVip()">会员价￥<span>{$prices['vip_price']}</span></label>
+			<p>　　　　　
+			<label><input class="price" id="agent" type="radio" name="price" value="{$prices['agent_price']}" onclick="showAgent()">代理价￥<span>{$prices['agent_price']}</span></label>
+			</p>
+			<p>　　　　　
+			<label><input class="price" id="spec"   type="radio" name="price" value="{$prices['stu_price']}" onclick="hideInfo()">高级<span style="color:green">[TODO]</span></label>
+			</p>
+		</span>
+		</p>
 
+		<p>选　　房：
       	  <select id="room" name="room" onmouseover="loadRooms()">
       		<option value ="-1">预分配房间</option>
           </select>
 	    </p>
 
-    	
-
 	    <p>订单来源：
-          <select id="source" name="source">
-      		<foreach name="sources" item="name" key="source" >
-      			<option value ="{$source}">{$name}</option>
+	    <span id="source">
+	    	<?php $_i = 0;?>
+	    	<foreach name="sources" item="name" key="source" >
+      			<label><input type="radio" name="sources" value="{$source}" <?php if ($_i == 0) {
+	      			echo "checked";
+	      			$_i++;
+	      		} ?>>{$name}</label>
       		</foreach>
-          </select>
+	    </span>
 	    </p>
 	    
 	    <p>支付方式：
-	      <select id="mode" name="mode">
-      		<option value ="0">现金支付</option>
-      		<option value ="1">网上支付</option>
-      		<option value ="2">会员卡支付</option>
-          </select>
-          <span class="paid" >
-	          <input type="radio" name="paid" value="0" checked="">未支付
-	          <input type="radio" name="paid" value="1">已支付
-          </span>
+	    <span id="mode">
+	    	<label><input type="radio" name="mode" value="0" checked="">现金支付</label>
+	    	<label><input type="radio" name="mode" value="1">网上支付</label>
+	    	<label><input type="radio" name="mode" value="2">会员卡支付</label>
+	    </span>
+        </p>
+        <p>付款状态：
+        <span class="paid" >
+        	<label><input type="radio" name="paid" value="0" checked="">未支付</label>
+        	<label><input type="radio" name="paid" value="1">已支付</label>
+        </span>
 	    </p>
 
 		<p>备　　注：<input type="text" name="note"></p>
@@ -68,17 +82,17 @@
 		<div>
 			<p>入住人员登记</p>
 			<p>
-				姓名　(一)<input id="name_0" type="text" name="info[0][name]" value="{$data['name']}">*<br/>
-				身份证(一)<input id="ID_0" type="text" name="info[0][ID_card]" value="{$data['ID_card']}">*<br/>
+				姓名　(一)<input class="info" id="name_0" type="text" name="info[0][name]" value="{$data['name']}">*<br/>
+				身份证(一)<input class="info" id="ID_0" type="text" name="info[0][ID_card]" value="{$data['ID_card']}">*<br/>
 			</p>
 			<p>
-				姓名　(二)<input type="text" name="info[1][name]"><br/>
-				身份证(二)<input type="text" name="info[1][ID_card]"><br/>
+				姓名　(二)<input class="info" type="text" name="info[1][name]"><br/>
+				身份证(二)<input class="info" type="text" name="info[1][ID_card]"><br/>
 			</p>
 			<p id="number" hidden="">总人　数：<input type="number" min="1" name="number">*</p>
 		</div>
 
-		<p>手　　机：<input id="phone" type="text" name="phone" value="{$data['phone']}">*</p>
+		<p>手　　机：<input class="info" id="phone" type="text" name="phone" value="{$data['phone']}">*</p>
 		<p>验证　码：<input type="text" name="verify">
 		<img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/></p>
 		<input type="submit" value="提交" />
@@ -91,6 +105,7 @@
 		var rooms_url = "{:U('Home/Client/getRoomsByDate_Type')}";
 		var agent_url = "{:U('Home/Client/getAgent')}";
 		var info_url = "{:U('Home/Client/getPeopleInfo')}";
+		var vipInfo_url = "{:U('Home/Vip/getVipInfoBy_IDCard')}";
 
 		// loadPrice(0);// 页面加载完后，价格直接由type相应加载
 		

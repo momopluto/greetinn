@@ -51,25 +51,31 @@
     	</p>
 
 	    <p>订单来源：
-          <select name="source">
-      		<foreach name="sources" item="name" key="source" >
-      			<option value ="{$source}">{$name}</option>
+	    <span id="source">
+	    	<?php $_i = 0;?>
+	    	<foreach name="sources" item="name" key="source" >
+      			<label><input type="radio" name="sources" value="{$source}" <?php if ($_i == 0) {
+	      			echo "checked";
+	      			$_i++;
+	      		} ?>>{$name}</label>
       		</foreach>
-          </select>
-          <span class="paid" >
-	          <input type="radio" name="paid" value="0" checked="">未支付
-	          <input type="radio" name="paid" value="1">已支付
-          </span>
+	    </span>
 	    </p>
 	    
 	    <p>支付方式：
-	      <select id="mode" name="mode">
-      		<option value ="0">现金支付</option>
-      		<option value ="1">网上支付</option>
-      		<option value ="2">会员卡支付</option>
-          </select>
+	    <span id="mode">
+	    	<label><input type="radio" name="mode" value="0" checked="">现金支付</label>
+	    	<label><input type="radio" name="mode" value="1">网上支付</label>
+	    	<label><input type="radio" name="mode" value="2">会员卡支付</label>
+	    </span>
+        </p>
+        <p>付款状态：
+        <span class="paid" >
+        	<label><input type="radio" name="paid" value="0" checked="">未支付</label>
+        	<label><input type="radio" name="paid" value="1">已支付</label>
+        </span>
 	    </p>
-
+	    
 		<p>备　　注：<input type="text" name="note"></p>
 
 		<div>

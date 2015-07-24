@@ -102,7 +102,7 @@
 			// return;
 			PRICE.after('');
 		};
-        if (PRICE[0].selectedIndex == 3) {/* 协议价 */
+        if (PRICE[0].selectedIndex == 3) {/* 代理价 */
 
 			$.ajax({
 	        	url: agent_url,

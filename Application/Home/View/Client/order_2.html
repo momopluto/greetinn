@@ -6,7 +6,7 @@
 
 	<?php $SRC = HOME_SRC; ?>
 	<script type="text/javascript" src="{$SRC}/scripts/jquery-1.8.3.min.js"></script>
-	<script type="text/javascript" src="{$SRC}/scripts/order_0.js"></script>
+	<script type="text/javascript" src="{$SRC}/scripts/order.js"></script>
 </head>
 <body>
 
@@ -19,42 +19,54 @@
 		<p>入住日期：<input id="aDay" type="date" name="aDay" >*</p>
 		<p>离店日期：<input id="bDay" type="date" name="bDay" >*</p>
 
-	    <p>房　　型：
-
-	      <select id="type" name="type" onchange="loadPrice(2)">
+		<p>房　　型：
+	    <span id="type">
+	    	<?php $_i = 0;?>
 			<foreach name="types" item="name" key="type" >
-				<option value ="{$type}">{$name}</option>
-			</foreach>
-	      </select>
+	      		<label><input class="type" type="radio" name="type" onclick="loadPrice(2, $(this).val())" value="{$type}" <?php if ($_i == 0) {
+	      			echo "checked";
+	      			$_i++;
+	      		} ?>>{$name}</label>
+	      	</foreach>
+	    </span>
+		</p>
 
-	      <select id="price" name="price" onmouseover="loadPrice(2)">
-			<option value ="{$prices['groupon_price']}">团购价 | ￥{$prices['groupon_price']}</option>
-	      </select>
+		<p>价　　格：
+		<span id="price">
+			<label><input class="price" id="groupon" type="radio" name="price" value="{$prices['groupon_price']}" checked="">团购价￥<span>{$prices['groupon_price']}</span></label>
+		</span>
+		</p>
 
+		<p>选　　房：
       	  <select id="room" name="room" onmouseover="loadRooms()">
       		<option value ="-1">预分配房间</option>
           </select>
 	    </p>
 
-    	
-
 	    <p>订单来源：
-          <select name="source">
-      		<foreach name="sources" item="name" key="source" >
-      			<option value ="{$source}">{$name}</option>
+	    <span id="source">
+	    	<?php $_i = 0;?>
+	    	<foreach name="sources" item="name" key="source" >
+      			<label><input type="radio" name="sources" value="{$source}" <?php if ($_i == 0) {
+	      			echo "checked";
+	      			$_i++;
+	      		} ?>>{$name}</label>
       		</foreach>
-          </select>
-          <span class="paid" >
-	          <input type="radio" name="paid" value="0" checked="">未支付
-	          <input type="radio" name="paid" value="1">已支付
-          </span>
+	    </span>
 	    </p>
-	    
-	    <p>支付方式：
-	      <select name="mode">
-      		<option value ="0">现金支付</option>
-      		<option value ="1">网上支付</option>
-          </select>
+
+		<p>支付方式：
+	    <span id="mode">
+	    	<label><input type="radio" name="mode" value="0" checked="">现金支付</label>
+	    	<label><input type="radio" name="mode" value="1">网上支付</label>
+	    	<label><input type="radio" name="mode" value="2">会员卡支付</label>
+	    </span>
+        </p>
+        <p>付款状态：
+        <span class="paid" >
+        	<label><input type="radio" name="paid" value="0" checked="">未支付</label>
+        	<label><input type="radio" name="paid" value="1">已支付</label>
+        </span>
 	    </p>
 
 		<p>备　　注：<input type="text" name="note"></p>
@@ -84,8 +96,6 @@
 		var price_url = "{:U('Home/Client/getPriceByStyle_Type')}";
 		var rooms_url = "{:U('Home/Client/getRoomsByDate_Type')}";
 		var info_url = "{:U('Home/Client/getPeopleInfo')}";
-
-		// loadPrice(2);// 页面加载完后，价格直接由type相应加载
 		
 		function changeVerify(){
 			var timenow = new Date().getTime();
