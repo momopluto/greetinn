@@ -69,9 +69,11 @@ function write_log_all_array($val){
         // 如果不成功，rollback
         
         $val[2]->rollback();// 回滚事务
+        return false;
     }else{// 成功
 
         $val[2]->commit();// 提交事务
+        return true;
     }
 }
 
@@ -581,7 +583,7 @@ function update_o_room($o_id, $room_ID){
 
 /**
  * 更新o_record_2_stime表中记录
- * @param int $o_id 借设备记录id
+ * @param int $o_id 订单记录id
  * @param int $new_status 改变的状态值
  * @return bool
  */

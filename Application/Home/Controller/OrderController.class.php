@@ -679,6 +679,7 @@ class OrderController extends HomeController {
                             // p($old_data);die;
 
                             $vipModel = M('vip');
+                            $vipModel->startTrans();// vip表开启事务
                             $whe['client_ID'] = $old_data['client_ID'];
                             $old_VipData = $vipModel->where($whe)->find();
 
@@ -697,6 +698,8 @@ class OrderController extends HomeController {
                             if ($old_data['price'] == 0 && $old_VipData['first_free'] == 1) {
 
                                 $update_VipData['first_free'] = 0;
+                                $o_stime = M('o_record_2_stime')->where("o_id = $o_id")->find();// 读取入住时间
+                                $update_VipData['first_free_checkIn'] = $o_stime['checkIn'];
                                 if ($vipModel->where($whe)->setField($update_VipData) === false) {
                                     
                                     echo "会员首住失败！";
@@ -709,16 +712,23 @@ class OrderController extends HomeController {
                             
                             $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_IN, 'check_in', array('订单id' => $o_id, '总价' => $old_data['price']));
                             //                     0                 1                2             3                4                            5
-                            write_log_all_array($log_Arr);
-                            // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_IN, 'check_in', array('房间id' => $o_id, '总价' => I('post.price')));
+                            if (write_log_all_array($log_Arr)) {
 
-                            $this->success('办理入住成功！', U('Home/Order/dealing'));
+                                $vipModel->commit();// vip表提交事务
+                                $this->success('办理入住成功！', U('Home/Order/dealing'));
+                            }else{
+                                
+                                $vipModel->rollback();// vip表回滚事务
+                                $this->error('办理入住失败！写日志出错！');
+                            }
                             return;
                         }else{
 
                             echo "会员卡消费，扣费失败！<br/>";
                             // echo $order_model->getError();
 
+                            $vipModel->rollback();// vip表回滚事务
+                            $order_model->rollback();
                             $this->error('会员卡消费，扣费失败！');
                             return;
                         }
