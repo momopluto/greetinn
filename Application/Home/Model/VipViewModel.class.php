@@ -10,13 +10,9 @@ class VipViewModel extends ViewModel {
 
     public $viewFields = array(
 
-        'vip'=>array('client_ID','card_ID','balance',
-            /*'single_count','single_free','single_latestDate',
-            'double_count','double_free','double_latestDate',
-            'multiple_count','multiple_free','multiple_latestDate',*/
-            'first_free','cTime','_table'=>"vip"),
+        'vip'=>array('client_ID','card_ID','birthday','balance','first_free','first_free_checkIn','cTime','_table'=>"vip"),
         
-        'client'=>array('name','ID_card','birthday','phone', '_on'=>'vip.client_ID=client.client_ID','_table'=>"client"),
+        'client'=>array('name','ID_card','phone', '_on'=>'vip.client_ID=client.client_ID','_table'=>"client"),
     );
 
 /*

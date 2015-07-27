@@ -8,13 +8,96 @@ use Think\Controller;
  */
 class VipController extends HomeController{
 
+
+    /**
+     * vip表增加first_free_checkIn字段
+     * 将已往免费首住的时间o_record_2_stime.checkIn写入first_free_checkIn字段
+     * @return [type] [description]
+     */
+    public function update_first_free_checkIn(){
+
+        /*
+        # sql语句
+        # 未有first_free_checkIn字段，从o_record_2_stime表里面取
+
+SELECT
+    vip.client_ID,vip.card_ID,vip.birthday,vip.balance,vip.first_free,
+    o_record_2_stime.checkIn AS first_free_checkIn,
+    vip.cTime,
+    client.`name`,client.ID_card,client.phone
+FROM
+    (client JOIN vip ON client.client_ID=vip.client_ID)
+    LEFT JOIN
+    (o_record JOIN o_record_2_stime ON o_record.o_id=o_record_2_stime.o_id AND o_record.price=0)
+    ON vip.client_ID=o_record.client_ID
+        */
+
+        $Model = new \Think\Model(); // 实例化一个model对象 没有对应任何数据表
+        $queryStr = "SELECT"
+            ." vip.client_ID,vip.card_ID,vip.birthday,vip.balance,vip.first_free,"
+            ." o_record_2_stime.checkIn AS first_free_checkIn,"
+            ." vip.cTime,"
+            ." client.`name`,client.ID_card,client.phone"
+        ." FROM"
+            ." (client JOIN vip ON client.client_ID=vip.client_ID)"
+            ." /*LEFT*/ JOIN"
+            ."  (o_record JOIN o_record_2_stime ON o_record.o_id=o_record_2_stime.o_id AND o_record.price=0)"
+            ." ON vip.client_ID=o_record.client_ID";
+
+        $data = $Model->query($queryStr);
+
+        $sql = "UPDATE vip SET first_free_checkIn =  CASE client_ID ";
+        foreach ($data as $key => $value) {
+
+            if (!$value["first_free_checkIn"]) {
+
+                $vip[$value['client_ID']] = NULL;
+
+                // 如果已使用免费首住，但是没有入住时间(原因：前台未处理系统内该顾客的首住订单)
+                // $vip[$value['client_ID']] = $value["cTime"];
+                
+                continue;
+            }
+
+            $vip[$value['client_ID']] = $value["first_free_checkIn"];
+        }
+
+        // p($Model);
+        // p($data);
+        // p($vip);die;
+
+        $client_IDs = implode(',', array_keys($vip));
+        foreach ($vip as $key => $value) {
+            
+            $sql .= sprintf("WHEN %d THEN '%s' ", $key, $value);
+        }
+        $sql .= "END WHERE client_ID IN ($client_IDs)";
+        echo "<pre>";
+        echo $sql;
+        echo "<pre>";
+
+        die;
+
+        $Model->query($sql);
+
+        /*注：
+        
+        如果vip.first_free为0，表明已经使用首住免费
+        但是上面又没找到会员的免费首住订单记录，
+        可能的原因：该会员属于早期一批，当时前台未使用系统录入会员信息。
+        解决办法：
+            通过以前的excel表格找到日期，大致给出时间
+         */
+    }
     /**
      * 会员列表
      */
     public function lists(){
 
-        $data = M('vip')->select();
-        p($data);die;
+
+        $vipModel = D("VipView");
+        $data = $vipModel->select();
+        // p($data);die;
 
         $this->assign('data', $data);
         $this->display();

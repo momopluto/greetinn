@@ -3,10 +3,54 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>会员管理</title>
+	<?php $SRC = HOME_SRC; ?>
+	<link rel="stylesheet" href="{$SRC}/css/bootstrap.min.css">
+	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
 </head>
 <body>
-<li><a href="{:U('Home/Vip/reg')}">会员开通</a></li>
-<li><a href="{:U('Home/Vip/recharge')}">会员充值</a></li>
-	
+	<include file= "./home"/>
+
+	会员管理
+	<table class="table table-striped table-bordered table-hover">
+	   <thead>
+	     <tr>
+	       <th>会员卡号</th>
+	       <th>姓名</th>
+	       <th>身份证</th>
+	       <th>余额</th>
+	       <th>开通时间</th>
+	       <th>首次免费入住时间</th>
+	       <th>办理人</th>
+	     </tr>
+	   </thead>
+	   <tbody>
+	   	<foreach name="data" item="one" >
+	     <tr>
+	       <td>{$one['card_ID']}</td>
+	       <td>{$one['name']}</td>
+	       <td>
+	       	<?php
+	       		$_start = substr($one['ID_card'], 0, 4);
+	       		$_end = substr($one['ID_card'], 14, 4);
+	       		echo $_start . "****" . $_end;
+	       	?>
+	       </td>
+	       <td>{$one['balance']}</td>
+	       <td>{$one['cTime']}</td>
+	       <td>
+	       	<?php
+	       		if ($one['first_free_checkIn'] && $one['first_free'] == 0) {
+	       			echo $one['first_free_checkIn'];
+	       		}elseif ($one['first_free']) {
+	       			echo "剩余 1次 首住免费";
+	       		}else{
+	       			echo "## 记录缺失 ##";
+	       		}
+	       	?></td>
+	       <td>--</td>
+	     </tr>
+	   	</foreach>
+	   </tbody>
+	 </table>
 </body>
 </html>
