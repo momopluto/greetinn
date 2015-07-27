@@ -18,7 +18,7 @@ function isIDsLastCharCorrect(IDStr){
 }
 
 /*判断字符串是否由数字组成*/
-function isDigit(str){ 
+function isDigit(str){
 	// var reg = /^d*$/; 
 	var reg = new RegExp("^[0-9]+$");
 	return reg.test(str); 
