@@ -12,8 +12,18 @@
 
 	开通会员
 	<form action="{:U('Home/Vip/reg')}" method="post">
+		<p>姓　名：<input class="info" id="name" type="text" name="name" disabled></p>
 		<p>身份证：<input id="ID" type="text" name="ID" onblur="checkID()">* <span id="ID_tips" style="color:red"></span></p>
+		<p>手　机：<input class="info" id="phone" type="text" name="phone" disabled></p>
 		<p>会员卡：<input type="text" name="card">*</p>
+		<p>卡　费：<input type="text" name="balance" value="200.00" disabled></p>
+		<p>　　　
+	    <span id="mode">
+	    	<label><input type="radio" name="mode" value="0" checked="">现金支付</label>
+	    	<label><input type="radio" name="mode" value="1">网上支付</label>
+	    	<label><input type="radio" name="mode" value="2">会员卡支付</label>
+	    </span>
+        </p>
 		<p>验证码：<input type="text" name="verify">
 		<img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/></p>
 		<input type="submit" value="开通" />
@@ -35,6 +45,7 @@
 
 			if (ID.val().length != 18) {
 				ID_TIPS.text("身份证长度不正确！应为18位！");
+				$(".info").val("");
 				ID.focus();
 				return;
 			};
@@ -49,6 +60,7 @@
 
 	        		if (data['info'] === false) {
 	        			ID_TIPS.text("身份证不合法！请检查是否输入正确！");
+	        			$(".info").val("");
 	        			ID.focus();
 	        			return;
 	        		};
@@ -57,6 +69,8 @@
 	        			ID_TIPS.html('<span id="ID_tips" style="color:red">该身份证未注册！<a href="'+reg_url+'?id='+ ID.val() +'">注册</a></span>');
 	        		}else{
 
+	        			$(".info#name").val(data['info']['name']);
+	        			$(".info#phone").val(data['info']['phone']);
 	        			ID_TIPS.text("");
 	        		}
 	        	}

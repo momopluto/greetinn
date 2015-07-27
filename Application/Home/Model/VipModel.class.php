@@ -53,7 +53,7 @@ class VipModel extends Model {
 
     // 自动完成
     protected $_auto = array (
-        array('balance','0',self::MODEL_INSERT,'string'),  // 新增的时候balance=0
+        array('balance','200',self::MODEL_INSERT,'string'),  // 新增的时候balance=200
         array('first_free','1',self::MODEL_INSERT,'string'),  // 新增的时候first_free=1
         array('cTime','getDatetime',self::MODEL_INSERT,'function') , // 新增的时候把调用time方法写入当前时间戳
     );

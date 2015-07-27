@@ -56,7 +56,7 @@ class VipController extends HomeController{
 
             // card_ID要唯一，自动验证
             $vipModel = D("Vip");
-            // balance插入时为0，自动完成
+            // balance插入时为200，自动完成
             // first_free插入时为1，自动完成
             // cTime，自动完成
 
