@@ -130,6 +130,11 @@ class VipController extends HomeController{
 
             // $amount = 300;// 充值金额
             $amount = I('post.money');// 充值金额
+            if ($amount % 100 != 0) {
+                // 充值金额不是整百
+                $this->error("充值金额须是100的整数倍！");
+                return;
+            }
 
             $gift = 0;
             if ($amount >= 200 && $amount < 500) {

@@ -19,7 +19,7 @@
 			<p>身份证：<span id="ID"></span></p>
 			<p>当前余额：<span id="curBalance"></span></p>
 		</div>
-		<p>充值金额：<input id="money" type="text" name="money" required="" onblur="calGift()">*</p><!--  不设置 type="number" step="100" min="0"，为了可以充值负数金额，修改会员卡余额 -->
+		<p>充值金额：<input id="money" type="number" step="100" min="0" name="money" required="" onblur="calGift()">*</p>
 		<p>赠送：<span id="gift"></span></p>
 		<p>充值后余额：<span id="newBalance"></span></p>
 
