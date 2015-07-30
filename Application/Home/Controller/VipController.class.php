@@ -10,9 +10,8 @@ class VipController extends HomeController{
 
 
     /**
-     * vip表增加first_free_checkIn字段
+     * [隐藏的]vip表增加first_free_checkIn字段
      * 将已往免费首住的时间o_record_2_stime.checkIn写入first_free_checkIn字段
-     * @return [type] [description]
      */
     public function update_first_free_checkIn(){
 
@@ -89,6 +88,19 @@ FROM
             通过以前的excel表格找到日期，大致给出时间
          */
     }
+
+    /**
+     * [隐藏的]会员卡办理登记表-核对
+     */
+    public function checkLists(){
+
+        $vipModel = D("VipView");
+        $data = $vipModel->order("card_ID")->select();
+
+        $this->assign('data', $data);
+        $this->display();
+    }
+
     /**
      * 会员列表
      */

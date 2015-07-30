@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>会员卡办理登录记表-核对</title>
+	<?php $SRC = HOME_SRC; ?>
+	<link rel="stylesheet" href="{$SRC}/css/bootstrap.min.css">
+	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
+</head>
+<body>
+	<include file= "./home"/>
+
+	会员卡办理登录记表-核对
+	<table class="table table-striped table-bordered table-hover">
+	   <thead>
+	     <tr>
+	       <th>id</th>
+	       <th>姓名</th>
+	       <th>会员卡号</th>
+	       <th>身份证号码</th>
+	       <th>手机号码</th>
+	       <th>会员卡余额</th>
+	       <th>首次免费</th>
+	       <th>首次免费剩余次数</th>
+	       <th>首次免费入住时间</th>
+	     </tr>
+	   </thead>
+	   <tbody>
+	   	<foreach name="data" item="one" >
+	     <tr>
+	       <td>{$one['client_ID']}</td>
+	       <td>{$one['name']}</td>
+	       <td>{$one['card_ID']}</td>
+	       <td>{$one['ID_card']}</td>
+	       <td>{$one['phone']}</td>
+	       <td>{$one['balance']}</td>
+	       <td><?php if ($one['first_free'] == 0) {
+	       	echo "已入住";
+	       }else {
+	       	echo "未使用";
+	       }?></td>
+	       <td><?php if ($one['first_free'] == 0) {
+	       	echo "无";
+	       }else {
+	       	echo "1次";
+	       }?></td>
+	       <td>
+	       	<?php
+	       		if ($one['first_free_checkIn'] && $one['first_free'] == 0) {
+	       			echo $one['first_free_checkIn'];
+	       		}elseif ($one['first_free']) {
+	       			echo "剩余 1次 首住免费";
+	       		}else{
+	       			echo "## 记录缺失 ##";
+	       		}
+	       	?></td>
+	     </tr>
+	   	</foreach>
+	   </tbody>
+	 </table>
+</body>
+</html>
