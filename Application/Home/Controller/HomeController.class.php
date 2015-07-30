@@ -9,6 +9,9 @@ use Think\Controller;
  */
 class HomeController extends Controller {
 
+    // 资金管理开关
+    const MONEY_MANAGEMENT_SWITCH = 0;// O关闭，1开启
+
 	// 操作内容
     // ***前台
     const RECEPTIONIST_LOGIN_IN        		   		=   '前台登录成功';
@@ -26,7 +29,8 @@ class HomeController extends Controller {
     const RECEPTIONIST_RESPONSE_BORROW_REQUEST  	=   '响应借设备请求';
     const RECEPTIONIST_CONFIRM_RETURN_BORROWED      =   '确认归还设备';
     const RECEPTIONIST_OPEN_VIP                     =   '开通会员成功';
-    const RECEPTIONIST_RECHARGE_VIP                	=   '充值会员成功';
+    const RECEPTIONIST_RECHARGE_VIP                 =   '充值会员成功';
+    const RECEPTIONIST_SELL_GOOD                	=   '商品售卖成功';
 
     // 订单类型
     const STYLE_0                     =   0;// 普通

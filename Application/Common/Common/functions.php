@@ -32,6 +32,7 @@ function write_log_all_array($val){
         case 'check_out':
         case 'open_vip':
         case 'recharge_vip':
+        case 'sell_good':
         case 'add':
             foreach ($val[5] as $key => $value) {
                 // 组合日志内容

@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>商品售卖</title>
+	<?php $SRC = HOME_SRC; ?>
+	<link rel="stylesheet" href="{$SRC}/css/bootstrap.min.css">
+	
+	<style>
+		.table th, .table td {
+		    text-align: center;
+		}
+	</style>
+	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
+
+</head>
+<body>
+	<include file= "./home"/>
+
+	商品售卖
+	<table class="table table-striped table-bordered table-hover" style="width:900px">
+	   <thead>
+	     <tr>
+	       <th>名称</th>
+	       <th>单价/元</th>
+	       <th>数量</th>
+	       <th>小计/元</th>
+	       <th>备注</th>
+	     </tr>
+	   </thead>
+	   <form action="{:U('Home/Good/sell')}" method="post">
+	   	
+	   <tbody>
+	   	<foreach name="data" item="one_cate" >
+	   	   <foreach name="one_cate[sub_good]" item="one_good" key="id" >
+		     <tr>
+		       <td>{$one_good['name']}</td>
+		       <td><span id="price">{$one_good['price']}</span></td>
+		       <td>
+		        <input type="text" name="id[]" value="{$id}" hidden />
+		       	<input type="button" class="btn sub" value="-">
+		       	<input type="text" id="quantity" style="width:40px;" name="quantity[]" value="0" />
+		       	<input type="button" class="btn add" value="+"></td>
+		       <td><span class="total" id="total">0.0</span></td>
+		       <td><input class="form-control" type="text" name="note[]" /></td>
+		     </tr>
+		   </foreach>
+	   	</foreach>
+	   </tbody>
+
+		<p style="font-family:verdana;font-size:200%;">总价：<span id="all_total" style="color:#46b8da">0.0</span></p>
+		<button class="btn btn-info" type="submit">提交</button>
+	   </form>
+	</table>
+	<script type="text/javascript">
+		$("input.add").on('click', function() {
+
+			var QUANTITY = $(this).parent("td").children('#quantity');
+
+			if (QUANTITY.val() == "" || QUANTITY.val() == 0) {
+				
+				QUANTITY.attr("value", 1);
+			}else{
+
+				QUANTITY.attr("value", parseInt(QUANTITY.val()) + 1);
+			}
+
+			QUANTITY.val(QUANTITY.attr("value"));
+			total($(this).parents("tr"));
+		});
+
+		$("input.sub").on('click', function() {
+
+			var QUANTITY = $(this).parent("td").children('#quantity');
+
+			if (QUANTITY.val() != "" &&QUANTITY.val() >= 1) {
+
+				QUANTITY.attr("value", parseInt(QUANTITY.val()) - 1);
+			}
+
+			QUANTITY.val(QUANTITY.attr("value"));
+			total($(this).parents("tr"));
+		});
+
+		/* 手动输入数量 */
+		$("input#quantity").on('input', function() {
+			
+			var QUANTITY = $(this).parent("td").children('#quantity');
+
+			QUANTITY.attr("value", QUANTITY.val());
+			total($(this).parents("tr"));
+		});
+
+		/* 计价 */
+		function total(tr){
+
+			var PRICE = tr.find("#price");
+			var QUANTITY = tr.find("#quantity");
+			var TOTAL = tr.find("#total");
+
+			// 小计
+			var total = (parseFloat(PRICE.text()) * parseInt(QUANTITY.val())).toFixed(1);
+			TOTAL.text(total);
+
+
+			// 总价
+			var all=0;
+			$(".total").each(function(){
+
+				all += Number($(this).text());
+			});
+
+			var ALL_TOTAL = $("#all_total");
+			ALL_TOTAL.text(all.toFixed(1));
+		}
+	</script>
+</body>
+</html>
