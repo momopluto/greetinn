@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>商品售卖记录</title>
+	<?php $SRC = HOME_SRC; ?>
+	<link rel="stylesheet" href="{$SRC}/css/bootstrap.min.css">
+	
+	<style>
+		/*.table th, .table td {
+		    text-align: center;
+		}*/
+	</style>
+	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
+
+</head>
+<body>
+	<include file= "./home"/>
+
+	商品售卖记录
+	<table class="table table-striped table-bordered table-hover" style="width:900px">
+	   <thead>
+	     <tr>
+	       <th>销售号</th>
+	       <th>名称</th>
+	       <th>售价/元</th>
+	       <th>数量</th>
+	       <th>小计/元</th>
+	       <th>备注</th>
+	       <th>时间</th>
+	     </tr>
+	   </thead>
+	   	
+	   <tbody>
+	   	<foreach name="data" item="one_record" key="guid" >
+	   	  <foreach name="one_record" item="one_good" >
+		     <tr>
+		       <?php
+		       	$row = count($one_record);
+			    if ($key == 0) {
+			    	echo '<td rowspan="' . $row . '">' . $guid . '</td>';
+			    }
+		       ?>
+		       <td>{$one_good['name']}</td>
+		       <td><?php echo $one_good['total'] / $one_good['quantity'];?></td>
+		       <td>{$one_good['quantity']}</td>
+		       <td>{$one_good['total']}</td>
+		       <td>{$one_good['note']}</td>
+		       <?php
+			    if ($key == 0) {
+			    	echo '<td rowspan="' . $row . '">' . $one_good['cTime'] . '</td>';
+			    }
+		       ?>
+		     </tr>
+	 	  </foreach>
+	 	</foreach>
+	   </tbody>
+	</table>
+</body>
+</html>
