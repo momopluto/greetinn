@@ -4,13 +4,13 @@
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>[助]完善客户信息</title>
 	<?php $SRC = HOME_SRC; ?>
-	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
 	<script type="text/javascript" src="{$SRC}/scripts/common.js"></script>
 </head>
 <body>
 
 	<include file= "./home"/>
-
+<div id="right-show">
+	
 	完善客户信息
 	<form action="{:U('Home/Order/perfect')}" method="post">
 		<p>姓　名：<input id="name" type="text" name="name" value="{$data['name']}" required="required">*</p>
@@ -23,6 +23,7 @@
 		<input type="text" name="id" value="{$data['o_id']}" hidden=""/>
 	</form>
 	
+</div>
 
 	<script language="JavaScript">
 

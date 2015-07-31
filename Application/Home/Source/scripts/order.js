@@ -1,6 +1,6 @@
 
 
-var _type;
+var _type=0;/*默认房型为标单*/
 
 /* 加载入住人信息 */
 function loadInfo() {
@@ -151,10 +151,7 @@ function setPrice(style, priceJSON){
 /* 根据date和type，加载rooms */
 function loadRooms(){
 
-	if (!_type) {
-		return;
-	};
-
+	/*默认加载房型为标单*/
 	var type = _type;
 
 	var limit = Array();

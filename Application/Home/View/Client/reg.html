@@ -3,13 +3,12 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>[助]客户注册</title>
-	<?php $SRC = HOME_SRC; ?>
-	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
 </head>
 <body>
 
 	<include file= "./home"/>
-
+<div id="right-show">
+	
 	帮助客户填写信息注册
 	<form action="{:U('Home/Client/reg')}" method="post">
 		<p>姓　名：<input type="text" name="name">*</p>
@@ -22,6 +21,7 @@
 		<input type="submit" value="注册" />
 	</form>
 	
+</div>
 
 	<script language="JavaScript">
 

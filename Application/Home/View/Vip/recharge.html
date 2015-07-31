@@ -3,31 +3,70 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>会员充值</title>
-	<?php $SRC = HOME_SRC; ?>
-	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
 </head>
 <body>
 
 	<include file= "./home"/>
-
+<div id="right-show">
+	
 	会员充值
-	<form action="{:U('Home/Vip/recharge')}" method="post">
-		<!-- <p>身份证：<input id="ID" type="text" name="ID" onblur="checkVip()">* <span id="ID_tips" style="color:red"></span></p> -->
-		<p>会员卡：<input id="card" type="text" name="card" required="" onblur="checkCard()">* <span id="CARD_tips" style="color:red"></span></p>
-		<div class="info" style="background:green" hidden="">
-			<p>姓名：<span id="name"></span></p>
-			<p>身份证：<span id="ID"></span></p>
-			<p>当前余额：<span id="curBalance"></span></p>
-		</div>
-		<p>充值金额：<input id="money" type="number" step="100" min="0" name="money" required="" onblur="calGift()">*</p>
-		<p>赠送：<span id="gift"></span></p>
-		<p>充值后余额：<span id="newBalance"></span></p>
+	<form class="form-horizontal" action="{:U('Home/Vip/recharge')}" method="post">
 
-		<p>验证码：<input type="text" name="verify">
-		<img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/></p>
-		<input type="submit" value="充值" />
+		<div class="form-group">
+		    <label for="card" class="col-sm-2 control-label">会员卡号</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="card" name="card" style="width:200px" required onblur="checkCard()">
+		      <span class="text-danger" id="CARD_tips"></span>
+		    </div>
+
+	    </div>
+	    
+        <div class="form-group info" hidden>
+          <fieldset disabled>
+    		<label for="name" class="col-sm-2 control-label">姓名</label>
+    		<div class="col-sm-10">
+    		  <span class="form-control" id="name" style="width:200px"></span>
+    		</div>
+    		<label for="ID" class="col-sm-2 control-label">身份证</label>
+    		<div class="col-sm-10">
+    		  <span class="form-control" id="ID" style="width:200px"></span>
+    		</div>
+    		<label for="curBalance" class="col-sm-2 control-label">当前余额</label>
+    		<div class="col-sm-10">
+    		  <span class="form-control" id="curBalance" style="width:200px"></span>
+    		</div>
+    	  </fieldset>
+    	</div>
+
+		<div class="form-group">
+		    <label for="money" class="col-sm-2 control-label">充值金额</label>
+		    <div class="col-sm-10">
+		      <input class="form-control" id="money" type="number" step="100" min="0" name="money" style="width:200px" required  onblur="calGift()">
+		    </div>
+		    <label for="gift" class="col-sm-2 control-label">赠送</label>
+		    <div class="col-sm-10">
+		      <span class="form-control" id="gift" style="width:200px" readonly></span>
+		    </div>
+		    <label for="newBalance" class="col-sm-2 control-label">充值后余额</label>
+		    <div class="col-sm-10">
+		      <span class="form-control" id="newBalance" style="width:200px" readonly></span>
+		    </div>
+	    </div>
+		<div class="form-group">
+		    <label for="" class="col-sm-2 control-label">验证码</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="" name="verify" style="width:200px" required>
+			  <img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/>
+		    </div>
+	    </div>
+	    <div class="form-group">
+	        <div class="col-sm-offset-2 col-sm-10">
+	          <button type="submit" class="btn btn-default">确认充值</button>
+	        </div>
+	    </div>
 	</form>
 	
+</div>
 
 	<script language="JavaScript">
 

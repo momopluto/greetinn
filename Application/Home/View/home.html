@@ -1,18 +1,57 @@
-<li><a href="{:U('Home/Order/dealing')}">订单管理</a></li>
-<li><a href="{:U('Home/Device/dealing')}">设备管理</a></li>
-<li><a href="{:U('Home/Opinion/lists')}">意见</a></li>
+<?php $SRC = HOME_SRC; ?>
+<link rel="stylesheet" href="{$SRC}/css/bootstrap.min.css">
+<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
+<style>
+	div#left-show{
+		/*background-color: #FFFFCC;*/
+		border-right: 1px solid /*#FFA94D*/;
+		width: 15%;
+		padding-top: 2%;
+		float: left;
+		position: fixed;
+		left: 0;
+		top: 0;
+		bottom: 0;
+	}
 
-<li><a href="{:U('Home/Client/reg')}">[助]客户注册</a></li>
-<li><a href="{:U('Home/Client/order')}">[助]客户下单</a></li>
+	div#right-show{
+		float: right;
+		width: 85%;
+		right: 0;
+		margin-left: 40px;
+		margin-top: 40px;
+	}
+</style>
 
-<li><a href="{:U('Home/Vip/lists')}">会员管理</a></li>
-<ul>
-	<li><a href="{:U('Home/Vip/reg')}">开通</a></li>
-	<li><a href="{:U('Home/Vip/recharge')}">充值</a></li>
-	<li><a href="{:U('Home/Vip/first_free')}">首住免费</a></li>
+
+<div id="left-show">
+
+<ul class="nav nav-pills nav-stacked">
+	<li class="nav-divider"></li>
+    <li class="text-center"><a href="{:U('Home/Order/dealing')}">订单管理</a></li>
+    <li class="nav-divider"></li>
+	<li class="disabled text-center"><a href="##">设备管理</a></li><!-- {:U('Home/Device/dealing')} -->
+	<li class="nav-divider"></li>
+	<li class="text-center"><a href="{:U('Home/Opinion/lists')}">意见</a></li>
+
+	<li class="nav-divider"></li>
+	<li class="text-center"><a href="{:U('Home/Client/reg')}">[助]客户注册</a></li>
+	<li class="text-center"><a href="{:U('Home/Client/order')}">[助]客户下单</a></li>
+
+	<li class="nav-divider"></li>
+	<li class="text-center"><a href="{:U('Home/Vip/lists')}">会员管理</a></li>
+	<ul class="text-center">
+		<li class="list-unstyled"><a href="{:U('Home/Vip/reg')}">开通</a></li>
+		<li class="list-unstyled"><a href="{:U('Home/Vip/recharge')}">充值</a></li>
+		<li class="list-unstyled"><a href="{:U('Home/Vip/first_free')}">首住免费</a></li>
+	</ul>
+
+	<li class="nav-divider"></li>
+	<li class="text-center"><a href="{:U('Home/Good/lists')}">商品售卖</a></li>
+	<li class="text-center"><a href="{:U('Home/Good/record')}">商品售卖记录</a></li>
+
+	<li class="nav-divider"></li>
+	<li class="text-center"><a href="{:U('Home/User/quit')}">退出</a></li>
 </ul>
-
-<li><a href="{:U('Home/Good/lists')}">商品售卖</a></li>
-<li><a href="{:U('Home/Good/record')}">商品售卖记录</a></li>
-
-<li><a href="{:U('Home/User/quit')}">退出</a></li>
+	
+</div>

@@ -5,13 +5,13 @@
 	<title>[助]客户下单 - 普通</title>
 
 	<?php $SRC = HOME_SRC; ?>
-	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
 	<script type="text/javascript" src="{$SRC}/scripts/order.js"></script>
 </head>
 <body>
 
 	<include file= "./home"/>
-
+<div id="right-show">
+	
 	<p>订单类型：<span><a href="{:U('Home/Client/order_0')}">普通</a></span> <span><a href="{:U('Home/Client/order_1')}">钟点</a></span> <span><a href="{:U('Home/Client/order_2')}">团购</a></span> <span><a href="{:U('Home/Client/order_3')}">(节假日)普通</a></span></p>
 	<p style="color:green">订单类型：(节假日)普通</p>
 	<form action="{:U('Home/Client/order_3')}" method="post">
@@ -98,6 +98,7 @@
 		<input type="submit" value="提交" />
 	</form>
 	
+</div>
 
 	<script language="JavaScript">
 

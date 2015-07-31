@@ -672,14 +672,14 @@ class OrderController extends HomeController {
                     if (update_o_room($o_id, $room_ID) && update_o_sTime($o_id, $checkIN['status'])) {
 
                         $flag = true;
+                        $vipModel = M('vip');
+                        $vipModel->startTrans();// vip表开启事务
                         if ($old_data['pay_mode'] == 2 && $old_data['status'] == self::STATUS_NEW) {// 会员卡消费，未支付，扣除会员卡费用
 
                             // echo "进这里来啦？！";die;
 
                             // p($old_data);die;
 
-                            $vipModel = M('vip');
-                            $vipModel->startTrans();// vip表开启事务
                             $whe['client_ID'] = $old_data['client_ID'];
                             $old_VipData = $vipModel->where($whe)->find();
 
