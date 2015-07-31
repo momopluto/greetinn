@@ -3,13 +3,12 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>会员开通</title>
-	<?php $SRC = HOME_SRC; ?>
-	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
 </head>
 <body>
 
 	<include file= "./home"/>
-
+<div id="right-show">
+	
 	开通会员
 	<form action="{:U('Home/Vip/reg')}" method="post">
 		<p>姓　名：<input class="info" id="name" type="text" name="name" disabled></p>
@@ -29,6 +28,7 @@
 		<input type="submit" value="开通" />
 	</form>
 	
+</div>
 
 	<script language="JavaScript">
 

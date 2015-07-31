@@ -5,13 +5,13 @@
 	<title>会员 - 首住免费</title>
 
 	<?php $SRC = HOME_SRC; ?>
-	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
 	<script type="text/javascript" src="{$SRC}/scripts/order_0.js"></script>
 </head>
 <body>
 
 	<include file= "./home"/>
-
+<div id="right-show">
+	
 	<p style="color:green">订单类型：会员 - 首住免费</p>
 	<form action="{:U('Home/Vip/first_free')}" method="post">
 		<p>身份　证：<input id="ID" type="text" name="ID" value="{$data['ID_card']}" onblur="loadInfo()">* <span id="ID_tips" style="color:red"></span></p>
@@ -70,6 +70,7 @@
 		<input type="submit" value="提交" />
 	</form>
 	
+</div>
 
 	<script language="JavaScript">
 

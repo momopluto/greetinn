@@ -3,13 +3,12 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>会员充值</title>
-	<?php $SRC = HOME_SRC; ?>
-	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
 </head>
 <body>
 
 	<include file= "./home"/>
-
+<div id="right-show">
+	
 	会员充值
 	<form action="{:U('Home/Vip/recharge')}" method="post">
 		<!-- <p>身份证：<input id="ID" type="text" name="ID" onblur="checkVip()">* <span id="ID_tips" style="color:red"></span></p> -->
@@ -28,6 +27,7 @@
 		<input type="submit" value="充值" />
 	</form>
 	
+</div>
 
 	<script language="JavaScript">
 
