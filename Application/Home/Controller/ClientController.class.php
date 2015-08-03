@@ -67,10 +67,10 @@ class ClientController extends HomeController {
             }
         }else{
 
-            if (I('get.id')) {
+            // if (I('get.id')) {
 
-                $this->assign('ID',I('get.id'));
-            }
+            //     $this->assign('ID',I('get.id'));
+            // }
 
             $this->display();
         }
