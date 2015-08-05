@@ -11,121 +11,111 @@
 	
 	办理入住
 	<table border="1">
-		<th>订单类型</th>
-		<th>订单编号</th>
-		<th>入住\离店日期</th>
-		<th>订单详情</th>
-		<th>支付方式</th>
-		<th>房间类型</th>
-		<th>总价</th>
-		<th>订单状态</th>
-		<th>分配房间</th>
-		<th>操作</th>
-
-	<form action="{:U('Home/Order/check_in')}" method="post">
-    <tr>
-    	<td align="center">{$data['style_name']}</td>
-    	<td align="center">{$data['o_id']}</td>
-	    <td><p>{$data['A_date']}</p><p>{$data['B_date']}</p></td>
-	    <td>
-	    <?php
-	    $book_info = json_decode($data['book_info'],true);
-	    ?>
-	    <p>入住晚数: {$data['nights']}</p>
-	    <p>入住人数: {$book_info['number']}</p>
-	    <p>入住人员信息: </p>
-	    <foreach name="book_info['people_info']" item="value" >
-		    <li>{$value['name']} {$value['ID_card']}</li>
-	    </foreach>
-	    <p>备注: {$book_info['note']}</p>
-	    </td>
-	    <td align="center">
-	    <?php
-	    	$mode = '';
-	    	switch ($data['pay_mode']) {
-	    		case 0:
-	    			$mode = "现金支付";
-	    			break;
-	    		case 1:
-	    			$mode = "网上支付";
-	    			break;
-	    		case 2:
-	    			$mode = "会员卡支付";
-	    			break;
-	    		default:
-	    			break;
-	    	}
-	    	echo $mode;
-	    ?>
-	    </td>
-	    <td align="center">{$data['type_name']}</td>
-	    <!-- <td align="center">{$types[$data['type']]['name']}<br/>￥{$types[$data['type']]['price']}</td> -->
-	    <td align="center">￥{$data['price']}</td>
-	    <td align="center"  title="状态改变时间: &#10;取消: {$data['cancel']}&#10;支付: {$data['pay']}&#10;入住: {$data['checkIn']}&#10;离店: {$data['checkOut']}">
-    	<?php
-    		$str = '';
-    		switch ($data['status']) {
-    			case 0:
-    				$str = "取消";
-    				break;
-    			case 1:
-    				$str = '<span style="color:red">预订</span>';// 红色警示，未付款
-    				break;
-    			case 2:
-    				$str = "已支付";
-    				break;
-    			case 3:
-    				$str = "入住ing"."<p>".$data['room_ID']."房</p>";
-    				break;
-    			case 4:
-    				$str = "离店";
-    				break;
-    			default:
-    				break;
-    		}
-    		// 换房/续住的备注
-    		if ($data['note'] != '') {
-    			$data['note'] = str_replace(array(';'), "<br/>", $data['note']);
-    			$str .= "<span>". $data['note'] ."</span>";
-    		}
-    		echo $str;
-    	?>
-    	</td>
-	    <td align="center">
-    		<select name="room">
-    			<option value ="-1">请选择</option>
-    			<foreach name="rooms" item="one" key="k" >
-    				<option value ="{$one}" <?php
-    				if ($one == $data['room_ID']) {
-    					echo 'selected=""';
-    				}
-    				?>>{$one}</option>
-    			</foreach>
-    	    </select>
-    	    <p><input type="text" name="deposit" placeholder="请输入押金"></p>
-	    </td>
-	    <td>
-	    <input type="submit" value="确定">
-	    <input type="text" name="id" value="{$data['o_id']}" hidden="">
-	    </td>
-    </tr>
-    </form>
+	   <thead>
+	     <tr>
+	       <th class="text-center">订单类型</th>
+	       <th class="text-center">订单编号</th>
+	       <th class="text-center">入住\离店日期</th>
+	       <th>订单详情</th>
+	       <th class="text-center">支付方式</th>
+	       <th class="text-center">房间类型</th>
+	       <th class="text-center">总价</th>
+	       <th class="text-center">订单状态</th>
+	       <th class="text-center">分配房间</th>
+	       <th class="text-center">操作</th>
+	     </tr>
+	   </thead>
+	   <tbody>
+	   	<form action="{:U('Home/Order/check_in')}" method="post">
+         <tr>
+           <td class="text-center">{$data['style_name']}</td>
+           <td class="text-center">{$data['o_id']}</td>
+            <td class="text-center"><p>{$data['A_date']}</p><p>{$data['B_date']}</p></td>
+            <td>
+            <?php
+            $book_info = json_decode($data['book_info'],true);
+            ?>
+            <p>入住晚数: {$data['nights']}</p>
+            <p>入住人数: {$book_info['number']}</p>
+            <p>入住人员信息: </p>
+            <foreach name="book_info['people_info']" item="value" >
+               <li>{$value['name']} {$value['ID_card']}</li>
+            </foreach>
+            <p>备注: {$book_info['note']}</p>
+            </td>
+            <td class="text-center">
+            <?php
+            	$mode = '';
+            	switch ($data['pay_mode']) {
+            		case 0:
+            			$mode = "现金支付";
+            			break;
+            		case 1:
+            			$mode = "网上支付";
+            			break;
+            		case 2:
+            			$mode = "会员卡支付";
+            			break;
+            		default:
+            			break;
+            	}
+            	echo $mode;
+            ?>
+            </td>
+            <td class="text-center">{$data['type_name']}</td>
+            <!-- <td class="text-center">{$types[$data['type']]['name']}<br/>￥{$types[$data['type']]['price']}</td> -->
+            <td class="text-center">￥{$data['price']}</td>
+            <td class="text-center"  title="状态改变时间: &#10;取消: {$data['cancel']}&#10;支付: {$data['pay']}&#10;入住: {$data['checkIn']}&#10;离店: {$data['checkOut']}">
+           <?php
+           	$str = '';
+           	switch ($data['status']) {
+           		case 0:
+           			$str = "取消";
+           			break;
+           		case 1:
+           			$str = '<span style="color:red">预订</span>';// 红色警示，未付款
+           			break;
+           		case 2:
+           			$str = "已支付";
+           			break;
+           		case 3:
+           			$str = "入住ing"."<p>".$data['room_ID']."房</p>";
+           			break;
+           		case 4:
+           			$str = "离店";
+           			break;
+           		default:
+           			break;
+           	}
+           	// 换房/续住的备注
+           	if ($data['note'] != '') {
+           		$data['note'] = str_replace(array(';'), "<br/>", $data['note']);
+           		$str .= "<span>". $data['note'] ."</span>";
+           	}
+           	echo $str;
+           ?>
+           </td>
+            <td class="text-center">
+           	  <select name="room" class="form-control center-block" style="width:90px">
+           		<option value ="-1">请选择</option>
+           		<foreach name="rooms" item="one" key="k" >
+           			<option value ="{$one}" <?php
+           			if ($one == $data['room_ID']) {
+           				echo 'selected=""';
+           			}
+           			?>>{$one}</option>
+           		</foreach>
+              </select>
+               <p><input class="form-control center-block" type="number" step="10" min="0" name="deposit" placeholder="请输入押金" style="width:120px" required></p>
+            </td>
+            <td class="text-center">
+            <button class="btn btn-success">确定</button>
+            <input type="text" name="id" value="{$data['o_id']}" hidden="">
+            </td>
+         </tr>
+	   	</form>
+	   </tbody>
 	</table>
-
 </div>
-<!-- 	1.从状态2，帮已付款但不入住的客户处理订单，状态改成“取消订单”0
-	2.从状态1或2，办理客户入住，核对入住人信息，分配房间，确认，状态改成“正在入住”3
-	3.从状态3，办理客户退房（只有“正在入住”状态能看到“退房”选项），确认，状态改成“已退房”4
-	4.从状态3，帮已入住客户办理换房手续（只有“正在入住”状态能看到“换房”选项），换房，分配房间，确认，换房记录写入数据库
-
-
-	公共订房流程：
-	   下单，状态1->取消，状态0     --客户自行解决
-	现金支付订房流程：
-	   下单，状态1->给现金，正在入住，状态3->退房，状态4
-	网上支付订房流程：（指下单后在网上自行支付了，到店只需办理入住的）
-	   下单，状态1->支付，状态2->取消，状态0
-       下单，状态1->支付，状态2->正在入住，状态3->退房，状态4 -->
-	
 </body>
 </html>

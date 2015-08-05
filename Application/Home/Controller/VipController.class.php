@@ -45,7 +45,6 @@ FROM
 
         $data = $Model->query($queryStr);
 
-        $sql = "UPDATE vip SET first_free_checkIn =  CASE client_ID ";
         foreach ($data as $key => $value) {
 
             if (!$value["first_free_checkIn"]) {
@@ -65,6 +64,7 @@ FROM
         // p($data);
         // p($vip);die;
 
+        $sql = "UPDATE vip SET first_free_checkIn =  CASE client_ID ";
         $client_IDs = implode(',', array_keys($vip));
         foreach ($vip as $key => $value) {
             

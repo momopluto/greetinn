@@ -18,7 +18,7 @@
         		if (data['rooms']) {
         			
         			// alert("空间房间加载完成！");
-        			var rooms = eval(data['rooms']);
+        			var rooms = data['rooms'];
         			var ROOM = $("#room");
         			
         			console.log(rooms);
@@ -80,8 +80,8 @@
 
 		var subStr = '<option value ="'+ prices['bid_price'] +'" selected="">标　价 | ￥'+ prices['bid_price'] +' /3小时</option>'+
 					'<option value ="'+ prices['stu_price'] +'">学生价 | ￥'+ prices['stu_price'] +' /3小时</option>'+
-					'<option value ="'+ prices['vip_price'] +'">会员价 | ￥'+ prices['vip_price'] +' /3小时</option>'+
-					'<option value ="'+ prices['inner_price'] +'">特殊价 | ￥'+ prices['inner_price'] +' /1小时</option>';
+					'<option value ="'+ prices['vip_price'] +'">会员价 | ￥'+ prices['vip_price'] +' /3小时</option>'/*+
+					'<option value ="'+ prices['inner_price'] +'">特殊价 | ￥'+ prices['inner_price'] +' /1小时</option>'*/;
 
 		priceHTML += subStr + '</select>';
 
