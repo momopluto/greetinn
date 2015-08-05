@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>房态</title>
+</head>
+<body>
+	<include file= "./home"/>
+	<script type="text/javascript" src="{$SRC}/scripts/bootstrap.min.js"></script>
+
+<div id="right-show">
+	<ul class="pager">
+	  <li class="previous"><a href="{:U('Home/Index/index')}?src={:date('Y-m-d',strtotime('-10 day', strtotime($today)))}">&laquo;上一页</a></li>
+	  <li class="next"><a href="{:U('Home/Index/index')}?src={:date('Y-m-d',strtotime('+10 day', strtotime($today)))}">下一页&raquo;</a></li>
+	</ul>
+	<table class="table table-striped table-bordered table-hover">
+      <thead>
+        <tr>
+          <th>房间号</th>
+          <th>房间类型</th>
+        <?php  $f1 = 0;?>
+        <foreach name="data[0]" item="val" key="curDate" >
+         <?php if ($f1<2) {
+          	$f1++;
+          }else{
+          	echo  '<th>'.$curDate.'</th>';
+          }?>
+        </foreach>
+        </tr>
+      </thead>
+      <tbody>
+       <foreach name="data" item="one_room" >
+        <tr>
+          <td style="width:70px">{$one_room['room_ID']}</td>
+          <td style="width:80px">{$one_room['type_name']}</td>
+        <?php unset($one_room['room_ID']);unset($one_room['type_name']);?>
+        <foreach name="one_room" item="val" key="curDate" >
+          <td style="width:100px">
+          <?php 
+          	if (strcmp($val, '0') != 0) {
+          		// 0:status,1:status_name,2:o_id,3:client_name
+          		$arr = explode(',', $val);
+	          	// echo  "$arr[0]-$arr[1]-$arr[2]-$arr[3]";
+	          	$htmlStr = '';
+	          	$tempStr = '';
+	          	switch ($arr[0]) {
+	          		case '1':
+	          			$tempStr .= '<li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/check_in')."?id=".$arr[2].'">'."办理入住".'</a></li>
+	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="###">'."编辑".'</a></li>
+	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/cancel')."?id=".$arr[2].'">'."取消".'</a></li>';
+
+  	    	          	$htmlStr = '<div class="dropdown">
+  	    		          <button class="btn btn-info dropdown-toggle center-block" type="button" data-toggle="dropdown">
+  	    	          	    '.$arr[1].'
+  	    	          	    <span class="caret"></span>
+  	    	          	  </button>
+  	    	          	  <ul class="dropdown-menu" role="menu">'
+  	    	          	  .$tempStr
+  	    	          	  .'</ul>
+  	    	          	</div>';
+	          			break;
+	          		case '2':
+	          			$tempStr .= '<li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/check_in')."?id=".$arr[2].'">'."办理入住".'</a></li>
+	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="###">'."编辑".'</a></li>';
+
+	          	    	$htmlStr = '<div class="dropdown">
+  	    		          <button class="btn btn-primary dropdown-toggle center-block" type="button" data-toggle="dropdown">
+  	    	          	    '.$arr[1].'
+  	    	          	    <span class="caret"></span>
+  	    	          	  </button>
+  	    	          	  <ul class="dropdown-menu" role="menu">'
+  	    	          	  .$tempStr
+  	    	          	  .'</ul>
+  	    	          	</div>';
+	          			break;
+	          		case '3':
+	          			$tempStr .= '<li role="presentation"><a role="menuitem" tabindex="-1" href="###">'."办理续住".'</a></li>
+	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/change_room')."?id=".$arr[2].'">'."办理换房".'</a></li>
+	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/check_out')."?id=".$arr[2].'">'."办理退房".'</a></li>';
+	          			
+	          	    	$htmlStr = '<div class="dropdown">
+  	    		          <button class="btn btn-danger dropdown-toggle center-block" type="button" data-toggle="dropdown">
+  	    	          	    '.$arr[1].'
+  	    	          	    <span class="caret"></span>
+  	    	          	  </button>
+  	    	          	  <ul class="dropdown-menu" role="menu">'
+  	    	          	  .$tempStr
+  	    	          	  .'</ul>
+  	    	          	</div>';
+	          			break;
+	          		case '4':
+	          			$tempStr .= '<li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Client/order').'">'."预定".'</a></li>';
+	          			
+	          			$htmlStr = '<div class="dropdown">
+  	    		          <button class="btn btn-success dropdown-toggle center-block" type="button" data-toggle="dropdown">
+  	    	          	    '.$arr[1].'
+  	    	          	    <span class="caret"></span>
+  	    	          	  </button>
+  	    	          	  <ul class="dropdown-menu" role="menu">'
+  	    	          	  .$tempStr
+  	    	          	  .'</ul>
+  	    	          	</div>';
+	          			break;
+	          		case '5':
+	          			$tempStr .= '<li role="presentation"><a role="menuitem" tabindex="-1" href="###">'."设为空净&解锁".'</a></li>';
+
+	          			$htmlStr = '<div class="dropdown">
+  	    		          <button class="btn btn-warning dropdown-toggle center-block" type="button" data-toggle="dropdown">
+  	    	          	    '.$arr[1].'
+  	    	          	    <span class="caret"></span>
+  	    	          	  </button>
+  	    	          	  <ul class="dropdown-menu" role="menu">'
+  	    	          	  .$tempStr
+  	    	          	  .'</ul>
+  	    	          	</div>';
+	          			break;
+	          		default:
+	          			$tempStr .= '<li role="presentation"><a role="menuitem" tabindex="-1" href="#">'."无操作".'</a></li>';
+
+	          			$htmlStr = '<div class="dropdown">
+  	    		          <button class="btn dropdown-toggle center-block" type="button" data-toggle="dropdown">
+  	    	          	    '.$arr[1].'
+  	    	          	    <span class="caret"></span>
+  	    	          	  </button>
+  	    	          	  <ul class="dropdown-menu" role="menu">'
+  	    	          	  .$tempStr
+  	    	          	  .'</ul>
+  	    	          	</div>';
+	          			break;
+	          	}
+	          	
+	          	echo $htmlStr;
+          	}else{
+          		$status_Str = "空闲";
+          		echo '<div class="dropdown">
+          		  <button class="btn btn-default dropdown-toggle center-block" type="button" data-toggle="dropdown">
+          		    '.$status_Str.'
+          		    <span class="caret"></span>
+          		  </button>
+          		  <ul class="dropdown-menu" role="menu">
+          		    <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Client/order').'">预定</a></li>
+          		  </ul>
+          		</div>';
+          	}
+          ?>
+      	  </td>
+        </foreach>
+        </tr>
+       </foreach>
+      </tbody>
+    </table>
+</div>
+</body>
+</html>

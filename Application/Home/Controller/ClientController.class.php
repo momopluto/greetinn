@@ -67,10 +67,10 @@ class ClientController extends HomeController {
             }
         }else{
 
-            if (I('get.id')) {
+            // if (I('get.id')) {
 
-                $this->assign('ID',I('get.id'));
-            }
+            //     $this->assign('ID',I('get.id'));
+            // }
 
             $this->display();
         }
@@ -817,22 +817,22 @@ class ClientController extends HomeController {
      */
     public function getRoomsByDate_Type(){
 
-        // $this->ajaxReturn(I('post.type'));return;
+        // $this->ajaxReturn(I('post.'));return;
         
         $limit['type'] = I('post.type');
         $limit['A_date'] = I('post.aDay').self::IN_TIME;
         $limit['B_date'] = I('post.bDay').self::OUT_TIME;// 此处未细分OUT_TIME 和 OUT_TIME_2
         
-        if (I('post.id')) {
-            $row = M('o_record_2_room')->find(I('post.id'));
-        }
-        
-
         // $limit['type'] = 0;
         // $limit['A_date'] = "2015-03-05";
         // $limit['B_date'] = "2015-03-06";
-        
-        $data['rooms'] = get_available_rooms($limit, $row['room_ID']);
+        if (I('post.id')) {
+            $row = M('o_record_2_room')->find(I('post.id'));
+            $data['rooms'] = get_available_rooms($limit, $row['room_ID']);
+        }else {
+
+            $data['rooms'] = get_available_rooms($limit);
+        }
         
         $this->ajaxReturn($data, 'json');
     }

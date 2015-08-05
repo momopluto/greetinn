@@ -37,36 +37,46 @@
 	    <div class="form-group">
 	    	<label for="" class="col-sm-2 control-label">房型</label>
 		    <div class="col-sm-10">
+		      <label class="radio-inline">
 		    	<input id="type" type="radio" name="type" value="0" checked/>标准单间
+		      </label>
+		      <label class="radio-inline">
 		    	<input id="type" type="radio" name="price" value="0" checked/>会员价 | 首住￥0
-
-	    	  <select id="room" name="room" onmouseover="loadRooms()">
+		      </label>
+	        </div>
+	        <label for="" class="col-sm-2 control-label">选房</label>
+	        <div class="col-sm-10">
+	    	  <select class="form-control" id="room" name="room" onmouseover="loadRooms()" style="width:120px">
 	    		<option value ="-1">预分配房间</option>
 	    	  </select>
-	        </div>
+	    	</div>
 	    </div>
 
 	    <div class="form-group">
 	    	<label for="" class="col-sm-2 control-label">订单来源</label>
 		    <div class="col-sm-10">
+		      <label class="radio-inline">
 		    	<input id="source" type="radio" name="source" value="0" checked/>前台
+		      </label>
 	        </div>
 	    </div>
 	    <div class="form-group">
 	    	<label for="" class="col-sm-2 control-label">支付方式</label>
 		    <div class="col-sm-10">
+		      <label class="radio-inline">
 		    	<input id="mode" type="radio" name="mode" value="2" checked/>会员卡支付
-		        <span class="paid" hidden="" >
-			        <input type="radio" name="paid" value="0" checked="">未支付
-			        <input type="radio" name="paid" value="1">已支付
-		        </span>
+		      </label>
+		      <span class="paid" hidden="" >
+			    <input type="radio" name="paid" value="0" checked="">未支付
+			    <input type="radio" name="paid" value="1">已支付
+		      </span>
 	        </div>
 	    </div>
 
 	    <div class="form-group">
 		    <label for="" class="col-sm-2 control-label">备注</label>
 		    <div class="col-sm-10">
-		      <input type="text" class="form-control" id="" name="note" style="width:200px">
+		      <input type="text" class="form-control" id="" name="note" value="首住免费" style="width:200px" disabled>
 		    </div>
 	    </div>
 

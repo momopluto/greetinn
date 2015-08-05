@@ -20,7 +20,6 @@ function is_login(){
 /**
  * 过滤得到空闲的房间
  * @param Array $data 订单详情
- * @param string $queryStr 过滤字符串
  * @return Array $rooms 可分配的房间
  */
 function get_available_rooms($data, $self=''){

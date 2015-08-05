@@ -2,156 +2,153 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-	<title>未完成订单</title>
+	<title>已完成订单</title>
 </head>
 <body>
 
 	<include file= "./home"/>
 <div id="right-show">
 	
-	未完成订单(默认)
-	<form action="{:U('Home/Order/complete')}" method="get">
-        <span>入住日期：</span>
-        <span><input id="date" type="date" name="date" placeholder="选择日期" value="{:I('get.date')}"></span><!-- {:date('Y-m-d',time())} -->
-        <input type="submit" name="" value="查询" class="submit">
-    </form>
-	<li><a href="{:U('Home/Order/dealing')}">未完成订单</a></li>	
+     <div class="navbar navbar-default" role="navigation">
+           <ul class="nav navbar-nav">
+               <li><a href="{:U('Home/Order/dealing')}">未完成订单</a></li>
+               <li class="active"><a href="{:U('Home/Order/complete')}">已完成订单</a></li>
+           </ul>
+           <form class="form-inline navbar-form navbar-right" action="{:U('Home/Order/complete')}" method="get">
+             <div class="form-group">
+               <label for="date" class="control-label">入住日期：</label>
+               <input type="date" class="form-control" id="date" name="date" placeholder="选择日期" value="{:I('get.date')}" style="width:160px">
+             </div>
+          <button type="submit" class="btn btn-default">查询</button>
+         </form>
+     </div>
+
 	<table border="1">
-		<th>订单类型</th>
-		<th>订单编号</th>
-		<th>预订时间</th>
-		<th>预订人信息</th>
-		<th>代理人</th>
-		<th>入住\离店时间</th>
-		<th>订单详情</th>
-		<th>来源</th>
-		<th>支付方式</th>
-		<th>房间类型</th>
-		<th>总价</th>
-		<th>分配房间</th>
-		<th>订单状态</th>
-		<th>操作</th>
+	  <thead>
+	    <tr>
+	      <th class="text-center">订单类型</th>
+	      <th class="text-center">订单编号</th>
+	      <th class="text-center">预订时间</th>
+	      <th class="text-center">预订人信息</th>
+	      <th class="text-center">代理人</th>
+	      <th class="text-center">入住\离店时间</th>
+	      <th>订单详情</th>
+	      <th class="text-center">来源</th>
+	      <th class="text-center">支付方式</th>
+	      <th class="text-center">房间类型</th>
+	      <th class="text-center">总价</th>
+	      <th class="text-center">分配房间</th>
+	      <th class="text-center">订单状态</th>
+	      <th class="text-center">操作</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+       <foreach name="data" item="one" key="k" >
+        <tr>
+          <td class="text-center">{$one['style_name']}</td>
+          <td class="text-center">{$one['o_id']}</td>
+          <td class="text-center">
+          <?php
+          	$t = explode(' ', $one['cTime']);
+          ?>
+          <p>{$t[0]}</p><p>{$t[1]}</p>
+          </td>
+          <td class="text-center"><p>{$one['name']}</p><p>{$one['ID_card']}</p><p>手机{$one['phone']}</p></td>
+          <td class="text-center">
+          <?php
+          	if ($one['agent_name']) {
+          		echo "<p>".$one['agent_name']."</p><p>**".substr($one['a_phone'], 7)."</p>";
+          	}else{
+          		echo " - ";
+          	}
+          ?>
+          </td>
+          <td class="text-center"><p>{$one['A_date']}</p><p>{$one['B_date']}</p></td>
+          <td style="width:207px">
+          <?php
+          $book_info = json_decode($one['book_info'],true);
+          ?>
+          <p>入住晚数: {$one['nights']}</p>
+          <p>入住人数: {$book_info['number']}</p>
+          <p>入住人员信息: </p>
+          <foreach name="book_info['people_info']" item="value" >
+              <li>{$value['name']} {$value['ID_card']}</li>
+          </foreach>
+          <p>备注: {$book_info['note']}</p>
+          </td>
+          <td class="text-center">{$one['source_name']}
+          <?php
+          	if ($one['groupon_name']) {
+          		echo "<p>".$one['groupon_name']."</p>";
+          	}
+          ?>
+          </td>
+          <td class="text-center">
+          <?php
+          	$mode = '';
+          	switch ($one['pay_mode']) {
+          		case 0:
+          			$mode = "现金支付";
+          			break;
+          		case 1:
+          			$mode = "网上支付";
+          			break;
+          		case 2:
+          			$mode = "会员卡支付";
+          			break;
+          		default:
+          			break;
+          	}
+          	echo $mode;
+          ?>
+          </td>
+          <td class="text-center">{$one['type_name']}</td>
+          <td class="text-center">￥{$one['price']}</td>
+          <td class="text-center" title="<?php echo str_replace(array(';'), '&#10', $one['note']);?>">
+          <?php
+          	if ($one['room_ID']) {
+          		echo $one['room_ID']."房";
+          	}else{
+          		echo "未分配";
+          	}
 
-	<foreach name="data" item="one" key="k" >
-    <tr>
-    	<td align="center">{$one['style_name']}</td>
-    	<td align="center">{$one['o_id']}</td>
-	    <td align="center">
-	    <?php
-	    	$t = explode(' ', $one['cTime']);
-	    ?>
-	    <p>{$t[0]}</p><p>{$t[1]}</p>
-	    </td>
-	    <td align="center"><p>{$one['name']}</p><p>{$one['ID_card']}</p><p>手机{$one['phone']}</p></td>
-	    <td align="center">
-	    <?php
-	    	if ($one['agent_name']) {
-	    		echo "<p>".$one['agent_name']."</p><p>**".substr($one['a_phone'], 7)."</p>";
-	    	}else{
-	    		echo " - ";
-	    	}
-	    ?>
-	    </td>
-	    <td><p>{$one['A_date']}</p><p>{$one['B_date']}</p></td>
-	    <td>
-	    <?php
-	    $book_info = json_decode($one['book_info'],true);
-	    ?>
-	    <p>入住晚数: {$one['nights']}</p>
-	    <p>入住人数: {$book_info['number']}</p>
-	    <p>入住人员信息: </p>
-	    <foreach name="book_info['people_info']" item="value" >
-		    <li>{$value['name']} {$value['ID_card']}</li>
-	    </foreach>
-	    <p>备注: {$book_info['note']}</p>
-	    </td>
-	    <td align="center">{$one['source_name']}
-	    <?php
-	    	if ($one['groupon_name']) {
-	    		echo "<p>".$one['groupon_name']."</p>";
-	    	}
-	    ?>
-	    </td>
-		<td align="center">
-		<?php
-			$mode = '';
-			switch ($one['pay_mode']) {
-				case 0:
-					$mode = "现金支付";
-					break;
-				case 1:
-					$mode = "网上支付";
-					break;
-				case 2:
-					$mode = "会员卡支付";
-					break;
-				default:
-					break;
-			}
-			echo $mode;
-		?>
-		</td>
-	    <td align="center">{$one['type_name']}</td>
-	    <td align="center">￥{$one['price']}</td>
-	    <td align="center" title="<?php echo str_replace(array(';'), '&#10', $one['note']);?>">
-	    <?php
-	    	if ($one['room_ID']) {
-	    		echo $one['room_ID']."房";
-	    	}else{
-	    		echo "未分配";
-	    	}
-
-	    	// // 换房/续住的备注
-    		// if ($one['note'] != '') {
-    		// 	$one['note'] = str_replace(array(';'), "<br/>", $one['note']);
-    		// 	echo "<span>". $one['note'] ."</span>";
-    		// }
-	    ?>
-	    </td>
-	    <td align="center" title="状态改变时间: &#10;取消: {$one['cancel']}&#10;支付: {$one['pay']}&#10;入住: {$one['checkIn']}&#10;离店: {$one['checkOut']}">
-    	<?php
-    		$str = '';
-    		switch ($one['status']) {
-    			case 0:
-    				$str = "取消";
-    				break;
-    			case 1:
-    				$str = "预订";
-    				break;
-    			case 2:
-    				$str = "已支付";
-    				break;
-    			case 3:
-    				$str = "入住ing";/*."<p>".$one['room_ID']."房</p>"*/
-    				break;
-    			case 4:
-    				$str = "离店";
-    				break;
-    			default:
-    				break;
-    		}
-    		echo $str;
-    	?>
-	    </td>
-	    <td>-</td>
-    </tr>
-	</foreach>
+          	// // 换房/续住的备注
+          	// if ($one['note'] != '') {
+          	// 	$one['note'] = str_replace(array(';'), "<br/>", $one['note']);
+          	// 	echo "<span>". $one['note'] ."</span>";
+          	// }
+          ?>
+          </td>
+          <td class="text-center" title="状态改变时间: &#10;取消: {$one['cancel']}&#10;支付: {$one['pay']}&#10;入住: {$one['checkIn']}&#10;离店: {$one['checkOut']}">
+          <?php
+          	$str = '';
+          	switch ($one['status']) {
+          		case 0:
+          			$str = "取消";
+          			break;
+          		case 1:
+          			$str = "预订";
+          			break;
+          		case 2:
+          			$str = "已支付";
+          			break;
+          		case 3:
+          			$str = "入住ing";/*."<p>".$one['room_ID']."房</p>"*/
+          			break;
+          		case 4:
+          			$str = "离店";
+          			break;
+          		default:
+          			break;
+          	}
+          	echo $str;
+          ?>
+          </td>
+          <td class="text-center"><button class="btn btn-danger btn-block disabled" type="button">不可操作</button></td>
+        </tr>
+       </foreach>
+	  </tbody>
 	</table>
-
 </div>
-<!-- 	1.从状态2，帮已付款但不入住的客户处理订单，状态改成“取消订单”0
-	2.从状态1或2，办理客户入住，核对入住人信息，分配房间，确认，状态改成“正在入住”3
-	3.从状态3，办理客户退房（只有“正在入住”状态能看到“退房”选项），确认，状态改成“已退房”4
-	4.从状态3，帮已入住客户办理换房手续（只有“正在入住”状态能看到“换房”选项），换房，分配房间，确认，换房记录写入数据库
-
-
-	公共订房流程：
-	   下单，状态1->取消，状态0     --客户自行解决
-	现金支付订房流程：
-	   下单，状态1->给现金，正在入住，状态3->退房，状态4
-	网上支付订房流程：（指下单后在网上自行支付了，到店只需办理入住的）
-	   下单，状态1->支付，状态2->取消，状态0
-       下单，状态1->支付，状态2->正在入住，状态3->退房，状态4 -->
-	
 </body>
 </html>

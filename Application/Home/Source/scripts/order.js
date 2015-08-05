@@ -79,11 +79,6 @@ function loadPrice(style, type){
         							+'<option value ="-1">预分配房间</option>'
         			+'</select>');
 
-    if ($("#agent")) {/* 存在agent */
-    	$("span#agent").remove();
-    	$("select#agent").remove();
-    };
-
     // loadRooms();// 加载空闲房间
 }
 
@@ -169,21 +164,23 @@ function loadRooms(){
 
 		limit['type'] = type;
 
-		if (typeof o_id == "undefined") {
+		/*if (typeof o_id == "undefined") {
 			o_id = '';
-		}
+		}*/
 
 		$.ajax({
         	url: rooms_url,
         	type: 'post',
-        	data: {type: limit['type'], aDay: limit['aDay'], bDay: limit['bDay'], id: o_id},
+        	data: {type: limit['type'], aDay: limit['aDay'], bDay: limit['bDay']/*, id: o_id*/},
         	dataType: 'json',
         	success: function(data) {
+
+        		// console.log(data);return;
 
         		if (data['rooms']) {
         			
         			// alert("空闲房间加载完成！");
-        			var rooms = eval(data['rooms']);
+        			var rooms = data['rooms'];
         			var ROOM = $("#room");
         			
         			console.log(rooms);
@@ -213,6 +210,7 @@ function showAgent(){
 	if ($("span#vipinfo").length != 0) {/* 存在vipinfo */
 		$("span#vipinfo").remove();
 		$("input[name=mode]").get(2).checked=false;
+		$("#mode").removeAttr('hidden');
 		$(".paid").removeAttr('hidden');
 	};
 
@@ -292,12 +290,14 @@ function showVip(){
 				VIP.parent().after(vipHTML);
 
 				// 会员卡支付
-				$("input[name=mode]").get(2).checked=true; 
+				 $("input[name=mode]").get(2).checked=true;
+				$("#mode").attr('hidden','');
 				$(".paid").attr('hidden','');
     		}else {
 
     			VIP.parent().after(' <span id="vipinfo" style="color:red">此身份证号未注册会员！</span>');
-    			$("input[name=mode]").get(2).checked=false;
+    			 $("input[name=mode]").get(2).checked=false;
+    			$("#mode").removeAttr('hidden');
         		$(".paid").removeAttr('hidden');
     		}
     	}
@@ -338,6 +338,7 @@ function hideInfo(){
 	if ($("span#vipinfo").length != 0) {/* 存在vipinfo */
 		$("span#vipinfo").remove();
 		$("input[name=mode]").get(2).checked=false;
+		$("#mode").removeAttr('hidden');
 		$(".paid").removeAttr('hidden');
 	};
 }

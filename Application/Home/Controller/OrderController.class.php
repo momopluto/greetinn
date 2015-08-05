@@ -50,6 +50,84 @@ class OrderController extends HomeController {
         [checkOut] => 
     )
     */
+   
+    /**
+     * 打印订单信息
+     */
+    public function print_o(){
+
+        $o_id = I('get.id');
+        // $o_id = 32374;
+        $o_record_model = D('OrderRecordView');
+        $map['o_id'] = $o_id;
+        $temp = $o_record_model->where($map)->find();
+
+        // p($temp);die;
+
+        $data['pTime'] = date('Y年m月d日 H:i',time());// 打单时间
+        $json_Arr = json_decode($temp['book_info'], true);
+        // p($json_Arr);die;
+        $data['name'] = $json_Arr['people_info'][0]['name'];// 入住人姓名
+        $data['o_id'] = $temp['o_id'];// 订单号
+        $data['startDay'] = date('Y-m-d H:i',strtotime($temp['A_date']));// 入住时间
+        $data['endDay'] = date('Y-m-d H:i',strtotime($temp['B_date']));// 离店时间
+        $data['nights'] = $temp['nights'];
+        $data['room_ID'] = $temp['room_ID'];// 房间号
+        $data['type_name'] = $temp['type_name'];// 房间类型名
+
+        // 订单1晚的价格，去价格表中比对(如果找不到，则为特殊优惠)，确认其是属于哪种优惠
+        // 在价格表中取得 "标价"，再根据订单是哪种优惠，相减得出优惠金额
+        $one_night_price = $temp['price'] / $temp['nights'];// 订单1晚的价格
+        $price_model = M($temp['style'].'_price');
+        $whe['type'] = $temp['type'];
+        $price_row = $price_model->where($whe)->find();// 此"类型+房型"的价格表
+
+        $bid_price = $price_row['bid_price'];// 标价，原价
+        $data['old_price'] = number_format($bid_price * $temp['nights'],2);// 按标价计的价格
+
+        $price_type = "none_price";// 不存在的价格
+        foreach ($price_row as $key => $value) {
+            if ($value == $one_night_price) {// 确定订单享用的价格
+                // 记录下该key。break;
+                $price_type = $key;
+                break;
+            }
+        }
+
+        // 确定优惠类型
+        switch ($price_type) {
+            case 'bid_price':
+                $discount_type = "无";
+                break;
+            case 'stu_price':
+                $discount_type = "学生";
+                break;
+            case 'agent_price':
+                $discount_type = "代理";
+                break;
+            case 'vip_price':
+                $discount_type = "会员";
+                break;
+            case 'groupon_price':
+                $discount_type = "团购";
+                break;
+            default:
+                $discount_type = "特殊";
+                break;
+        }
+        $data['discount_name'] = $discount_type . "优惠";
+        $data['discount'] = number_format(($one_night_price - $bid_price) * $temp['nights'], 2);// 总优惠差额=1晚优惠差额*n
+        
+        $data['deposit'] = number_format($temp['deposit'],2);// 押金
+        $data['total'] = number_format($temp['price'] + $temp['deposit'],2);// 合计=订单价格+押金
+
+        // p($data);die;
+
+        $this->assign("data", $data);
+        $this->display('print');
+
+    }
+
     /**
      * 未完成订单
      */
@@ -212,7 +290,7 @@ class OrderController extends HomeController {
             $info['phone'] = $data['phone'];
             // p($info);die;
             $this->assign('data', $info);
-            $this->display('reg');
+            $this->display();
         }
     }
 
@@ -607,11 +685,18 @@ class OrderController extends HomeController {
 
             // p(I('post.'));die;
             
-            $o_id = I('post.id');
+            // 妈的，这里竟然没有校验输入
+
             $room_ID = I('post.room');
 
+            if ($room_ID == -1) {
+                $this->error("请分配房间！");
+                return;
+            }
+
+            $o_id = I('post.id');
             $checkIN['status'] = self::STATUS_CHECKIN;
-            $checkIN['deposit'] = I('post.deposit');
+            $checkIN['deposit'] = I('post.deposit');// 校验押金。表单input用了number
             
             $order2_model = D('OrderRecordView');
             $old_data = $order2_model->where("o_record.o_id = $o_id")->find();

@@ -1,7 +1,8 @@
 <?php $SRC = HOME_SRC; ?>
-<link rel="stylesheet" href="{$SRC}/css/bootstrap.min.css">
 <script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
+<link rel="stylesheet" href="{$SRC}/css/bootstrap.min.css">
 <style>
+	
 	div#left-show{
 		/*background-color: #FFFFCC;*/
 		border-right: 1px solid /*#FFA94D*/;
@@ -21,6 +22,7 @@
 		margin-left: 40px;
 		margin-top: 40px;
 	}
+
 </style>
 
 
@@ -28,6 +30,8 @@
 
 <ul class="nav nav-pills nav-stacked">
 	<li class="nav-divider"></li>
+    <li class="text-center"><a href="{:U('Home/Index/index')}">房态</a></li>
+    <li class="nav-divider"></li>
     <li class="text-center"><a href="{:U('Home/Order/dealing')}">订单管理</a></li>
     <li class="nav-divider"></li>
 	<li class="disabled text-center"><a href="##">设备管理</a></li><!-- {:U('Home/Device/dealing')} -->
