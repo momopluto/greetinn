@@ -109,7 +109,8 @@
                <p><input class="form-control center-block" type="number" step="10" min="0" name="deposit" placeholder="请输入押金" style="width:120px" required></p>
             </td>
             <td class="text-center">
-            <button class="btn btn-success">确定</button>
+            <button class="btn btn-success center-block">确定</button><br />
+            <a class="btn btn-primary btn-xs center-block" target="_blank" href="{:U('Home/Order/print_o')}?id={$data['o_id']}">打印订单</a>
             <input type="text" name="id" value="{$data['o_id']}" hidden="">
             </td>
          </tr>
