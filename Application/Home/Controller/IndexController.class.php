@@ -8,7 +8,7 @@ use Think\Controller;
 class IndexController extends HomeController {
 
 	/**
-	 * 主页
+	 * 主页，房态
 	 */
     public function index(){
 
