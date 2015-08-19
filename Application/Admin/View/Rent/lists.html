@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <?php $SRC = ADMIN_SRC; ?>
+    <meta charset="utf-8">
+    <title><?php echo ADMIN_TITLE; ?></title>
+    <link rel="stylesheet" type="text/css" href="{$SRC}/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{$SRC}/css/stylesheet.css">
+    <script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function(){
+        $(".editRent").click(function(){
+            $(this).css("display","none")
+            .siblings().css("display","none")
+            .siblings(".saveRent").css("display","inline");
+            $tr = $(this).parents("tr");
+            $tr.find("input").removeAttr("disabled").removeClass("edit_forbid");
+        });
+    });
+
+    $(function(){
+        $(".title").click(function(){
+            $(this).children().removeClass("cate_title");
+            $(this).find(".saveCategory").css("display","inline");
+        });
+
+    });
+
+    var P_URL = "{:U('Admin/Rent/edit_cate')}";
+    $('.saveCategory').on('click', function(){
+
+        $(".info_title").parents().hasClass(".info_title").attr("title","点击编辑");
+    })
+
+    </script>
+   
+</head>
+    <body>
+    <include file= "./admin"/>
+<div id="right-show">
+
+        <div id="cat_add" class="info_content">
+            <form action="{:U('Admin/Rent/add_cate')}" method="post">
+                <input type="number" name="sort" value="" placeholder="排序号" style="width: 60px;">
+                <input type="text" name="new_cate" placeholder="分类名">
+                <input type="text" name="description" placeholder="分类描述">
+                <button class="but_global" type="submit">新增分类</button>           
+            </form>
+        </div>
+
+        <foreach name="data" item="one_cate" key="pid" >
+            <div draggable="true" class="category form_list" origin="" category-readonly="false" categoryid="{$one_cate['thing_ID']}" id="category-{$one_cate['thing_ID']}" category-weight="100">
+                <div class="info_title" title="点击编辑">
+                    <span class="serial">序号：<span>   
+                         <form class="title" action="{:U('Admin/Rent/edit_cate')}" method="post">
+                             <input type="text" hidden="" name="id" value="{$one_cate['thing_ID']}">
+                             <input type="number" class="cate_title cate_sort" name="sort" value="{$one_cate['sort']}"placeholder="排序号">
+                             <input type="text" class="cate_title cate_name" name="name" value="{$one_cate['name']}" >
+                             <input type="text" class="cate_title cate_description" name="description" value="{$one_cate['desc']}">
+                             <button class="but_operate saveCategory" style="display:none;" type="submit">保存</button>
+                         </form>
+                </div>
+    <!--             <div>
+                    <span class="editCate" ><a href="#">编辑</a></span>
+                    <button class="saveCate" type="submit">保存</button>
+                </div> -->
+                <div class="foodlistdiv info_content">
+                    <table class="foodtlistable box" border="1">
+                    <thead>
+                        <tr>
+                            <th class="item-number">序号</th>
+                            <th class="item-name">商品名称</th>
+                            <th class="item-number">价格</th>
+                            <th class="item-number">押金</th>
+                            <th>商品描述</th>
+                            <th class="item-min">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="ui-sortable">
+                        <foreach name="one_cate[sub_thing]" item="one_thing" key="thing_ID" >
+                            <if condition="$one_thing['pid'] == $one_cate['thing_ID']">
+                               <?php $id = $thing_ID;?>
+                                <tr>
+                                <form action="{:U('Admin/Rent/edit_thing/')}" method="post">
+                                    <td class="change" align='center'><input class="edit_forbid" disabled="" type="number" name="sort" value="{$one_thing['sort']}" style="width: 50px;"></td>
+                                    <td class="change"><input class="edit_forbid" disabled="" type="text" name="name" value="{$one_thing['name']}"></td>
+                                    <td class="change input_number" align='center'><input class="edit_forbid" disabled="" type="number" step="0.5"  name="price" value="{$one_thing['price']}"></td>
+                                    <td class="change input_number" align='center'><input class="edit_forbid" disabled="" type="number" step="1"  name="deposit" value="{$one_thing['deposit']}"></td>
+                                    <td class="change" align='center'><input class="edit_forbid" disabled="" type="text" name="description" value="{$one_thing['desc']}"></td>
+                                    <input type="text" hidden="" name="id" value="{$id}">
+                                    <td align='center'>
+                                    <span class="editRent" ><button class="but_operate" type="button">编辑</button></span>
+                                    <a id="deleted" target="_self" href="{:U('Admin/Rent/del_thing/')}?id={$id}&pid={$pid}">
+                                    <button  class="but_operate" type="button">删除</button></a>
+                                    <button class="but_operate saveRent" type="submit" style="display:none;">保存</button>
+                                    </td>
+                                </form>
+                                </tr>                            
+                            </if>
+                        </foreach>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <?php $next_sort = $one_cate['price'] + 0;?>
+                        <form action="{:U('Admin/Rent/add_thing/')}" method="post">
+                            <td align="center"><input class="input-text" type="number" name="sort" value="{$next_sort}" placeholder="序号" style="width: 50px;"></td>
+                            <td><input class="input-text" type="text" name="new_thing" placeholder="请添加新商品"></td>
+                            <td class="input_number" align="center"><input class="input-text" type="number" step="0.5" name="price" placeholder="价格"></td>
+                            <td class="input_number" align="center"><input class="input-text" type="number" step="1" name="deposit" placeholder="价格"></td>
+                            <td align="center"><input class="input-text" type="text" name="description" placeholder="描述"></td>
+                            <input type="text" hidden="" name="pid" value="{$pid}">   
+                            <td align='center' colspan="10"><button class="but_operate" type="submit">添加</button></td>
+                        </form>
+                        </tr>
+                        <tr>
+                            <th align="right" colspan="12" class="cat_edit"><a  target="_self" href="{:U('Admin/Rent/del_cate/')}?id={$pid}"><button class="but_global" type="button">删除分类</button></a></th>
+                        </tr>
+                    </tfoot>
+                    </table>
+                </div>
+            </div>
+        </foreach>
+</div>
+</body>
+</html>
