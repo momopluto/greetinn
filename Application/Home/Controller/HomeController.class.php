@@ -12,6 +12,9 @@ class HomeController extends Controller {
     // 资金管理开关
     const MONEY_MANAGEMENT_SWITCH = 0;// O关闭，1开启
 
+    // "高级"特殊价，验证密码
+    const SPEC_PWD = "663ab0c7fac6285832519dc1a3b8c0a6";
+
 	// 操作内容
     // ***前台
     const RECEPTIONIST_LOGIN_IN        		   		=   '前台登录成功';
@@ -23,7 +26,8 @@ class HomeController extends Controller {
     const RECEPTIONIST_CHECK_IN                     =   '办理入住成功';
     const RECEPTIONIST_STAY_OVER 	   		   		=   '办理续住成功';
     const RECEPTIONIST_CHANGE_ROOM    		   		=   '办理换房成功';
-    const RECEPTIONIST_CHECK_OUT    		   		=   '办理退房成功';
+    const RECEPTIONIST_CHECK_OUT                    =   '办理退房成功';
+    const RECEPTIONIST_CLEARED      		   		=   '空净房间成功';
     const RECEPTIONIST_HELP_SUBMIT_BORROW_REQUEST   =   '借设备请求，[助]提交成功';
     const RECEPTIONIST_CANCEL_BORROW_REQUEST   		=   '借设备请求，[助]取消成功';
     const RECEPTIONIST_RESPONSE_BORROW_REQUEST  	=   '响应借设备请求';

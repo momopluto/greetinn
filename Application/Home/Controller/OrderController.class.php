@@ -12,7 +12,8 @@ class OrderController extends HomeController {
     const STATUS_NEW             =   1;      //  状态值，新建
     const STATUS_PAY             =   2;      //  状态值，支付
     const STATUS_CHECKIN         =   3;      //  状态值，入住
-    const STATUS_CHECKOUT        =   4;      //  状态值，退房
+    const STATUS_CLEARED         =   4;      //  状态值，退房(空净)
+    const STATUS_CHECKOUT        =   5;      //  状态值，退房(未打扫&锁定)
     
 
     /*
@@ -85,7 +86,7 @@ class OrderController extends HomeController {
         $bid_price = $price_row['bid_price'];// 标价，原价
         $data['old_price'] = number_format($bid_price * $temp['nights'],2);// 按标价计的价格
 
-        $price_type = "none_price";// 不存在的价格
+        $price_type = "spec_price";// 特殊价格
         foreach ($price_row as $key => $value) {
             if ($value == $one_night_price) {// 确定订单享用的价格
                 // 记录下该key。break;
@@ -175,7 +176,8 @@ class OrderController extends HomeController {
 
         $data = $o_record_model->where($f_sql . '(status = 0 or status = 4)')->order('cTime desc')->select();
 
-        // p($data);die;
+        // p($data);
+        // die;
 
         // p($o_record_model);
         
@@ -629,9 +631,9 @@ class OrderController extends HomeController {
             $log_type_Arr = array('订单id' => $o_id, '总价' => "￥".$price, '支付方式' => $old_data['pay_mode']);
 
             // pay_mode = 0，返还现金
-            // pay_mode = 1，网上返还
-            // 会员卡余额加回去
-            // pay_mode = 2
+            // pay_mode = 1，支付宝返还
+            // pay_mode = 2，会员卡余额加回去
+            // pay_mode = 3，返还银行卡？现金？
         }
 
         $order_model->startTrans();// 启动事务
@@ -652,11 +654,15 @@ class OrderController extends HomeController {
                     
                     $log_Arr = array($this->log_model, $this->log_data, $order_model, $log_type, 'cancel', $log_type_Arr);
                     //                     0                 1                2             3                4                            5
-                    write_log_all_array($log_Arr);
                     // write_log_all($this->log_model, $this->log_data, $order_model, $log_type, 'cancel', $log_type_Arr);
+                    if (write_log_all_array($log_Arr)){
 
-                    $this->success('取消成功！', U('Home/Order/dealing'));
-                    return;
+                        $this->success('取消成功！', U('Home/Order/dealing'));
+                        return;
+                    }else {
+                        $this->error('取消失败！');
+                        return;
+                    }
                 }
             }else{
 
@@ -695,30 +701,17 @@ class OrderController extends HomeController {
             }
 
             $o_id = I('post.id');
-            $checkIN['status'] = self::STATUS_CHECKIN;
-            $checkIN['deposit'] = I('post.deposit');// 校验押金。表单input用了number
-            
             $order2_model = D('OrderRecordView');
             $old_data = $order2_model->where("o_record.o_id = $o_id")->find();
             // p($old_data);die;
 
             echo "old_status = ".$old_data['status'];
-            if ($old_data['status'] == $checkIN['status']) {// 状态未改变
+            if ($old_data['status'] == self::STATUS_CHECKIN) {// 状态未改变
 
                 $this->error('状态未改变！');
                 return;
             }
-
-            // $vipModel = M('vip');
-            // $whe['client_ID'] = $old_data['client_ID'];
-            // $old_VipData = $vipModel->where($whe)->find();// 会员卡信息
-
-            // if ($old_data['price'] == 0 && $old_VipData['first_free'] == 0) {
-
-            //     $this->error('此会员已享用过首住免费！');
-            //     return;
-            // }
-
+            
             $day_IN = strtotime(date('Y-m-d',$old_data['A_date']));
             if (!($day_IN < NOW_TIME && NOW_TIME < strtotime($old_data['B_date']))) {
                 
@@ -726,11 +719,25 @@ class OrderController extends HomeController {
                 return;
             }
 
+            // 办理入住，需要更新的信息
+            // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+            $checkIN['status'] = self::STATUS_CHECKIN;
+            $checkIN['deposit'] = I('post.deposit');// 校验押金。表单input用了number
+            
+            $operator = json_decode($old_data['operator'],true);
+            $operator['checkIn'] = get_OperName();// 经办人，增加"办理入住"
+            $checkIN['operator'] = json_encode($operator, JSON_UNESCAPED_UNICODE);// unicode格式
+            // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+            
             // p($checkIN);die;
-            // $now = strtotime(date('Y-m-d',time())." 14:00:00");
-            // if (strtotime(date('Y-m-d',time())) < strtotime($old_data['A_date']) ||  $now >= strtotime($old_data['B_date'])) {
+            
+            // $vipModel = M('vip');
+            // $whe['client_ID'] = $old_data['client_ID'];
+            // $old_VipData = $vipModel->where($whe)->find();// 会员卡信息
 
-            //     $this->error('当前非预定入住时间！无法办理入住！');
+            // if ($old_data['price'] == 0 && $old_VipData['first_free'] == 0) {
+
+            //     $this->error('此会员已享用过首住免费！');
             //     return;
             // }
 
@@ -749,9 +756,9 @@ class OrderController extends HomeController {
                 if ($result) {
                     echo "办理入住成功！<br/>";
                     
-                    // // 需要更新o_record_2_room表中记录
+                    // 需要更新o_record_2_room表中记录
                     // update_o_room($o_id, $room_ID);
-                    // // 需要更新o_record_2_stime表中记录
+                    // 需要更新o_record_2_stime表中记录
                     // update_o_sTime($o_id, $checkIN['status']);
 
                     if (update_o_room($o_id, $room_ID) && update_o_sTime($o_id, $checkIN['status'])) {
@@ -759,9 +766,10 @@ class OrderController extends HomeController {
                         $flag = true;
                         $vipModel = M('vip');
                         $vipModel->startTrans();// vip表开启事务
-                        if ($old_data['pay_mode'] == 2 && $old_data['status'] == self::STATUS_NEW) {// 会员卡消费，未支付，扣除会员卡费用
 
-                            // echo "进这里来啦？！";die;
+                        // 会员卡支付，会员表更新
+                        // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                        if ($old_data['pay_mode'] == 2 && $old_data['status'] == self::STATUS_NEW) {// 会员卡消费，未支付，扣除会员卡费用
 
                             // p($old_data);die;
 
@@ -774,12 +782,6 @@ class OrderController extends HomeController {
                                 return;
                             }
 
-                            if ($vipModel->where($whe)->setDec('balance', $old_data['price']) === false) {
-                                 
-                                 echo "会员卡扣费失败！";
-                                 $flag = false;
-                            }
-
                             if ($old_data['price'] == 0 && $old_VipData['first_free'] == 1) {
 
                                 $update_VipData['first_free'] = 0;
@@ -790,10 +792,18 @@ class OrderController extends HomeController {
                                     echo "会员首住失败！";
                                     $flag = false;
                                 }
+                            }else{
+
+                                if ($vipModel->where($whe)->setDec('balance', $old_data['price']) === false) {
+                                     
+                                     echo "会员卡扣费失败！";
+                                     $flag = false;
+                                }
                             }
                         }
+                        // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
-                        if ($flag) {
+                        if ($flag) {// 会员数据表更新正常
                             
                             $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_IN, 'check_in', array('订单id' => $o_id, '总价' => $old_data['price']));
                             //                     0                 1                2             3                4                            5
@@ -839,9 +849,9 @@ class OrderController extends HomeController {
                 echo "create失败<br/>";
                 echo $order_model->getError();
 
-                P($order_model);die;
+                // P($order_model);die;
 
-                // $this->error($order_model->getError());
+                $this->error($order_model->getError());
                 return;
             }
         }else{
@@ -1065,39 +1075,56 @@ class OrderController extends HomeController {
             
             $o_id = I('post.id');
 
-            $checkOut['status'] = self::STATUS_CHECKOUT;
-            
             $order_model = D('OrderRecord');
-
-            $old_status = $order_model->where("o_id = $o_id")->getField('status');
-            echo "old_status = $old_status";
-            if ($old_status == $checkOut['status']) {// 状态未改变
+            $old_data = $order_model->where("o_id = $o_id")->find();
+            echo "old_status = ".$old_data['status'];
+            if ($old_data['status'] == self::STATUS_CHECKOUT) {// 状态未改变
 
                 echo "状态未改变，不需要更新<br/>";
                 return false;
             }
+
+            // 办理退房，需要更新的信息
+            // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+            $checkOut['status'] = self::STATUS_CHECKOUT;
+            
+            $operator = json_decode($old_data['operator'],true);
+            $operator['checkOut'] = get_OperName();// 经办人，增加"办理入住"
+            $checkOut['operator'] = json_encode($operator, JSON_UNESCAPED_UNICODE);// unicode格式
+            // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
             $order_model->startTrans();// 启动事务
 
             if ($order_model->where("o_id = $o_id")->create($checkOut ,2)) {
                 echo "create成功<br/>";
 
-                echo " *** ". $result = $order_model->scope('allowUpdateField, checkIN')->save();
+                echo " *** ". $result = $order_model->scope('allowUpdateField, checkIn')->save();
 
-                // p($order_model);
+                // p($order_model);die;
 
                 if ($result) {
                     echo "办理退房成功！<br/>";
+
+                    // 资金管理开启
+                    if (self::MONEY_MANAGEMENT_SWITCH) {
+                        $return_deposit = I('post.deposit');
+                        // TODO
+                        
+                    }
 
                     // 需要更新d_record_2_stime表中记录
                     if (update_o_sTime($o_id, $checkOut['status'])) {
                         $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_OUT, 'check_out', array('订单id' => $o_id));
                         //                     0                 1                2             3                4                            5
-                        write_log_all_array($log_Arr);
                         // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_OUT, 'check_out', array('房间id' => $o_id));
-
-                        $this->success('办理换退房成功！', U('Home/Order/dealing'));
-                        return;
+                        if (write_log_all_array($log_Arr)){
+                            
+                            $this->success('办理换退房成功！', U('Home/Order/dealing'));
+                            return;
+                        }else{
+                            $this->error('办理换退房失败！');
+                            return;
+                        }
                     }
                 }else{
 
@@ -1131,6 +1158,65 @@ class OrderController extends HomeController {
 
             $this->assign('data', $data);
             $this->display();
+        }
+    }
+
+    /**
+     * 空净房间
+     */
+    public function cleared(){
+        
+        if (!I('get.id')) {
+            $this->error('ERROR, id不能为空！');
+            return;
+        }
+
+        $o_id = I('get.id');
+
+        $order_model = D('OrderRecord');
+        $old_data = $order_model->where("o_id = $o_id")->find();
+        echo "old_status = ".$old_data['status'];
+        if ($old_data['status'] == self::STATUS_CLEARED) {// 状态未改变
+
+            echo "状态未改变，不需要更新<br/>";
+            return false;
+        }
+
+        // 空净，需要更新的信息
+        // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+        $cleared['status'] = self::STATUS_CLEARED;
+        // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+        
+        if ($order_model->where("o_id = $o_id")->create($cleared ,2)) {
+            echo "create成功<br/>";
+
+            echo " *** ". $result = $order_model->scope('allowUpdateField, checkOut')->save();
+
+            if ($result) {
+                echo "空净成功！<br/>";
+
+                // 需要更新d_record_2_stime表中记录
+                if (update_o_sTime($o_id, $cleared['status'])) {
+                    $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CLEARED, 'cleared', array('订单id' => $o_id));
+                    //                     0                 1                2             3                4                            5
+                    // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CLEARED, 'cleared', array('房间id' => $o_id));
+                    if (write_log_all_array($log_Arr)){
+                        
+                        $this->success('空净成功！', U('Home/Index/index'));
+                        return;
+                    }else{
+                        $this->error('空净失败！');
+                        return;
+                    }
+                }
+            }else{
+
+                echo "空净失败！<br/>";
+                // echo $order_model->getError();
+
+                $this->error($order_model->getError());
+                return;
+            }
         }
     }
 }

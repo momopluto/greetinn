@@ -45,6 +45,7 @@ class UserController extends Controller{
                     case 1:
                         $info['oper_ID'] = $one['member_ID'];
                         $info['oper_CATE'] = self::OPER_CATE_RECEPTIONIST;
+                        $info['oper_NAME'] = $one['name'];
                         // 通过验证，合法，写session
                         session('H_USER_V_INFO', $info);
                         session('H_LOGIN_FLAG', true);

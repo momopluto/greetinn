@@ -28,17 +28,17 @@
 	     <tr>
 	       <th class="text-center">订单类型</th>
 	       <th class="text-center">订单编号</th>
-	       <th class="text-center">预订时间</th>
-	       <th class="text-center">预订人信息</th>
-	       <th class="text-center">代理人</th>
-	       <th class="text-center">入住\离店时间</th>
-	       <th>订单详情</th>
-	       <th class="text-center">来源</th>
-	       <th class="text-center">支付方式</th>
+	       <th class="text-center">房间号</th>
 	       <th class="text-center">房间类型</th>
+	       <th class="text-center">预订人信息</th>
+	       <th>订单详情</th>
+	       <th class="text-center">入住\离店时间</th>
+	       <th class="text-center">代理人</th>
+	       <th class="text-center">订单来源</th>
+	       <th class="text-center">支付方式</th>
 	       <th class="text-center">总价</th>
-	       <th class="text-center">分配房间</th>
 	       <th class="text-center">订单状态</th>
+	       <th class="text-center">经办人</th>
 	       <th class="text-center">操作</th>
 	     </tr>
 	   </thead>
@@ -53,13 +53,50 @@
 	         }?>>
 	     	<td class="text-center">{$one['style_name']}</td>
 	     	<td class="text-center">{$one['o_id']}</td>
-	 	    <td class="text-center">
+	 	    <td class="text-center" title="<?php echo str_replace(array(';'), '&#10', $one['note']);?>">
 	 	    <?php
-	 	    	$t = explode(' ', $one['cTime']);
+	 	    	if ($one['room_ID']) {
+	 	    		echo $one['room_ID']."房";
+	 	    	}else{
+	 	    		echo "未分配";
+	 	    	}
+
+	 	    	// // 换房/续住的备注
+	     		// if ($one['note'] != '') {
+	     		// 	$one['note'] = str_replace(array(';'), "<br/>", $one['note']);
+	     		// 	echo "<span>". $one['note'] ."</span>";
+	     		// }
 	 	    ?>
-	 	    <p>{$t[0]}</p><p>{$t[1]}</p>
 	 	    </td>
+	 	    <td class="text-center">{$one['type_name']}</td>
 	 	    <td class="text-center"><p>{$one['name']}</p><p>{$one['ID_card']}</p><p>手机{$one['phone']}</p></td>
+	 	    <td style="width:207px">
+	 	    <?php
+	 	    $book_info = json_decode($one['book_info'],true);
+	 	    ?>
+	 	    <!-- <p>入住晚数: {$one['nights']}</p>
+	 	    <p>入住人数: {$book_info['number']}</p> -->
+	 	    <span>入住人员信息: </span>
+	 	    <foreach name="book_info['people_info'][0]" item="value" >
+	 	    	<?php
+	 	    		$_start = substr($value['ID_card'], 0, 4);
+	 	    		$_end = substr($value['ID_card'], 14, 4);
+	 	    	?>
+	 		    <li>{$value['name']} {$_start}****{$_end}</li>
+	 	    </foreach>
+	 	    <span>联系方式: </span>
+	 	    <foreach name="book_info['people_info'][1]" item="value" >
+	 		    <li>{$value}</li>
+	 	    </foreach>
+	 	    <span>备注: {$book_info['note']}</span>
+	 	    </td>
+	 	    <td class="text-center">
+	 	    	<p>{$one['A_date']}</p>
+	 	    	<p>{$one['B_date']}</p>
+	 	    	
+	 	    	<span>预订时间</span>
+	 	    	<p>{$one['cTime']}</p>
+	 	    </td>
 	 	    <td class="text-center">
 	 	    <?php
 	 	    	if ($one['agent_name']) {
@@ -68,19 +105,6 @@
 	 	    		echo " - ";
 	 	    	}
 	 	    ?>
-	 	    </td>
-	 	    <td class="text-center"><p>{$one['A_date']}</p><p>{$one['B_date']}</p></td>
-	 	    <td style="width:207px">
-	 	    <?php
-	 	    $book_info = json_decode($one['book_info'],true);
-	 	    ?>
-	 	    <p>入住晚数: {$one['nights']}</p>
-	 	    <p>入住人数: {$book_info['number']}</p>
-	 	    <p>入住人员信息: </p>
-	 	    <foreach name="book_info['people_info']" item="value" >
-	 		    <li>{$value['name']} {$value['ID_card']}</li>
-	 	    </foreach>
-	 	    <p>备注: {$book_info['note']}</p>
 	 	    </td>
 	 	    <td class="text-center">{$one['source_name']}
 	 	    <?php
@@ -97,10 +121,13 @@
 	 					$mode = "现金支付";
 	 					break;
 	 				case 1:
-	 					$mode = "网上支付";
+	 					$mode = "支付宝支付";
 	 					break;
 	 				case 2:
 	 					$mode = "会员卡支付";
+	 					break;
+	 				case 3:
+	 					$mode = "刷卡支付";
 	 					break;
 	 				default:
 	 					break;
@@ -108,23 +135,7 @@
 	 			echo $mode;
 	 		?>
 	 		</td>
-	 	    <td class="text-center">{$one['type_name']}</td>
 	 	    <td class="text-center">￥{$one['price']}</td>
-	 	    <td class="text-center" title="<?php echo str_replace(array(';'), '&#10', $one['note']);?>">
-	 	    <?php
-	 	    	if ($one['room_ID']) {
-	 	    		echo $one['room_ID']."房";
-	 	    	}else{
-	 	    		echo "未分配";
-	 	    	}
-
-	 	    	// // 换房/续住的备注
-	     		// if ($one['note'] != '') {
-	     		// 	$one['note'] = str_replace(array(';'), "<br/>", $one['note']);
-	     		// 	echo "<span>". $one['note'] ."</span>";
-	     		// }
-	 	    ?>
-	 	    </td>
 	 	    <td class="text-center" title="状态改变时间: &#10;取消: {$one['cancel']}&#10;支付: {$one['pay']}&#10;入住: {$one['checkIn']}&#10;离店: {$one['checkOut']}">
 	     	<?php
 	     		$str = '';
@@ -142,13 +153,39 @@
 	     				$str = "入住ing";/*."<p>".$one['room_ID']."房</p>"*/
 	     				break;
 	     			case 4:
-	     				$str = "离店";
+	     				$str = "已退房<br />(空净)";
+	     				break;
+	     			case 5:
+	     				$str = "已退房<br />(未打扫)";
 	     				break;
 	     			default:
 	     				break;
 	     		}
 	     		echo $str;
 	     	?>
+	 	    </td>
+	 	    <td class="text-center">
+ 	    	    <?php
+ 	    	    $operator = json_decode($one['operator'],true);
+ 	    	    ?>
+ 	    	    <foreach name="operator" item="name" key="op" >
+    	    	<?php
+    	    		switch ($op) {
+    	    			case 'new':
+    	    				echo "<p>下单:".$name."</p>";
+    	    				break;
+    	    			case 'checkIn':
+    	    				echo "<p>办理入住:".$name."</p>";
+    	    				break;
+    	    			case 'checkOut':
+    	    				echo "<p>办理退房:".$name."</p>";
+    	    				break;
+    	    			default:
+    	    				echo "<strong>操作有误!</strong>";
+    	    				break;
+    	    		}
+    	    	?>
+ 	    	    </foreach>
 	 	    </td>
 	 	    <td class="text-center">
 	 	    <?php
@@ -179,6 +216,10 @@
 	 	    		<a class="btn btn-danger center-block" href="{:U('Home/Order/check_out')}?id={$one['o_id']}">退房</a>
 	 	    		<?php
 	 	    		break;
+	 	    	case 5:
+	 	    		?>
+	 	    		<a class="btn btn-danger center-block" href="{:U('Home/Order/cleared')}?id={$one['o_id']}">空净</a>
+	 	    		<?php
 	 	    	default:
 	 	    		break;
 	 	    }

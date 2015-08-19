@@ -1,0 +1,642 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>[总]客户下单</title>
+</head>
+<body>
+	<include file= "./home"/>
+	<script type="text/javascript" src="{$SRC}/scripts/bootstrap.min.js"></script>
+	<script type="text/javascript" src="{$SRC}/scripts/md5.js"></script>
+	<script type="text/javascript" src="{$SRC}/scripts/common.js"></script>
+	<script type="text/javascript" src="{$SRC}/scripts/order.js"></script>
+	<script language="JavaScript">
+
+		var getInfo_url = "{:U('Home/Client/getPeopleInfo')}";
+		var getPrice_url = "{:U('Home/Client/getPriceByStyle_Type')}";
+		var getRoom_url = "{:U('Home/Client/getRoomsByDate_Type')}";
+		var getAgent_url = "{:U('Home/Client/getAgent')}";
+		var getVipByID_url = "{:U('Home/Vip/getVipInfoBy_IDCard')}";
+		var getVipByCard_url = "{:U('Home/Vip/getVipInfo')}";
+		var getVerifyResult_url = "{:U('Home/Client/verifySpecPwd')}";
+		
+		function changeVerify(){
+			var timenow = new Date().getTime();
+			document.getElementById('verifyImg').src='__URL__/verify/'+timenow;
+		}
+	</script>
+
+<div id="right-show">
+	<div class="navbar navbar-default" role="navigation">
+		<ul class="nav navbar-nav">
+			<?php
+				if ($ID_card = I('get.id')) {
+					$ID_str = '&id='.$ID_card;
+				}else{
+					$ID_str ='';
+				}
+			?>
+			<li <?php if ($style == 0){echo 'class="active"';}?>><a href="{:U('Home/Client/order')}?dst=0{$ID_str}">普通</a></li>
+	       	<li <?php if ($style == 1){echo 'class="active"';}?>><a href="{:U('Home/Client/order')}?dst=1{$ID_str}">钟点</a></li>
+	       	<li <?php if ($style == 2){echo 'class="active"';}?>><a href="{:U('Home/Client/order')}?dst=2{$ID_str}">团购</a></li>
+	       	<li <?php if ($style == 3){echo 'class="active"';}?>><a href="{:U('Home/Client/order')}?dst=3{$ID_str}">(节假日)普通</a></li>
+		</ul>
+	</div>
+
+	<form class="form-horizontal" action="{:U('Home/Client/order')}" method="post">
+		<div class="form-group form-inline">
+		    <label for="ID" class="col-sm-2 control-label">身份证</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="ID" name="ID" value="{$client['ID_card']}" style="width:200px" onblur="loadInfo()" required>
+		      <span class="text-danger" id="ID_tips"></span>
+		    </div>
+	    </div>
+	    <!-- 上面为公共部分，下面为特异部分 -->
+<?php
+switch ($style) {
+case 0:
+	?>
+		<input id="style" type="text" name="style" value="0" hidden />
+	    <div class="form-group">
+		    <label for="aDay" class="col-sm-2 control-label">入住日期</label>
+		    <div class="col-sm-10">
+		      <input type="date" class="form-control" id="aDay" name="aDay" style="width:200px" required>
+		    </div>
+		    <label for="bDay" class="col-sm-2 control-label">离店日期</label>
+		    <div class="col-sm-10">
+		      <input type="date" class="form-control" id="bDay" name="bDay" style="width:200px" required>
+		    </div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">房型</label>
+		    <div class="col-sm-10">
+	          <fieldset id="type">
+	          	<?php $_i = 0;?>
+	      		<foreach name="types" item="name" key="type" >
+	            	<label class="radio-inline">
+	            		<input class="type" type="radio" name="type" onclick="loadPrice_N_showClientInfoInput()" value="{$type}" <?php if ($_i == 0) {
+	            			echo "checked";
+	            			$_i++;
+	            		} ?>>{$name}
+	            	</label>
+	            </foreach>
+	          </fieldset>
+	        </div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">价格</label>
+		    <div class="col-sm-10">
+		      <label class="radio-inline">
+		      	<input class="price" id="bid"   type="radio" name="price" value="{$prices['bid_price']}" onclick="showInfo()" checked="">标价￥<span>{$prices['bid_price']}</span>
+		      </label>
+		      <label class="radio-inline">
+		      	<input class="price" id="stu"   type="radio" name="price" value="{$prices['stu_price']}" onclick="showInfo()">学生价￥<span>{$prices['stu_price']}</span>
+		      </label>
+	        </div>
+	        <div class="col-sm-offset-2 col-sm-10">
+		      <label class="radio-inline">
+		      	<input class="price" id="vip"   type="radio" name="price" value="{$prices['vip_price']}" onclick="showInfo()">会员价￥<span>{$prices['vip_price']}</span>
+		      </label>
+		      <span class="text-warning radio-inline" id="VIP_tips"></span>
+	        </div>
+	        <div class="col-sm-offset-2 col-sm-10">
+		      <label class="radio-inline">
+		      	<input class="price" id="agent" type="radio" name="price" value="{$prices['agent_price']}" onclick="showInfo()">代理价￥<span>{$prices['agent_price']}</span>
+		      </label>
+		      <div class="radio-inline">
+                <fieldset id="AGENT_info" disabled hidden>
+                  <select class="form-control" name="agent" style="width:150px;">
+                   <foreach name="agents" item="an_agent" >
+                  	<option value ="{$an_agent['a_id']}">{$an_agent['name']}|**{:substr($an_agent['phone'], 7)}</option>
+                   </foreach>
+                  </select>
+                </fieldset>
+		      </div>
+	        </div>
+	        <div class="col-sm-offset-2 col-sm-10">
+		      <label class="radio-inline">
+		      	<input class="price" id="spec"   type="radio" name="price" value="{$prices['stu_price']}" onclick="showInfo()">高级
+		      </label>
+		      <div class="radio-inline">
+		       <fieldset id="SPEC_input" disabled hidden>
+		      	<div class="input-group has-feedback">
+	      	      <div class="input-group-addon">￥</div>
+	      	      <input type="number" min="0" class="form-control" id="specPrice" name="price" placeholder="价格" style="width:80px" required>
+		      	  <input type="password" class="form-control" id="verifyPwd" name="verifyPwd" placeholder="验证密码" style="width:120px" required>
+		      	  <span id="verifyPwd-status" class="glyphicon form-control-feedback" aria-hidden="true"></span>
+
+		      	  <button type="button" class="btn btn-default btn-sm" onclick="verifySpecPwd()">验证</button>
+	      	    </div>
+		       </fieldset>
+		      </div>
+	        </div>
+	    </div>
+	    <div class="form-group">
+	        <label for="" class="col-sm-2 control-label">选房</label>
+	        <div class="col-sm-10 form-inline">
+	    	  <select class="form-control" id="room" name="room" style="width:120px">
+	    		<option value ="-1">预分配房间</option>
+	    	  </select>
+	    	  <button type="button" class="btn btn-info btn-sm" onclick="loadRooms()">刷新</button>
+	    	</div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">订单来源</label>
+		    <div class="col-sm-10">
+              <fieldset id="source">
+              	<?php $_i = 0;?>
+              	<foreach name="sources" item="name" key="source" >
+              		<label class="radio-inline">
+              			<input type="radio" name="source" value="{$source}" <?php if ($_i == 0) {
+                			echo "checked";
+                			$_i++;
+                		} ?>>{$name}
+                	</label>
+              	</foreach>
+              </fieldset>
+	        </div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">支付方式</label>
+		    <div class="col-sm-10">
+		      <fieldset id="mode">
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="0" checked="">现金支付
+		      	</label>
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="1">支付宝支付
+		      	</label>
+		      	<label class="radio-inline">
+		      		<input type="radio" id="VIP_mode" name="mode" value="2" disabled>会员卡支付
+		      	</label>
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="3" required>刷卡支付
+		      	</label>
+		      </fieldset>
+	        </div>
+	    </div>
+	<?php
+	break;
+case 1:
+	?>
+		<input id="style" type="text" name="style" value="1" hidden />
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">房型</label>
+		    <div class="col-sm-10">
+	          <fieldset id="type">
+	          	<?php $_i = 0;?>
+	      		<foreach name="types" item="name" key="type" >
+	            	<label class="radio-inline">
+	            		<input class="type" type="radio" name="type" onclick="loadPrice_N_showClientInfoInput()" value="{$type}" <?php if ($_i == 0) {
+	            			echo "checked";
+	            			$_i++;
+	            		} ?>>{$name}
+	            	</label>
+	            </foreach>
+	          </fieldset>
+	        </div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">价格</label>
+		    <div class="col-sm-10">
+		      <label class="radio-inline">
+		      	<input class="price" id="bid"   type="radio" name="price" value="{$prices['bid_price']}" onclick="showInfo()" checked="">标价￥<span>{$prices['bid_price']}</span> /3小时
+		      </label>
+		      <label class="radio-inline">
+		      	<input class="price" id="stu"   type="radio" name="price" value="{$prices['stu_price']}" onclick="showInfo()">学生价￥<span>{$prices['stu_price']}</span> /3小时
+		      </label>
+	        </div>
+	        <div class="col-sm-offset-2 col-sm-10">
+		      <label class="radio-inline">
+		      	<input class="price" id="vip"   type="radio" name="price" value="{$prices['vip_price']}" onclick="showInfo()">会员价￥<span>{$prices['vip_price']}</span> /3小时
+		      </label>
+		      <span class="text-warning radio-inline" id="VIP_tips"></span>
+	        </div>
+	    </div>
+	    <div class="form-group">
+	        <label for="" class="col-sm-2 control-label">选房</label>
+	        <div class="col-sm-10 form-inline">
+	    	  <select class="form-control" id="room" name="room" style="width:120px">
+	    		<option value ="-1">预分配房间</option>
+	    	  </select>
+	    	  <button type="button" class="btn btn-info btn-sm" onclick="loadRooms()">刷新</button>
+	    	</div>
+	    </div>
+
+		<div class="form-group">
+	        <label for="" class="col-sm-2 control-label">份数</label>
+	        <div class="col-sm-10 form-inline">
+	    	  <select class="form-control" id="quantity" name="quantity" style="width:60px" onchange="showTotalPrice_N_leaveTime()">
+	      		<for start="1" end="9">
+					<option value ="{$i}">{$i}</option>
+				</for>
+	    	  </select>
+
+	    	  <label for="" class="control-label">总价</label>
+	    	  <span class="text-danger">￥<span id="totalPrice">{$prices['bid_price']}</span></span>
+
+			<?php $leave = date('Y-m-d H:i',strtotime('+3 hour'));?>
+	    	  <label for="" class="control-label">退房时间</label>
+	    	  <span class="text-danger" id="leaveTime">{$leave}</span>
+	    	</div>
+
+			<input id="aDay" type="text" name="aDay" value="<?php echo date('Y-m-d H:i',NOW_TIME);?>" hidden/>
+			<input id="bDay" type="text" name="bDay" value="{$leave}" hidden/>
+	    </div>
+
+		<div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">订单来源</label>
+		    <div class="col-sm-10">
+              <fieldset id="source">
+              	<?php $_i = 0;?>
+              	<foreach name="sources" item="name" key="source" >
+              		<label class="radio-inline">
+              			<input type="radio" name="source" value="{$source}" <?php if ($_i == 0) {
+                			echo "checked";
+                			$_i++;
+                		} ?>>{$name}
+                	</label>
+              	</foreach>
+              </fieldset>
+	        </div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">支付方式</label>
+		    <div class="col-sm-10">
+		      <fieldset id="mode">
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="0" checked="">现金支付
+		      	</label>
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="1">支付宝支付
+		      	</label>
+		      	<label class="radio-inline">
+		      		<input type="radio" id="VIP_mode" name="mode" value="2" disabled>会员卡支付
+		      	</label>
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="3" required>刷卡支付
+		      	</label>
+		      </fieldset>
+	        </div>
+        </div>
+	<?php
+	break;
+case 2:
+	?>
+		<input id="style" type="text" name="style" value="2" hidden />
+		<div class="form-group">
+		    <label for="aDay" class="col-sm-2 control-label">入住日期</label>
+		    <div class="col-sm-10">
+		      <input type="date" class="form-control" id="aDay" name="aDay" style="width:200px" required>
+		    </div>
+		    <label for="bDay" class="col-sm-2 control-label">离店日期</label>
+		    <div class="col-sm-10">
+		      <input type="date" class="form-control" id="bDay" name="bDay" style="width:200px" required>
+		    </div>
+	    </div>
+		<div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">房型</label>
+		    <div class="col-sm-10">
+	          <fieldset id="type">
+	          	<?php $_i = 0;?>
+	      		<foreach name="types" item="name" key="type" >
+	            	<label class="radio-inline">
+	            		<input class="type" type="radio" name="type" onclick="loadPrice_N_showClientInfoInput()" value="{$type}" <?php if ($_i == 0) {
+	            			echo "checked";
+	            			$_i++;
+	            		} ?>>{$name}
+	            	</label>
+	            </foreach>
+	          </fieldset>
+	        </div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">价格</label>
+		    <div class="col-sm-10">
+		      <label class="radio-inline">
+		      	<input class="price" id="groupon"   type="radio" name="price" value="{$prices['groupon_price']}" onclick="showInfo()" checked="">团购价￥<span>{$prices['groupon_price']}</span>
+		      </label>
+	        </div>
+        </div>
+		<div class="form-group">
+	        <label for="" class="col-sm-2 control-label">选房</label>
+	        <div class="col-sm-10 form-inline">
+	    	  <select class="form-control" id="room" name="room" style="width:120px">
+	    		<option value ="-1">预分配房间</option>
+	    	  </select>
+	    	  <button type="button" class="btn btn-info btn-sm" onclick="loadRooms()">刷新</button>
+	    	</div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">订单来源</label>
+		    <div class="col-sm-10">
+              <fieldset id="source">
+              	<?php $_i = 0;?>
+              	<foreach name="sources" item="name" key="source" >
+              		<label class="radio-inline">
+              			<input type="radio" name="source" value="{$source}" <?php if ($_i == 0) {
+                			echo "checked";
+                			$_i++;
+                		} ?>>{$name}
+                	</label>
+              	</foreach>
+              </fieldset>
+	        </div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">支付方式</label>
+		    <div class="col-sm-10">
+		      <fieldset id="mode">
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="0" checked="">现金支付
+		      	</label>
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="1">支付宝支付
+		      	</label>
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="3" required>刷卡支付
+		      	</label>
+		      </fieldset>
+	        </div>
+        </div>
+	<?php
+	break;
+case 3:
+	?>
+		<input id="style" type="text" name="style" value="3" hidden />
+		<div class="form-group">
+		    <label for="aDay" class="col-sm-2 control-label">入住日期</label>
+		    <div class="col-sm-10">
+		      <input type="date" class="form-control" id="aDay" name="aDay" style="width:200px" required>
+		    </div>
+		    <label for="bDay" class="col-sm-2 control-label">离店日期</label>
+		    <div class="col-sm-10">
+		      <input type="date" class="form-control" id="bDay" name="bDay" style="width:200px" required>
+		    </div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">房型</label>
+		    <div class="col-sm-10">
+	          <fieldset id="type">
+	          	<?php $_i = 0;?>
+	      		<foreach name="types" item="name" key="type" >
+	            	<label class="radio-inline">
+	            		<input class="type" type="radio" name="type" onclick="loadPrice_N_showClientInfoInput()" value="{$type}" <?php if ($_i == 0) {
+	            			echo "checked";
+	            			$_i++;
+	            		} ?>>{$name}
+	            	</label>
+	            </foreach>
+	          </fieldset>
+	        </div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">价格</label>
+		    <div class="col-sm-10">
+		      <label class="radio-inline">
+		      	<input class="price" id="bid"   type="radio" name="price" value="{$prices['bid_price']}" onclick="showInfo()" checked="">标价￥<span>{$prices['bid_price']}</span>
+		      </label>
+		      <label class="radio-inline">
+		      	<input class="price" id="stu"   type="radio" name="price" value="{$prices['stu_price']}" onclick="showInfo()">学生价￥<span>{$prices['stu_price']}</span>
+		      </label>
+	        </div>
+	        <div class="col-sm-offset-2 col-sm-10">
+		      <label class="radio-inline">
+		      	<input class="price" id="vip"   type="radio" name="price" value="{$prices['vip_price']}" onclick="showInfo()">会员价￥<span>{$prices['vip_price']}</span>
+		      </label>
+		      <span class="text-warning radio-inline" id="VIP_tips"></span>
+	        </div>
+	        <div class="col-sm-offset-2 col-sm-10">
+		      <label class="radio-inline">
+		      	<input class="price" id="agent" type="radio" name="price" value="{$prices['agent_price']}" onclick="showInfo()">代理价￥<span>{$prices['agent_price']}</span>
+		      </label>
+		      <div class="radio-inline">
+                <fieldset id="AGENT_info" disabled hidden>
+                  <select class="form-control" name="agent" style="width:150px;">
+                   <foreach name="agents" item="an_agent" >
+                  	<option value ="{$an_agent['a_id']}">{$an_agent['name']}|**{:substr($an_agent['phone'], 7)}</option>
+                   </foreach>
+                  </select>
+                </fieldset>
+		      </div>
+	        </div>
+	    </div>
+	    <div class="form-group">
+	        <label for="" class="col-sm-2 control-label">选房</label>
+	        <div class="col-sm-10 form-inline">
+	    	  <select class="form-control" id="room" name="room" style="width:120px">
+	    		<option value ="-1">预分配房间</option>
+	    	  </select>
+	    	  <button type="button" class="btn btn-info btn-sm" onclick="loadRooms()">刷新</button>
+	    	</div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">订单来源</label>
+		    <div class="col-sm-10">
+              <fieldset id="source">
+              	<?php $_i = 0;?>
+              	<foreach name="sources" item="name" key="source" >
+              		<label class="radio-inline">
+              			<input type="radio" name="source" value="{$source}" <?php if ($_i == 0) {
+                			echo "checked";
+                			$_i++;
+                		} ?>>{$name}
+                	</label>
+              	</foreach>
+              </fieldset>
+	        </div>
+	    </div>
+	    <div class="form-group">
+	    	<label for="" class="col-sm-2 control-label">支付方式</label>
+		    <div class="col-sm-10">
+		      <fieldset id="mode">
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="0" checked="">现金支付
+		      	</label>
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="1">支付宝支付
+		      	</label>
+		      	<label class="radio-inline">
+		      		<input type="radio" id="VIP_mode" name="mode" value="2" disabled>会员卡支付
+		      	</label>
+		      	<label class="radio-inline">
+		      		<input type="radio" name="mode" value="3" required>刷卡支付
+		      	</label>
+		      </fieldset>
+	        </div>
+        </div>
+	<?php
+	break;
+default:
+	?>
+	<strong class="text-danger">非法的指向！</strong>
+	<?php
+	break;
+}
+?>
+	<!-- 上面为特异部分，下面为公共部分 -->
+	    <div class="form-group">
+	        <label for="" class="col-sm-2 control-label">付款状态</label>
+		    <div class="col-sm-10">
+              <fieldset class="paid" >
+              	<label class="radio-inline">
+              		<input type="radio" name="paid" value="0" checked="">未支付
+              	</label>
+              	<label class="radio-inline">
+              		<input type="radio" name="paid" value="1">已支付
+              	</label>
+              </fieldset>
+	        </div>
+	    </div>
+	    <div class="form-group">
+		    <label for="" class="col-sm-2 control-label">备注</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="" name="note" style="width:200px">
+		    </div>
+	    </div>
+
+		<div class="form-group client-info">
+			<label for="" class="col-sm-2 control-label">顾客信息</label>
+		 <div class="col-sm-10">
+		  <fieldset id="single-info">
+		  	<table style="width:450px">
+		  	   <thead>
+		  	     <tr>
+		  	       <th style="width:200px">姓名</th>
+		  	       <th>身份证</th>
+		  	     </tr>
+		  	   </thead>
+		  	   <tbody>
+		  	     <tr>
+		  	       <td><input type="text" id="name_0" name="info[0][name]" value="{$client['name']}" class="form-control info" placeholder="姓名(一)" required></td>
+		  	       <td><input type="text" id="ID_0" name="info[0][ID_card]" value="{$client['ID_card']}" class="form-control info" placeholder="身份证(一)" required></td>
+		  	     </tr>
+		  	   </tbody>
+		  	</table>
+		  	<table>
+		  	   <thead>
+		  	     <tr>
+		  	       <th style="width:200px">联系方式</th>
+		  	     </tr>
+		  	   </thead>
+		  	   <tbody>
+		  	     <tr>
+		  	       <td><input type="text" id="phone" name="phone[0]" value="{$client['phone']}" class="form-control info" placeholder="联系方式(一)" required></td>
+		  	     </tr>
+		  	   </tbody>
+		  	</table>
+		  </fieldset>
+		 </div>
+
+		 <div class="col-sm-10">
+		  <fieldset id="double-info" disabled hidden>
+		  	<table style="width:450px">
+		  	   <thead>
+		  	     <tr>
+		  	       <th style="width:200px">姓名</th>
+		  	       <th>身份证</th>
+		  	     </tr>
+		  	   </thead>
+		  	   <tbody>
+		  	     <tr>
+		  	       <td><input type="text" id="name_0" name="info[0][name]" class="form-control info" placeholder="姓名(一)" required></td>
+		  	       <td><input type="text" id="ID_0" name="info[0][ID_card]" class="form-control info" placeholder="身份证(一)" required></td>
+		  	     </tr>
+		  	     <tr>
+		  	       <td><input type="text" name="info[1][name]" class="form-control" placeholder="姓名(二)" required></td>
+		  	       <td><input type="text" name="info[1][ID_card]" class="form-control" placeholder="身份证(二)" required></td>
+		  	     </tr>
+		  	   </tbody>
+		  	</table>
+		  	<table>
+		  	   <thead>
+		  	     <tr>
+		  	       <th style="width:200px">联系方式</th>
+		  	     </tr>
+		  	   </thead>
+		  	   <tbody>
+		  	     <tr>
+		  	       <td><input type="text" id="phone" name="phone[0]" class="form-control info" placeholder="联系方式(一)" required></td>
+		  	     </tr>
+		  	     <tr>
+		  	       <td><input type="text" name="phone[1]" class="form-control" placeholder="联系方式(二)" required></td>
+		  	     </tr>
+		  	   </tbody>
+		  	</table>
+		  </fieldset>
+		 </div>
+		 <div class="col-sm-10">
+		  <fieldset id="multi-info" disabled hidden>
+		  	<table style="width:450px">
+		  	   <thead>
+		  	     <tr>
+		  	       <th style="width:200px">姓名</th>
+		  	       <th>身份证</th>
+		  	     </tr>
+		  	   </thead>
+		  	   <tbody>
+		  	     <tr>
+		  	       <td><input type="text" id="name_0" name="info[0][name]" class="form-control info" placeholder="姓名(一)" required></td>
+		  	       <td><input type="text" id="ID_0" name="info[0][ID_card]" class="form-control info" placeholder="身份证(一)" required></td>
+		  	     </tr>
+		  	     <tr>
+		  	       <td><input type="text" name="info[1][name]" class="form-control" placeholder="姓名(二)" required></td>
+		  	       <td><input type="text" name="info[1][ID_card]" class="form-control" placeholder="身份证(二)" required></td>
+		  	     </tr>
+		  	     <tr>
+		  	       <td><input type="text" name="info[2][name]" class="form-control" placeholder="姓名(三)" required></td>
+		  	       <td><input type="text" name="info[2][ID_card]" class="form-control" placeholder="身份证(三)" required></td>
+		  	     </tr>
+		  	     <tr>
+		  	       <td><input type="text" name="info[3][name]" class="form-control" placeholder="姓名(四)" required></td>
+		  	       <td><input type="text" name="info[3][ID_card]" class="form-control" placeholder="身份证(四)" required></td>
+		  	     </tr>
+		  	     <tr>
+		  	       <td><input type="text" name="info[4][name]" class="form-control" placeholder="姓名(五)" required></td>
+		  	       <td><input type="text" name="info[4][ID_card]" class="form-control" placeholder="身份证(五)" required></td>
+		  	     </tr>
+		  	     <tr>
+		  	       <td><input type="text" name="info[5][name]" class="form-control" placeholder="姓名(六)" required></td>
+		  	       <td><input type="text" name="info[5][ID_card]" class="form-control" placeholder="身份证(六)" required></td>
+		  	     </tr>
+		  	   </tbody>
+		  	</table>
+		  	<table>
+		  	   <thead>
+		  	     <tr>
+		  	       <th style="width:200px">联系方式</th>
+		  	     </tr>
+		  	   </thead>
+		  	   <tbody>
+		  	     <tr>
+		  	       <td><input type="text" id="phone" name="phone[0]" class="form-control info" placeholder="联系方式(一)" required></td>
+		  	     </tr>
+		  	     <tr>
+		  	       <td><input type="text" name="phone[1]" class="form-control" placeholder="联系方式(二)" required></td>
+		  	     </tr>
+		  	     <tr>
+		  	       <td><input type="text" name="phone[2]" class="form-control" placeholder="联系方式(三)" required></td>
+		  	     </tr>
+		  	   </tbody>
+		  	</table>
+		  </fieldset>
+		 </div>
+		</div>
+
+		<div class="form-group">
+		    <label for="" class="col-sm-2 control-label">验证码</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="" name="verify" style="width:200px" required>
+			  <img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/>
+		    </div>
+	    </div>
+	    <div class="form-group">
+	        <div class="col-sm-offset-2 col-sm-10">
+	          <button type="submit" class="btn btn-default">确认下单</button>
+	        </div>
+	    </div>
+	</form>
+
+</div>
+</body>
+</html>

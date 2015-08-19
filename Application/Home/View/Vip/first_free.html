@@ -14,7 +14,7 @@
 	
 	<p style="color:green">订单类型：会员 - 首住免费</p>
 	<form class="form-horizontal" action="{:U('Home/Vip/first_free')}" method="post">
-
+		<input id="style" type="text" name="style" value="0" hidden />
 		<div class="form-group">
 		    <label for="ID" class="col-sm-2 control-label">身份证</label>
 		    <div class="col-sm-10">
@@ -76,7 +76,7 @@
 	    <div class="form-group">
 		    <label for="" class="col-sm-2 control-label">备注</label>
 		    <div class="col-sm-10">
-		      <input type="text" class="form-control" id="" name="note" value="首住免费" style="width:200px" disabled>
+		      <input type="text" class="form-control" id="" name="note" value="首住免费" style="width:200px" readonly>
 		    </div>
 	    </div>
 
@@ -114,12 +114,13 @@
 
 	<script language="JavaScript">
 
-		var price_url = "{:U('Home/Client/getPriceByStyle_Type')}";
-		var rooms_url = "{:U('Home/Client/getRoomsByDate_Type')}";
-		var info_url = "{:U('Home/Client/getPeopleInfo')}";
-		_type = 0;
-
-		// loadPrice(0);// 页面加载完后，价格直接由type相应加载
+		var getInfo_url = "{:U('Home/Client/getPeopleInfo')}";
+		var getPrice_url = "{:U('Home/Client/getPriceByStyle_Type')}";
+		var getRoom_url = "{:U('Home/Client/getRoomsByDate_Type')}";
+		var getAgent_url = "{:U('Home/Client/getAgent')}";
+		var getVipByID_url = "{:U('Home/Vip/getVipInfoBy_IDCard')}";
+		var getVipByCard_url = "{:U('Home/Vip/getVipInfo')}";
+		var getVerifyResult_url = "{:U('Home/Client/verifySpecPwd')}";
 		
 		function changeVerify(){
 			var timenow = new Date().getTime();

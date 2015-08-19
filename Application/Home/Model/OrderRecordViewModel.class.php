@@ -10,7 +10,7 @@ class OrderRecordViewModel extends ViewModel {
 
     public $viewFields = array(
 
-        'O_record'=>array('o_id','client_ID','book_info','style','type','source','a_id','g_id','pay_mode','price'/*=>'o_price'*/,'deposit','phone','status'/*=>'o_status'*/,'cTime'/*=>'o_cTime'*/,'_table'=>"o_record"),
+        'O_record'=>array('o_id','client_ID','book_info','style','type','source','a_id','g_id','pay_mode','price'/*=>'o_price'*/,'deposit','phone','status'/*=>'o_status'*/,'operator','cTime'/*=>'o_cTime'*/,'_table'=>"o_record"),
         'client'=>array('name','ID_card', '_on'=>'O_record.client_ID=client.client_ID','_table'=>"client"),
 
         'style'=>array('name' => 'style_name', '_on'=>'O_record.style=style.style','_table'=>"style"),
