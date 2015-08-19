@@ -9,13 +9,13 @@ use Think\Model;
 class OrderRecordModel extends Model {
 
 	protected $tableName = 'o_record';// 数据表名
-    protected $fields    = array('o_id','client_ID','book_info','style','type','source','a_id','g_id','pay_mode','price','deposit','phone','status','cTime');// 字段信息
+    protected $fields    = array('o_id','client_ID','book_info','style','type','source','a_id','g_id','pay_mode','price','deposit','phone','status','operator','cTime');// 字段信息
     protected $pk        = 'o_id';// 主键
 
     protected $_scope = array(
         // 命名范围allowUpdate，允许更新的字段
         'allowUpdateField'=>array(
-            'field'=>'client_ID,book_info,type,source,a_id,g_id,pay_mode,price,deposit,phone,status',
+            'field'=>'client_ID,book_info,type,source,a_id,g_id,pay_mode,price,deposit,phone,status,operator',
         ),
 
         // 命名范围cancel
@@ -34,9 +34,13 @@ class OrderRecordModel extends Model {
         'checkIn'=>array(
             'where'=>array('status'=>3),
         ),
+        // 命名范围cleared
+        'cleared'=>array(
+            'where'=>array('status'=>4),
+        ),
         // 命名范围checkOut
         'checkOut'=>array(
-            'where'=>array('status'=>4),
+            'where'=>array('status'=>5),
         ),
     );
 
@@ -83,7 +87,7 @@ class OrderRecordModel extends Model {
      */
     protected function check_status($status){
 
-        if ($status == 0 || $status == 1 || $status == 2 || $status == 3 || $status == 4) {
+        if ($status == 0 || $status == 1 || $status == 2 || $status == 3 || $status == 4 || $status == 5) {
             // echo "right<br/>";
             return true;
         }

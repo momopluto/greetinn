@@ -61,6 +61,14 @@ function get_available_rooms($data, $self=''){
 	return $rooms;
 }
 
+// 获得(前台)操作者名字
+function get_OperName(){
+
+	$info = session('H_USER_V_INFO');
+
+	return $info['oper_NAME'];
+}
+
 // 比较本月销售额(降序)，用于所有餐厅排序
 function compare_month_sale($x, $y){
 	if($x['month_sale'] == $y['month_sale']){//
