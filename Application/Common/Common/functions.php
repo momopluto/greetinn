@@ -30,6 +30,7 @@ function write_log_all_array($val){
         case 'stay_over':
         case 'change_room':
         case 'check_out':
+        case 'cleared':
         case 'open_vip':
         case 'recharge_vip':
         case 'sell_good':
@@ -452,7 +453,7 @@ function check_BookInfo($book_info){
     $book_info = json_decode($book_info, true);
     // p($book_info);
 
-    foreach ($book_info['people_info'] as $one) {
+    foreach ($book_info['people_info'][0] as $one) {
         if ($one['name'] == ''){
             // 入住人姓名为空
             return false;
@@ -608,6 +609,9 @@ function update_o_sTime($o_id, $new_status){
             $which = 'checkIn';
             break;
         case '4':
+            $which = 'cleared';
+            break;
+        case '5':
             $which = 'checkOut';
             break;
         default:

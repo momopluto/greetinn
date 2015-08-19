@@ -12,6 +12,9 @@ class HomeController extends Controller {
     // 资金管理开关
     const MONEY_MANAGEMENT_SWITCH = 0;// O关闭，1开启
 
+    // "高级"特殊价，验证密码
+    const SPEC_PWD = "663ab0c7fac6285832519dc1a3b8c0a6";
+
 	// 操作内容
     // ***前台
     const RECEPTIONIST_LOGIN_IN        		   		=   '前台登录成功';
