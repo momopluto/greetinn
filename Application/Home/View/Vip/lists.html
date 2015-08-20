@@ -4,11 +4,10 @@
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>会员管理</title>
 	<?php $SRC = HOME_SRC; ?>
-	<link rel="stylesheet" href="{$SRC}/css/bootstrap.min.css">
-	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
 </head>
 <body>
 	<include file= "./home"/>
+	<script type="text/javascript" src="{$SRC}/scripts/bootstrap.min.js"></script>
 <div id="right-show">
 	
 	会员管理
@@ -22,6 +21,7 @@
 	       <th>开通时间</th>
 	       <th>首次免费入住时间</th>
 	       <th>办理人</th>
+	       <th>操作</th>
 	     </tr>
 	   </thead>
 	   <tbody>
@@ -48,11 +48,118 @@
 	       			echo "## 记录缺失 ##";
 	       		}
 	       	?></td>
-	       <td>--</td>
+	       <td>{$one['operator']}</td>
+	       <td style="width:160px">
+	       	<!-- 以会员卡号为关联 -->
+	       	<a class="btn btn-info btn-sm vipHisRecord" data-toggle="modal" data-target="#record-modal" card="{$one['card_ID']}" style="width:80px">查询记录</a>
+	       	<a class="btn btn-success btn-sm" href="{:U('Home/Vip/recharge')}?card={$one['card_ID']}" style="width:50px">充值</a>
+	       </td>
 	     </tr>
 	   	</foreach>
 	   </tbody>
-	 </table>
+	</table>
+
+
+	<!-- 会员卡历史记录-模态弹出窗 -->
+	<div class="modal fade" id="record-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+		<div class="modal-dialog" style="width:800px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title">会员卡号 {:I('get.card')} 的历史记录</h4>
+				</div>
+				<div class="modal-body">
+					<table class="table table-striped table-bordered table-hover">
+					   <thead>
+					     <tr>
+					       <th>记录id</th>
+					       <th>会员卡号</th>
+					       <th>姓名</th>
+					       <th>类型</th>
+					       <th>时间</th>
+					       <th>金额</th>
+					       <th>余额</th>
+					       <th>经办人</th>
+					       <th>订单号</th>
+					     </tr>
+					   </thead>
+					   	
+					   <tbody class="record-data">
+					   	<tr></tr>
+
+					   	<!-- <foreach name="data" item="one_record" key="o_id" >
+						 <tr>
+						   <td>{$one_record['v_id']}</td>
+						   <td>{$one_record['name']}</td>
+						   <td>{$one_record['card_ID']}</td>
+						   <td>{$one_record['style_name']}</td>
+						   <td>{$one_record['cTime']}</td>
+						   <td>{$one_record['amount']}</td>
+						   <td>{$one_record['balance']}</td>
+						   <td>{$one_record['operator']}</td>
+						   <td>{$one_record['o_id']}</td>
+						 </tr>
+					 	</foreach> -->
+
+					   </tbody>
+					</table>
+				</div>
+
+				<!-- <div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary">保存</button>
+				</div> -->
+			</div>
+		</div>
+	</div>
+
+	<script language="JavaScript">
+		var getVipRecord_url = "{:U('Home/Vip/getVipRecord')}";
+		// ----------------------------以下代码作用：展示会员卡记录
+	$(function() {
+
+	    $('.vipHisRecord').on('click', function() {
+
+	        event.preventDefault();
+	        /* Act on the event */
+	        $("#record-modal").modal("toggle");
+
+	        $('.record-data tr').remove();
+	         $.ajax({
+	            url: getVipRecord_url,
+	            type: 'post',
+	            data:{
+	              card:$(this).attr("card")
+	            },
+	            dataType: 'json',
+	            success: function(data) {
+
+					// console.log(data);
+					// return;
+
+					var tr, td_v_id, td_name, td_card, td_style, td_cTime, td_amount, td_balance, td_operator, td_o_id;
+					$.each(data, function(i, item){
+					      $tr=$('<tr></tr>');
+					      $td_v_id=$("<td></td>").append(item['v_id']);
+					      $td_name=$("<td></td>").append(item['name']);
+					      $td_card=$("<td></td>").append(item['card_ID']);
+					      $td_style=$("<td></td>").append(item['style_name']);
+					      $td_cTime=$("<td></td>").append(item['cTime']);
+					      $td_amount=$("<td></td>").append(item['amount']);
+					      $td_balance=$("<td></td>").append(item['balance']);
+					      $td_operator=$("<td></td>").append(item['operator']);
+					      $td_o_id=$("<td></td>").append(item['o_id']);
+					      
+
+					      $tr.append($td_v_id).append($td_name).append($td_card).append($td_style).append($td_cTime).append($td_amount).append($td_balance).append($td_operator).append($td_o_id);
+					      $('.record-data').append($tr);
+					});
+	            }
+	        })
+	    })
+	})
+	</script>
+
 </div>
 </body>
 </html>
