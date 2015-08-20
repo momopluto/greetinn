@@ -35,6 +35,7 @@ class HomeController extends Controller {
     const RECEPTIONIST_OPEN_VIP                     =   '开通会员成功';
     const RECEPTIONIST_RECHARGE_VIP                 =   '充值会员成功';
     const RECEPTIONIST_SELL_GOOD                    =   '商品售卖成功';
+    const RECEPTIONIST_RENT_THING                   =   '物品出租成功';
 
     // 订单类型
     const STYLE_0                     =   0;// 普通

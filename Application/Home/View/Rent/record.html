@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>物品租用记录</title>
+</head>
+<body>
+	<include file= "./home"/>
+<div id="right-show">
+	
+	物品租用记录
+	<table class="table table-striped table-bordered table-hover" style="width:900px">
+	   <thead>
+	     <tr>
+	       <th>关联订单号</th>
+	       <th>名称</th>
+	       <th>单价/元</th>
+	       <th>押金/元</th>
+	       <th>数量</th>
+	       <th>小计/元</th>
+	       <th>备注</th>
+	       <th>时间</th>
+	     </tr>
+	   </thead>
+	   	
+	   <tbody>
+	   	<foreach name="data" item="one_record" key="o_id" >
+	   	  <foreach name="one_record" item="one_thing" >
+		     <tr>
+		       <?php
+		       	$row = count($one_record);
+			    if ($key == 0) {
+			    	echo '<td rowspan="' . $row . '">' . $o_id . '</td>';
+			    }
+		       ?>
+		       <td>{$one_thing['name']}</td>
+		       <td><?php echo ($one_thing['total'] - $one_thing['deposit']) / $one_thing['quantity'];?></td>
+		       <td>{$one_thing['deposit']}</td>
+		       <td>{$one_thing['quantity']}</td>
+		       <td>{$one_thing['total']}</td>
+		       <td>{$one_thing['note']}</td>
+		       <?php
+			    if ($key == 0) {
+			    	echo '<td rowspan="' . $row . '">' . $one_thing['cTime'] . '</td>';
+			    }
+		       ?>
+		     </tr>
+	 	  </foreach>
+	 	</foreach>
+	   </tbody>
+	</table>
+</div>
+</body>
+</html>
