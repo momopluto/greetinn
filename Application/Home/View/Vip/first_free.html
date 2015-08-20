@@ -5,6 +5,7 @@
 	<title>会员 - 首住免费</title>
 
 	<?php $SRC = HOME_SRC; ?>
+	<script type="text/javascript" src="{$SRC}/scripts/common.js"></script>
 	<script type="text/javascript" src="{$SRC}/scripts/order.js"></script>
 </head>
 <body>
@@ -80,21 +81,39 @@
 		    </div>
 	    </div>
 
-	    <div class="form-group">
-	    	<h4 for="" class="col-sm-offset-1">入住人员登记</h4>
-		    <label for="name_0" class="col-sm-2 control-label">姓名　(一)</label>
-		    <div class="col-sm-10">
-		      <input type="text" class="form-control info" id="name_0" name="info[0][name]" value="{$data['name']}" style="width:200px" required>
-		    </div>
-		    <label for="ID_0" class="col-sm-2 control-label">身份证(一)</label>
-		    <div class="col-sm-10">
-		      <input type="text" class="form-control info" id="ID_0" name="info[0][ID_card]" value="{$data['ID_card']}" style="width:200px" required>
-		    </div>
-		    <label for="phone" class="col-sm-2 control-label">手机</label>
-		    <div class="col-sm-10">
-		      <input type="text" class="form-control info" id="phone" name="phone" value="{$data['phone']}" style="width:200px" required>
-		    </div>
-	    </div>
+	    <div class="form-group client-info">
+			<label for="" class="col-sm-2 control-label">顾客信息</label>
+		 <div class="col-sm-10">
+		  <fieldset id="single-info">
+		  	<table style="width:450px">
+		  	   <thead>
+		  	     <tr>
+		  	       <th style="width:200px">姓名</th>
+		  	       <th>身份证</th>
+		  	     </tr>
+		  	   </thead>
+		  	   <tbody>
+		  	     <tr>
+		  	       <td><input type="text" id="name_0" name="info[0][name]" class="form-control info" placeholder="姓名(一)" required></td>
+		  	       <td><input type="text" id="ID_0" name="info[0][ID_card]" class="form-control info" placeholder="身份证(一)" required></td>
+		  	     </tr>
+		  	   </tbody>
+		  	</table>
+		  	<table>
+		  	   <thead>
+		  	     <tr>
+		  	       <th style="width:200px">联系方式</th>
+		  	     </tr>
+		  	   </thead>
+		  	   <tbody>
+		  	     <tr>
+		  	       <td><input type="text" id="phone" name="phone[0]" class="form-control info" placeholder="联系方式(一)" required></td>
+		  	     </tr>
+		  	   </tbody>
+		  	</table>
+		  </fieldset>
+		 </div>
+		</div>
 
 	    <div class="form-group">
 		    <label for="" class="col-sm-2 control-label">验证码</label>
