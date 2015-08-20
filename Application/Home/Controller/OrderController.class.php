@@ -810,13 +810,39 @@ class OrderController extends HomeController {
                             if (write_log_all_array($log_Arr)) {
 
                                 $vipModel->commit();// vip表提交事务
+
+                                // 会员卡记录表vip_record数据
+                                // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                                $record['client_ID'] = $old_VipData['client_ID'];
+                                $record['card_ID'] = $old_VipData['card_ID'];
+
+
+                                $stime = M('o_record_2_stime')->where("o_id = $o_id")->find();
+                                $record['cTime'] = $stime['checkIn'];// 办理入住时间
+
+                                $new_VipData = $vipModel->where($whe)->find();
+                                $record['balance'] = $new_VipData['balance'];// 余额
+                                
+
+                                $record['style'] = self::VIP_STYLE_4;// 消费
+                                $record['amount'] = $old_data['price'];// 金额=订单总价
+                                $record['operator'] = get_OperName();// 经办人
+                                $record['o_id'] = $o_id;// 订单号
+
+                                while (!M('vip_record')->add($record)) {
+                                    echo "写-消费-会员卡记录表-失败！";
+                                }
+                                // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+
                                 $this->success('办理入住成功！', U('Home/Order/dealing'));
+                                return;
                             }else{
                                 
                                 $vipModel->rollback();// vip表回滚事务
                                 $this->error('办理入住失败！写日志出错！');
+                                return;
                             }
-                            return;
+                            
                         }else{
 
                             echo "会员卡消费，扣费失败！<br/>";

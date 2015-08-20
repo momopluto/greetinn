@@ -34,7 +34,7 @@ class HomeController extends Controller {
     const RECEPTIONIST_CONFIRM_RETURN_BORROWED      =   '确认归还设备';
     const RECEPTIONIST_OPEN_VIP                     =   '开通会员成功';
     const RECEPTIONIST_RECHARGE_VIP                 =   '充值会员成功';
-    const RECEPTIONIST_SELL_GOOD                	=   '商品售卖成功';
+    const RECEPTIONIST_SELL_GOOD                    =   '商品售卖成功';
 
     // 订单类型
     const STYLE_0                     =   0;// 普通
@@ -45,6 +45,13 @@ class HomeController extends Controller {
     const IN_TIME                     =   " 14:00:00";// 入住时间
     const OUT_TIME                    =   " 12:00:00";// 离店时间
     const OUT_TIME_2                  =   " 13:00:00";// 会员离店时间
+
+    // 会员卡记录类型
+    const VIP_STYLE_0                 =   0;// 注销
+    const VIP_STYLE_1                 =   1;// 开通
+    const VIP_STYLE_2                 =   2;// 充值
+    const VIP_STYLE_3                 =   3;// 赠送
+    const VIP_STYLE_4                 =   4;// 消费
 
     // 全局日志模型
 	protected $log_model;
