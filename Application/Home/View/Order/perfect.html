@@ -16,13 +16,13 @@
 		<div class="form-group">
 		    <label for="" class="col-sm-2 control-label">姓名</label>
 		    <div class="col-sm-10">
-		      <input type="text" class="form-control info" id="" name="name" value="{$data['name']}" style="width:200px" required>
+		      <input type="text" class="form-control info" id="" name="name" value="{$client['name']}" style="width:200px" required>
 		    </div>
 	    </div>
 	    <div class="form-group">
 		    <label for="ID" class="col-sm-2 control-label">身份证</label>
 		    <div class="col-sm-10">
-		      <input type="text" class="form-control" id="ID" name="ID" value="{:I('get.id')}" style="width:200px" required onblur="checkID()">
+		      <input type="text" class="form-control" id="ID" name="ID" style="width:200px" required onblur="checkID()">
 		      <span class="text-danger" id="ID_tips"></span>	
 		    </div>
 	    </div>
@@ -46,24 +46,16 @@
       	<div class="form-group">
 		    <label for="" class="col-sm-2 control-label">手机</label>
 		    <div class="col-sm-10">
-		      <input type="text" class="form-control" id="" name="phone" value="{$data['phone']}" style="width:200px" required>
+		      <input type="text" class="form-control" id="" name="phone" value="{$client['phone']}" style="width:200px" required>
 		    </div>
 	    </div>
 	    <div class="form-group">
 	        <div class="col-sm-offset-2 col-sm-10">
 	          <button type="submit" class="btn btn-default">确认</button>
-	          <input type="text" name="id" value="{$data['o_id']}" hidden=""/>
+	          <input type="text" name="id" value="{$client['o_id']}" hidden=""/>
 	        </div>
 	    </div>
-
-		<p>姓　名：<input id="name" type="text" name="name" value="{$data['name']}" required="required">*</p>
-		<p>身份证：<input id="ID" type="text" name="ID" onblur="checkID()">* <span id="ID_tips" style="color:red"></span></p>
-		<p>学生证：<input id="stu_id" type="text" name="stu_id"></p>
-		<p>性　别：<input id="sex_1" type="radio" name="sex" value="1">男<input id="sex_0" type="radio" name="sex" value="0">女</p>
-		<p>手　机：<input id="phone" type="text" name="phone" value="{$data['phone']}" required="required" onblur="checkPhone()">* <span id="phone_tips" style="color:red"></span></p>
-
-		<input id="submit" type="submit" value="确认" disabled="" />
-		<input type="text" name="id" value="{$data['o_id']}" hidden=""/>
+		<input type="text" name="id" value="{$client['o_id']}" hidden=""/>
 	</form>
 	
 </div>

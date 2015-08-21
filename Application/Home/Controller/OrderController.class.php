@@ -188,6 +188,7 @@ class OrderController extends HomeController {
 
     /**
      * 完善客户信息
+     * [废弃]
      */
     public function perfect(){
 
@@ -195,6 +196,14 @@ class OrderController extends HomeController {
             
             // p(I('post.'));die;
 
+            // 姓名、手机
+            if (!I('post.name')) {
+                $this->error('姓名不能为空！');
+            }
+            if (!I('post.phone')) {
+                $this->error('手机不能为空！');
+            }
+            
             $o_id = I('post.id');
 
             $row = is_IDCard_exists(I('post.ID'), 'client');
@@ -202,13 +211,6 @@ class OrderController extends HomeController {
             if ($row) {// 存在
                 
                 $update['client_ID'] = $row['client_ID'];
-                // 姓名、手机
-                if (!I('post.name')) {
-                    $this->error('姓名不能为空！');
-                }
-                if (!I('post.phone')) {
-                    $this->error('手机不能为空！');
-                }
 
             }else{// 不存在，注册取得client_ID
 
@@ -286,12 +288,14 @@ class OrderController extends HomeController {
             $o_record_model = D('OrderRecordView');
             $data = $o_record_model->where("o_record.o_id = $o_id")->find();
 
+
             $info['o_id'] = $o_id;
             $book_info = json_decode($data['book_info'], true);
-            $info['name'] = $book_info['people_info'][0]['name'];
+            // p($book_info);die;
+            $info['name'] = $book_info['people_info'][0][0]['name'];
             $info['phone'] = $data['phone'];
             // p($info);die;
-            $this->assign('data', $info);
+            $this->assign('client', $info);
             $this->display();
         }
     }

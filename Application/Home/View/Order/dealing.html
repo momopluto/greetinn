@@ -197,7 +197,7 @@
 	 	    			if ($one['ID_card'] == "111111111111111110") {
 	 				    	
 	 				    	?>
-	 				    	<a class="btn btn-success center-block" href="{:U('Home/Order/perfect')}?id={$one['o_id']}">完善信息</a>
+	 				    	<!-- <a class="btn btn-success center-block" href="{:U('Home/Order/perfect')}?id={$one['o_id']}">完善信息</a> -->
 	 				    	<?php
 	 				    }else {
 	 				    	?>
@@ -205,15 +205,15 @@
 	 				    	<?php
 	 				    }
 	 	    		?>
-	 	    		<a class="btn btn-default center-block" href="{:U('Home/Order/edit')}?id={$one['o_id']}">编辑<!-- 当前页面弹出框进行修改 --></a>
+	 	    		<a class="btn btn-default center-block disabled" href="{:U('Home/Order/edit')}?id={$one['o_id']}">编辑<!-- 当前页面弹出框进行修改 --></a>
 	 	    		<a class="btn btn-danger center-block" href="{:U('Home/Order/cancel')}?id={$one['o_id']}">取消</a>
 	 	    		<?php
 	 	    		break;
 	 	    	case 3:
 	 	    		?>
-	 	    		<a class="btn btn-info center-block" href="{:U('Home/Order/stay_over')}?id={$one['o_id']}">续住</a>
+	 	    		<a class="btn btn-info center-block disabled" href="{:U('Home/Order/stay_over')}?id={$one['o_id']}">续住</a>
 	 	    		<a class="btn btn-warning center-block" href="{:U('Home/Order/change_room')}?id={$one['o_id']}">换房</a>
-	 	    		<a class="btn btn-primary center-block" target="_blank" href="{:U('Home/Rent/lists')}?id={$one['o_id']}">租用物品</a>
+	 	    		<a class="btn btn-primary center-block disabled" target="_blank" href="{:U('Home/Rent/lists')}?id={$one['o_id']}">租用物品</a>
 	 	    		<a class="btn btn-danger center-block" href="{:U('Home/Order/check_out')}?id={$one['o_id']}">退房</a>
 	 	    		<?php
 	 	    		break;
