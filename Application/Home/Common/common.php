@@ -43,7 +43,7 @@ function get_available_rooms($data, $self=''){
 	if ($self) {
 		$str .= " AND room_ID != " . $self;
 	}
-	$str .= " AND NOT (A_date >= '".$data['B_date']."' OR B_date <= '".$data['A_date']."') )"
+	$str .= " AND NOT (A_date >= '".$data['B_date']."' OR B_date <= '".$data['A_date']."') OR status = 5 )"/* "OR status = 5" 锁定状态的房间 */
 			." AND ( status <> 0 AND status <> 4 )";
 	// echo $str;
 
