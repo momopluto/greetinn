@@ -31,17 +31,25 @@
            <td class="text-center">{$data['style_name']}</td>
            <td class="text-center">{$data['o_id']}</td>
             <td class="text-center"><p>{$data['A_date']}</p><p>{$data['B_date']}</p></td>
-            <td>
-            <?php
-            $book_info = json_decode($data['book_info'],true);
-            ?>
-            <p>入住晚数: {$data['nights']}</p>
-            <p>入住人数: {$book_info['number']}</p>
-            <p>入住人员信息: </p>
-            <foreach name="book_info['people_info']" item="value" >
-               <li>{$value['name']} {$value['ID_card']}</li>
-            </foreach>
-            <p>备注: {$book_info['note']}</p>
+            <td style="width:207px">
+              <?php
+              $book_info = json_decode($data['book_info'],true);
+              ?>
+              <!-- <p>入住晚数: {$data['nights']}</p>
+              <p>入住人数: {$book_info['number']}</p> -->
+              <span>入住人员信息: </span>
+              <foreach name="book_info['people_info'][0]" item="value" >
+                <?php
+                  $_start = substr($value['ID_card'], 0, 4);
+                  $_end = substr($value['ID_card'], 14, 4);
+                ?>
+                <li>{$value['name']} {$_start}****{$_end}</li>
+              </foreach>
+              <span>联系方式: </span>
+              <foreach name="book_info['people_info'][1]" item="value" >
+                <li>{$value}</li>
+              </foreach>
+              <span>备注: {$book_info['note']}</span>
             </td>
             <td class="text-center">
             <?php
