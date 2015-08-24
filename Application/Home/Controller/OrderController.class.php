@@ -765,11 +765,18 @@ class OrderController extends HomeController {
                     // 需要更新o_record_2_stime表中记录
                     // update_o_sTime($o_id, $checkIN['status']);
 
+                    // $order_model->rollback();
+                    // die;
+
                     if (update_o_room($o_id, $room_ID) && update_o_sTime($o_id, $checkIN['status'])) {
 
                         $flag = true;
-                        $vipModel = M('vip');
-                        $vipModel->startTrans();// vip表开启事务
+                        $vipModel = D('vip');
+                        // $vipModel->startTrans();// vip表开启事务
+
+                        // $vipModel->rollback();
+                        // $order_model->rollback();
+                        // die;
 
                         // 会员卡支付，会员表更新
                         // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
@@ -782,8 +789,10 @@ class OrderController extends HomeController {
 
                             if ($old_VipData['balance'] < $old_data['price']) {// 余额不够支付
 
-                                $this->error('会员卡余额不足，请充值！');
-                                return;
+                                $flag = false;
+                                echo "会员卡余额不足，请充值！";
+                                // $this->error('会员卡余额不足，请充值！');
+                                // return;
                             }
 
                             if ($old_data['price'] == 0 && $old_VipData['first_free'] == 1) {
@@ -804,6 +813,34 @@ class OrderController extends HomeController {
                                      $flag = false;
                                 }
                             }
+
+                            // 会员卡记录表vip_record数据
+                            // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                            $record['client_ID'] = $old_VipData['client_ID'];
+                            $record['card_ID'] = $old_VipData['card_ID'];
+
+
+                            $stime = M('o_record_2_stime')->where("o_id = $o_id")->find();
+                            $record['cTime'] = $stime['checkIn'];// 办理入住时间
+
+                            $new_VipData = $vipModel->where($whe)->find();
+                            $record['balance'] = $new_VipData['balance'];// 余额
+                            
+
+                            $record['style'] = self::VIP_STYLE_4;// 消费
+                            $record['amount'] = $old_data['price'];// 金额=订单总价
+                            $record['operator'] = get_OperName();// 经办人
+                            $record['o_id'] = $o_id;// 订单号
+
+                            // p($old_VipData);
+                            // P($record);
+                            // die;
+
+                            $v_record_model = M('vip_record');
+                            while (!$v_record_model->add($record)) {
+                                echo "写-消费-会员卡记录表-失败！";
+                            }
+                            // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
                         }
                         // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
@@ -811,38 +848,15 @@ class OrderController extends HomeController {
                             
                             $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_IN, 'check_in', array('订单id' => $o_id, '总价' => $old_data['price']));
                             //                     0                 1                2             3                4                            5
-                            if (write_log_all_array($log_Arr)) {
+                            if (write_log_all_array($log_Arr)) {// 写日志成功，事务提交;失败，事务圆润
 
-                                $vipModel->commit();// vip表提交事务
-
-                                // 会员卡记录表vip_record数据
-                                // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-                                $record['client_ID'] = $old_VipData['client_ID'];
-                                $record['card_ID'] = $old_VipData['card_ID'];
-
-
-                                $stime = M('o_record_2_stime')->where("o_id = $o_id")->find();
-                                $record['cTime'] = $stime['checkIn'];// 办理入住时间
-
-                                $new_VipData = $vipModel->where($whe)->find();
-                                $record['balance'] = $new_VipData['balance'];// 余额
-                                
-
-                                $record['style'] = self::VIP_STYLE_4;// 消费
-                                $record['amount'] = $old_data['price'];// 金额=订单总价
-                                $record['operator'] = get_OperName();// 经办人
-                                $record['o_id'] = $o_id;// 订单号
-
-                                while (!M('vip_record')->add($record)) {
-                                    echo "写-消费-会员卡记录表-失败！";
-                                }
-                                // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+                                // $vipModel->commit();// vip表提交事务
 
                                 $this->success('办理入住成功！', U('Home/Order/dealing'));
                                 return;
                             }else{
                                 
-                                $vipModel->rollback();// vip表回滚事务
+                                // $vipModel->rollback();// vip表回滚事务
                                 $this->error('办理入住失败！写日志出错！');
                                 return;
                             }
@@ -852,7 +866,7 @@ class OrderController extends HomeController {
                             echo "会员卡消费，扣费失败！<br/>";
                             // echo $order_model->getError();
 
-                            $vipModel->rollback();// vip表回滚事务
+                            // $vipModel->rollback();// vip表回滚事务
                             $order_model->rollback();
                             $this->error('会员卡消费，扣费失败！');
                             return;
@@ -871,6 +885,7 @@ class OrderController extends HomeController {
                     echo "办理入住失败！<br/>";
                     // echo $order_model->getError();
 
+                    $order_model->rollback();
                     $this->error($order_model->getError());
                     return;
                 }
@@ -956,14 +971,14 @@ class OrderController extends HomeController {
                 echo "更新o_record_2_room成功！<br/>";
                 
                 $order_model = M('o_record');
-                $order_model->startTrans();// 启动事务
+                // $order_model->startTrans();// 启动事务
                 // 更新o_record的price
                 echo "*****".$res2 = $order_model->where("o_id = $o_id")->save($update_record);
 
                 if ($res2) {
                     echo "更新o_record成功！<br/>";
                     
-                    $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_STAY_OVER, 'stay_over', array('订单id' => $o_id, '补交金额' => $_price));
+                    $log_Arr = array($this->log_model, $this->log_data, $o_room_model, self::RECEPTIONIST_STAY_OVER, 'stay_over', array('订单id' => $o_id, '补交金额' => $_price));
                     //                     0                 1                2             3                4                            5
                     write_log_all_array($log_Arr);
                     // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_STAY_OVER, 'stay_over', array('房间id' => $o_id, '补交金额' => $_price));

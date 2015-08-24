@@ -13,7 +13,7 @@ class VipModel extends Model {
                             /*'single_count','single_free','single_latestDate',
                             'double_count','double_free','double_latestDate',
                             'multiple_count','multiple_free','multiple_latestDate',*/
-                            'first_free','operator','cTime');// 字段信息
+                            'first_free','first_free_checkIn','operator','cTime');// 字段信息
     protected $pk        = 'client_ID';// 主键
 
     protected $_scope = array(
