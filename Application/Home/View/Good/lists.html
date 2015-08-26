@@ -51,6 +51,19 @@
 
 		<p class="text-info" style="font-family:verdana;font-size:200%;">总价：<span class="text-primary" id="all_total">0.0</span></p>
 		<button class="btn btn-info" type="submit">提交</button>
+	    <div class="form-group">
+	      <fieldset id="mode">
+	      	<label class="radio-inline">
+	      		<input type="radio" name="mode" value="0" checked="">现金支付
+	      	</label>
+	      	<label class="radio-inline">
+	      		<input type="radio" name="mode" value="1">支付宝支付
+	      	</label>
+	      	<label class="radio-inline">
+	      		<input type="radio" name="mode" value="3" required>刷卡支付
+	      	</label>
+	      </fieldset>
+        </div>
 	   </form>
 	</table>
 </div>
