@@ -127,15 +127,16 @@ class CapitalController extends HomeController{
 			    $flow['type'] = 0;// 0交班
 
 			    $flow['pay_mode'] = 0;// 支付方式，交班固定为现金
-		        $flow['balance'] = $shouldHave_balance;// 保留，系统余额
 
 
 		        $flow['info'] = "交班者: ".$prev_oper;
 		        $flow['info'] .= "<br/>应有余额: ".number_format($shouldHave_balance, 1, '.', '').", 实际余额: ".number_format($actual_balance, 1, '.', '');
 		        if (($balance = $actual_balance - $shouldHave_balance) < 0) {
 			        $flow['info'] .= "<br/>[短款]: ";
+			        $flow['balance'] = $shouldHave_balance;// 保留，系统余额
 		        }else{
 		        	$flow['info'] .= "<br/>[长款]: +";
+		        	$flow['balance'] = $actual_balance;// 保留，实际余额
 		        }
 		        $flow['info'] .= number_format($balance, 1, '.', '');
 			    $flow['operator'] = $rst['next_oper'];// 接班人
