@@ -145,7 +145,7 @@ class CapitalController extends HomeController{
 			    $capital_model = M('capital_flow');
 			    if ($capital_model->add($flow) === false) {
 
-			        $this->error('写-手动记录-资金流量表-失败！');
+			        $this->error('写-交班-资金流量表-失败！');
 			        return;
 			    }else{
 
@@ -162,7 +162,7 @@ class CapitalController extends HomeController{
 			    	$Home = A('home'); 
 			    	$Home->login_log();// 调用Home/Controller/login_log方法
 
-			    	$this->success('写-手动记录-资金流量表-成功！',U('Home/Capital/lists'));
+			    	$this->success('写-交班-资金流量表-成功！',U('Home/Capital/lists'));
 			        return;
 			    }
 			    // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
