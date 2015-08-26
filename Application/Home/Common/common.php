@@ -61,13 +61,111 @@ function get_available_rooms($data, $self=''){
 	return $rooms;
 }
 
-// 获得(前台)操作者名字
-function get_OperName(){
+// [From数据库]获得(前台)最后一次交班的标识
+function get_lastShift_record(){
+	
+	$map['in'] = 0;
+	$map['out'] = 0;
+	$map['type'] = 0;
+
+	$last = D("CapitalAdv")->where($map)->last();
+	return $last;
+}
+
+// // [From session]获得(前台)当前班次的标识
+// function get_shift(){
+
+// 	$info = session('H_USER_V_INFO');
+
+// 	return $info['shift'];
+// }
+
+// // 获得(前台)操作者名字
+// function get_OperName(){
+
+// 	$info = session('H_USER_V_INFO');
+
+// 	return $info['oper_NAME'];
+// }
+
+// 获得(前台)操作者信息
+function get_Oper($field=""){
 
 	$info = session('H_USER_V_INFO');
 
-	return $info['oper_NAME'];
+	switch ($field) {
+		case 'ID':
+			$rst = $info['oper_ID'];
+			break;
+		case 'name':
+			$rst = $info['oper_NAME'];
+			break;
+		case 'shift':
+			$rst = $info['shift'];
+			break;
+		default:
+			$rst = "";
+			break;
+	}
+
+	return $rst;
 }
+
+
+// 验证前台登录
+function validate_login($post){
+
+	$one = is_IDCard_exists($post['user'], 'member');// 检验账号
+	//检验密码
+    // p($one);die;
+    // $data['one'] = $one;
+    // $data['session'] = session('H_USER_V_INFO');
+	if ($one === false) {
+
+		$data['errcode'] = 4;
+		$data['errmsg'] = "成员不存在";
+		return $data;
+	}else {
+
+		if ($one['member_ID'] == get_Oper('ID')) {
+			$data['errcode'] = 5;
+			$data['errmsg'] = "交班者与接班者为同一人";
+			return $data;
+		}
+
+		if ($one['position'] != 1) {// 职位不是前台
+			$data['errcode'] = 6;
+			$data['errmsg'] = "无权登录";
+			return $data;
+		}
+
+		switch ($one['on_job']) {
+			case 0:
+				$data['errcode'] = 7;
+				$data['errmsg'] = "成员已离职";
+				break;
+			case 1:
+				$data['errcode'] = 0;
+				$data['errmsg'] = "验证成功";
+				$data['next_oper'] = $one['name'];// 接班者
+				break;
+			case 2:
+				$data['errcode'] = 8;
+				$data['errmsg'] = "成员休假中";
+				break;
+			default:
+				$data['errcode'] = 9;
+				$data['errmsg'] = "未知错误";
+				break;
+		}
+
+		return $data;
+	}
+}
+
+
+
+
 
 // 比较本月销售额(降序)，用于所有餐厅排序
 function compare_month_sale($x, $y){
