@@ -3,18 +3,54 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>前台登录</title>
+	<?php $SRC = HOME_SRC; ?>
+	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
+	<link rel="stylesheet" href="{$SRC}/css/bootstrap.min.css">
+	<style>
+
+		div.login_content{
+			margin: 0px auto;
+			margin-top: 100px;
+			width: 550px;
+			padding: 40px 150px;
+			opacity: 50%;
+			border: 4px solid #FF8000;
+			border-radius:12px;
+		}
+	
+	</style>
 </head>
 <body>
 	
-	<form action="{:U('Home/User/login')}" method="post">
-		<p>账　号：<input type="text" name="user"></p>
-		<p>密　码：<input type="password" name="pwd"></p>
-		<p>验证码：<input type="text" name="verify">
-		<img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/></p>
-		<input type="submit" value="登录" />
-	</form>
+	<div class="login_content">
+		<form class="form-horizontal" action="{:U('Home/User/login')}" method="post">
+			<div class="form-group">
+			    <label for="" class="col-sm-2 control-label">账号</label>
+			    <div class="col-sm-10">
+			      <input type="text" class="form-control" id="" name="user" style="width:200px">
+			    </div>
+		    </div>
+		    <div class="form-group">
+			    <label for="" class="col-sm-2 control-label">密码</label>
+			    <div class="col-sm-10">
+			      <input type="password" class="form-control" id="" name="pwd" style="width:200px">
+			    </div>
+		    </div>
+		    <div class="form-group">
+			    <label for="" class="col-sm-2 control-label">验证码</label>
+			    <div class="col-sm-10">
+			      <input type="text" class="form-control" id="" name="verify" style="width:200px" required>
+				  <img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/>
+			    </div>
+		    </div>
+		    <div class="form-group">
+		        <div class="col-sm-offset-2 col-sm-10">
+		          <button type="submit" class="btn btn-default">登录</button>
+		        </div>
+		    </div>
+		</form>
+	</div>
 	
-
 	<script language="JavaScript">
 		function changeVerify(){
 			var timenow = new Date().getTime();
