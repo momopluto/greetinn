@@ -106,9 +106,11 @@ FROM
      */
     public function lists(){
 
+        // p(session());die;
 
         $vipModel = D("VipView");
         $data = $vipModel->select();
+        
         // p($data);die;
 
         $this->assign('data', $data);
@@ -159,9 +161,9 @@ FROM
 
             $data['birthday'] = $row['birthday'];
 
-            // $operator['reg'] = get_OperName();// 开通，经办人
+            // $operator['reg'] = get_Oper("name");// 开通，经办人
             // $data['operator'] = json_encode($operator, JSON_UNESCAPED_UNICODE);
-            $data['operator'] = get_OperName();// 开通，经办人
+            $data['operator'] = get_Oper("name");// 开通，经办人
 
             // card_ID要唯一，自动验证
             $vipModel = D("Vip");
@@ -183,39 +185,87 @@ FROM
                 $res = $vipModel->add();
                 if ($res === false) {
 
+                    $vipModel->rollback();
                     $this->error('写入数据库失败！');
                     return;
                 }
+
+                $flag = true;
+                
+                // 会员卡记录表vip_record数据
+                // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                $record['client_ID'] = $data['client_ID'];
+                $record['card_ID'] = $data['card_ID'];
+
+                $vip_data = M('vip')->where($record)->find();
+                $record['cTime'] = $vip_data['cTime'];
+
+                // p($vip_data);die;
+
+                $record['style'] = self::VIP_STYLE_1;// 开通
+                $record['amount'] = $vip_data['nominal_fee'];// 金额=工本费
+                $record['balance'] = $vip_data['balance'];//余额
+                $record['operator'] = get_Oper("name");// 经办人
+
+                if (M('vip_record')->add($record) === false) {
+
+                    $vipModel->rollback();
+                    $this->error('写-开通-会员卡记录表-失败！');
+                    return;
+                }
+                // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+                
+                // 资金管理是否开启
+                if (self::MONEY_MANAGEMENT_SWITCH) {
+                    
+                    // 资金流水表capital_flow数据
+                    // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                    $flow['shift'] = get_Oper('shift');// 班次标识
+                    $flow['cTime'] = $vip_data['cTime'];
+                    $flow['in'] = $vip_data['nominal_fee'];// 收入，工本费
+                    $flow['out'] = 0;// 支出
+                    $flow['type'] = 6;// 6会员卡办理
+
+                    $capitalAdvModel = D("CapitalAdv");
+                    $last_record = $capitalAdvModel->where(array('shift'=>$flow['shift']))->last();
+
+                    // p($last_record);die;
+
+                    $flow['pay_mode'] = I('post.mode');// 支付方式
+                    if ($flow['pay_mode'] == 0) {
+
+                        // 只计算现金的资金流
+                        $flow['balance'] = $last_record['balance'] + $flow['in'] - $flow['out'];//余额        
+                    }else{
+
+                        $flow['balance'] = $last_record['balance'];
+                    }       
+
+                    $flow['info'] = "会员卡号：".$data['card_ID'];
+                    $flow['operator'] = get_Oper("name");// 经办人
+
+                    // p($flow);die;
+
+                    $capital_model = M('capital_flow');
+                    if ($capital_model->add($flow) === false) {
+
+                        $vipModel->rollback();
+                        $this->error('写-会员卡办理-资金流量表-失败！');
+                        return;
+                    }
+                    // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+                }
+
 
                 $log_Arr = array($this->log_model, $this->log_data, $vipModel, self::RECEPTIONIST_OPEN_VIP, 'open_vip', array('客户id' => $data['client_ID'], '会员卡id' => $data['card_ID']));
                 //                     0                 1                2             3                4                            5
                 if (write_log_all_array($log_Arr)){
 
-                    // 会员卡记录表vip_record数据
-                    // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-                    $record['client_ID'] = $data['client_ID'];
-                    $record['card_ID'] = $data['card_ID'];
-
-                    $vip_data = M('vip')->where($record)->find();
-                    $record['cTime'] = $vip_data['cTime'];
-
-                    // p($vip_data);die;
-
-                    $record['style'] = self::VIP_STYLE_1;// 开通
-                    $record['amount'] = $vip_data['nominal_fee'];// 金额=工本费
-                    $record['balance'] = $vip_data['balance'];//余额
-                    $record['operator'] = get_OperName();// 经办人
-
-                    while (!M('vip_record')->add($record)) {
-                        echo "写-开通-会员卡记录表-失败！";
-                    }
-                    // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
-                    
                     $this->success('开通会员成功！', U('Home/Vip/lists'));
                     return;
                 }else {
 
-                    $this->error('开通会员失败！');
+                    $this->error('开通会员失败！写日志失败！');
                     return;
                 }
 
@@ -224,6 +274,7 @@ FROM
                 echo "开通会员失败！";
                 // echo $vipModel->getError();
 
+                $vipModel->rollback();
                 $this->error($vipModel->getError());
                 return;
             }
@@ -240,6 +291,7 @@ FROM
      */
     public function recharge(){
 
+        // p(session());die;
         if (IS_POST) {
 
             if (!check_verify(I('post.verify'))) {
@@ -297,33 +349,80 @@ FROM
                 $vipData['cTime'] = getDatetime();
                 if (M('recharge_record')->add($vipData)) {
                     echo "recharge_record也更新鸟～";
+                    
+                    // 会员卡记录表vip_record数据
+                    // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                    $record['client_ID'] = $vipData['client_ID'];
+                    $record['card_ID'] = $data['card_ID'];
+
+                    $record['cTime'] = $vipData['cTime'];
+
+                    $record['style'] = self::VIP_STYLE_2;// 充值
+                    $record['amount'] = $vipData['amount'];// 金额=充值金额
+                    $record['balance'] = $vipData['balance'];//余额
+                    $record['operator'] = get_Oper("name");// 经办人
+
+                    $v_record_model = M('vip_record');
+                    if ($v_record_model->add($record) === false) {
+
+                        $vipModel->rollback();
+                        $this->error('写-充值-会员卡记录表-失败！');
+                        return;
+                    }
+
+                    $record['style'] = self::VIP_STYLE_3;// 赠送
+                    $record['amount'] = $vipData['gift'];// 金额=赠送金额
+                    if ($v_record_model->add($record) === false) {
+
+                        $vipModel->rollback();
+                        $this->error('写-赠送-会员卡记录表-失败！');
+                        return;
+                    }
+                    // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+                    
+                    // 资金管理是否开启
+                    if (self::MONEY_MANAGEMENT_SWITCH) {
+                        
+                        // 资金流水表capital_flow数据
+                        // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                        $flow['shift'] = get_Oper('shift');// 班次标识
+                        $flow['cTime'] = $vipData['cTime'];
+                        $flow['in'] = $vipData['amount'];// 收入，充值金额
+                        $flow['out'] = 0;// 支出
+                        $flow['type'] = 7;// 7会员卡充值
+
+                        $capitalAdvModel = D("CapitalAdv");
+                        $last_record = $capitalAdvModel->where(array('shift'=>$flow['shift']))->last();
+
+                        // p($last_record);die;
+
+                        $flow['pay_mode'] = I('post.mode');// 支付方式
+                        if ($flow['pay_mode'] == 0) {
+
+                            // 只计算现金的资金流
+                            $flow['balance'] = $last_record['balance'] + $flow['in'] - $flow['out'];//余额        
+                        }else{
+
+                            $flow['balance'] = $last_record['balance'];
+                        }      
+
+                        $flow['info'] = "会员卡号：".$data['card_ID'];
+                        $flow['operator'] = get_Oper("name");// 经办人
+
+                        // p($flow);die;
+
+                        if (M('capital_flow')->add($flow) === false) {
+
+                            $vipModel->rollback();
+                            $this->error('写-会员卡充值-资金流量表-失败！');
+                            return;
+                        }
+                        // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+                    }
 
                     $log_Arr = array($this->log_model, $this->log_data, $vipModel, self::RECEPTIONIST_RECHARGE_VIP, 'recharge_vip', array('客户id' => $row['client_ID'], '会员卡id' => $row['card_ID'], '充值金额' => $vipData['amount'], '赠送' => $gift));
                     //                     0                 1                2             3                4                            5
                     if (write_log_all_array($log_Arr)){
-
-                        // 会员卡记录表vip_record数据
-                        // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-                        $record['client_ID'] = $vipData['client_ID'];
-                        $record['card_ID'] = $data['card_ID'];
-
-                        $record['cTime'] = $vipData['cTime'];
-
-                        $record['style'] = self::VIP_STYLE_2;// 充值
-                        $record['amount'] = $vipData['amount'];// 金额=充值金额
-                        $record['balance'] = $vipData['balance'];//余额
-                        $record['operator'] = get_OperName();// 经办人
-
-                        while (!M('vip_record')->add($record)) {
-                            echo "写-充值-会员卡记录表-失败！";
-                        }
-
-                        $record['style'] = self::VIP_STYLE_3;// 赠送
-                        $record['amount'] = $vipData['gift'];// 金额=赠送金额
-                        while (!M('vip_record')->add($record)) {
-                            echo "写-赠送-会员卡记录表-失败！";
-                        }
-                        // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
                         $this->success('会员充值成功！', U('Home/Vip/lists'), 3);
                         return;
@@ -337,6 +436,7 @@ FROM
 
                     echo "recharge_record更新失败鸟～<br/>";
 
+                    $vipModel->rollback();
                     $this->error('echarge_record更新失败！');
                     return;
                 }
@@ -345,6 +445,7 @@ FROM
                 echo "vip更新失败鸟～<br/>";
                 // echo $vipModel->getError();
 
+                $vipModel->rollback();
                 $this->error($vipModel->getError());
                 return;
             }
@@ -382,7 +483,7 @@ FROM
                 // p($v_data);die;
 
                 // $operator = json_decode($v_data['operator'],true);
-                // $operator['new'] = get_OperName();// 首住免费下单，经办人
+                // $operator['new'] = get_Oper("name");// 首住免费下单，经办人
                 // $update_date['operator'] = json_encode($operator, JSON_UNESCAPED_UNICODE);
 
                 // if (M('vip')->where(array('card_ID'=>$v_data['card_ID']))->save($update_date)) {

@@ -9,8 +9,8 @@ class OrderController extends HomeController {
 
     // 操作状态
     const STATUS_CANCEL          =   0;      //  状态值，取消
-    const STATUS_NEW             =   1;      //  状态值，新建
-    const STATUS_PAY             =   2;      //  状态值，支付
+    const STATUS_NEW             =   1;      //  状态值，预订未支付
+    const STATUS_PAY             =   2;      //  状态值，预订已支付
     const STATUS_CHECKIN         =   3;      //  状态值，入住
     const STATUS_CLEARED         =   4;      //  状态值，退房(空净)
     const STATUS_CHECKOUT        =   5;      //  状态值，退房(未打扫&锁定)
@@ -623,24 +623,23 @@ class OrderController extends HomeController {
         // status，从1/2变成0
 
         // p($old_data);die;
+        $order_model->startTrans();// 启动事务
 
         // 根据是否付款区分记录日志内容
         if ($old_data['status'] == self::STATUS_NEW) {
+
             $log_type = self::RECEPTIONIST_CANCEL_ORDER;
             $log_type_Arr = array('订单id' => $o_id);
-        }else{
+
+        }elseif($old_data['status'] == self::STATUS_PAY){
 
             $log_type = self::RECEPTIONIST_CANCEL_PAID_ORDER;
             $price = $order_model->where("o_id = $o_id")->getField('price');
             $log_type_Arr = array('订单id' => $o_id, '总价' => "￥".$price, '支付方式' => $old_data['pay_mode']);
 
             // pay_mode = 0，返还现金
-            // pay_mode = 1，支付宝返还
-            // pay_mode = 2，会员卡余额加回去
-            // pay_mode = 3，返还银行卡？现金？
         }
 
-        $order_model->startTrans();// 启动事务
 
         if ($order_model->where("o_id = $o_id")->create($cancel ,2)) {
             echo "create成功<br/>";
@@ -655,6 +654,53 @@ class OrderController extends HomeController {
 
                 // 需要更新d_record_2_stime表中记录
                 if (update_o_sTime($o_id, $cancel['status'])) {
+
+                    if ($old_data['status'] == self::STATUS_PAY) {
+                        // 资金管理是否开启
+                        if (self::MONEY_MANAGEMENT_SWITCH) {
+                            
+                            // 资金流水表capital_flow数据
+                            // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                            $flow['shift'] = get_Oper('shift');// 班次标识
+
+                            $o_stime = M('o_record_2_stime')->where("o_id = $o_id")->find();
+                            $flow['cTime'] = $o_stime['cancel'];
+
+                            $flow['in'] = 0;// 收入
+                            $flow['out'] = $price;// 支出，退房费
+                            $flow['type'] = 1;// 1房费
+
+                            $capitalAdvModel = D("CapitalAdv");
+                            $last_record = $capitalAdvModel->where(array('shift'=>$flow['shift']))->last();
+
+                            // p($last_record);die;
+
+                            $flow['pay_mode'] = 0;// 支付方式，固定为现金退还
+                            if ($flow['pay_mode'] == 0) {
+
+                                // 只计算现金的资金流
+                                $flow['balance'] = $last_record['balance'] + $flow['in'] - $flow['out'];//余额        
+                            }else{
+
+                                $flow['balance'] = $last_record['balance'];
+                            }
+
+                            $room_info = M('o_record_2_room')->where("o_id = $o_id")->find();
+                            $flow['info'] = "房间号：".$room_info['room_ID'];
+
+                            $flow['operator'] = get_Oper("name");// 经办人
+
+                            // p($flow);die;
+                            $capitalModel = M('capital_flow');
+                            if ($capitalModel->add($flow) === false) {// 房费
+
+                                $order_model->rollback();
+                                $this->error('写-房费-资金流量表-失败！');
+                                return;
+                            }
+                            // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+                        }
+                    }
                     
                     $log_Arr = array($this->log_model, $this->log_data, $order_model, $log_type, 'cancel', $log_type_Arr);
                     //                     0                 1                2             3                4                            5
@@ -729,7 +775,7 @@ class OrderController extends HomeController {
             $checkIN['deposit'] = I('post.deposit');// 校验押金。表单input用了number
             
             $operator = json_decode($old_data['operator'],true);
-            $operator['checkIn'] = get_OperName();// 经办人，增加"办理入住"
+            $operator['checkIn'] = get_Oper("name");// 经办人，增加"办理入住"
             $checkIN['operator'] = json_encode($operator, JSON_UNESCAPED_UNICODE);// unicode格式
             // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
             
@@ -789,8 +835,8 @@ class OrderController extends HomeController {
 
                             if ($old_VipData['balance'] < $old_data['price']) {// 余额不够支付
 
-                                $flag = false;
                                 echo "会员卡余额不足，请充值！";
+                                $flag = false;
                                 // $this->error('会员卡余额不足，请充值！');
                                 // return;
                             }
@@ -798,8 +844,8 @@ class OrderController extends HomeController {
                             if ($old_data['price'] == 0 && $old_VipData['first_free'] == 1) {
 
                                 $update_VipData['first_free'] = 0;
-                                $o_stime = M('o_record_2_stime')->where("o_id = $o_id")->find();// 读取入住时间
-                                $update_VipData['first_free_checkIn'] = $o_stime['checkIn'];
+                                $o_stime = M('o_record_2_stime')->where("o_id = $o_id")->find();
+                                $update_VipData['first_free_checkIn'] = $o_stime['checkIn'];// 读取入住时间
                                 if ($vipModel->where($whe)->setField($update_VipData) === false) {
                                     
                                     echo "会员首住失败！";
@@ -818,27 +864,25 @@ class OrderController extends HomeController {
                             // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
                             $record['client_ID'] = $old_VipData['client_ID'];
                             $record['card_ID'] = $old_VipData['card_ID'];
-
-
-                            $stime = M('o_record_2_stime')->where("o_id = $o_id")->find();
-                            $record['cTime'] = $stime['checkIn'];// 办理入住时间
+                            $record['cTime'] = $o_stime['checkIn'];// 办理入住时间
 
                             $new_VipData = $vipModel->where($whe)->find();
                             $record['balance'] = $new_VipData['balance'];// 余额
                             
-
                             $record['style'] = self::VIP_STYLE_4;// 消费
                             $record['amount'] = $old_data['price'];// 金额=订单总价
-                            $record['operator'] = get_OperName();// 经办人
+                            $record['operator'] = get_Oper("name");// 经办人
                             $record['o_id'] = $o_id;// 订单号
 
                             // p($old_VipData);
                             // P($record);
                             // die;
 
-                            $v_record_model = M('vip_record');
-                            while (!$v_record_model->add($record)) {
-                                echo "写-消费-会员卡记录表-失败！";
+                            if (M('vip_record')->add($record) === false) {
+
+                                $order_model->rollback();
+                                $this->error('写-消费-会员卡记录表-失败！');
+                                return;
                             }
                             // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
                         }
@@ -846,6 +890,68 @@ class OrderController extends HomeController {
 
                         if ($flag) {// 会员数据表更新正常
                             
+                            // 资金管理是否开启
+                            if (self::MONEY_MANAGEMENT_SWITCH) {
+                                
+                                // 资金流水表capital_flow数据
+                                // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                                $flow['shift'] = get_Oper('shift');// 班次标识
+
+                                $o_stime = M('o_record_2_stime')->where("o_id = $o_id")->find();
+                                $flow['cTime'] = $o_stime['checkIn'];
+
+                                $flow['in'] = $old_data['price'];// 收入，房费
+                                $flow['out'] = 0;// 支出
+                                $flow['type'] = 1;// 1房费
+
+                                $capitalAdvModel = D("CapitalAdv");
+                                $last_record = $capitalAdvModel->where(array('shift'=>$flow['shift']))->last();
+
+                                // p($last_record);die;
+
+                                $flow['pay_mode'] = $old_data['pay_mode'];// 支付方式
+                                if ($flow['pay_mode'] == 0) {
+
+                                    // 只计算现金的资金流
+                                    $flow['balance'] = $last_record['balance'] + $flow['in'] - $flow['out'];//余额        
+                                }else{
+
+                                    $flow['balance'] = $last_record['balance'];
+                                }
+
+                                $flow['info'] = "房间号：".$room_ID;
+                                $flow['operator'] = get_Oper("name");// 经办人
+
+                                // p($old_data);
+                                // p($flow);die;
+                                $capitalModel = M('capital_flow');
+                                if ($old_data['status'] == self::STATUS_NEW) {// 预订未支付
+                                    
+                                    if ($capitalModel->add($flow) === false) {// 房费
+
+                                        $order_model->rollback();
+                                        $this->error('写-房费-资金流量表-失败！');
+                                        return;
+                                    }
+                                }elseif($old_data['status'] == self::STATUS_PAY){// 预订已支付
+                                    // do nothing
+                                }
+
+                                $flow['in'] = $checkIN['deposit'];// 收入，押金
+                                $flow['type'] = 3;// 3押金
+                                $flow['pay_mode'] = I('post.mode');// 支付方式
+                                $flow['balance'] += $flow['in'] - $flow['out'];//余额
+
+                                // p($flow);die;
+                                if ($capitalModel->add($flow) === false) {// 押金
+
+                                    $order_model->rollback();
+                                    $this->error('写-押金-资金流量表-失败！');
+                                    return;
+                                }
+                                // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+                            }
+
                             $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_IN, 'check_in', array('订单id' => $o_id, '总价' => $old_data['price']));
                             //                     0                 1                2             3                4                            5
                             if (write_log_all_array($log_Arr)) {// 写日志成功，事务提交;失败，事务圆润
@@ -1134,7 +1240,7 @@ class OrderController extends HomeController {
             $checkOut['status'] = self::STATUS_CHECKOUT;
             
             $operator = json_decode($old_data['operator'],true);
-            $operator['checkOut'] = get_OperName();// 经办人，增加"办理入住"
+            $operator['checkOut'] = get_Oper("name");// 经办人，增加"办理入住"
             $checkOut['operator'] = json_encode($operator, JSON_UNESCAPED_UNICODE);// unicode格式
             // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
@@ -1159,6 +1265,52 @@ class OrderController extends HomeController {
 
                     // 需要更新d_record_2_stime表中记录
                     if (update_o_sTime($o_id, $checkOut['status'])) {
+
+                        // 资金管理是否开启
+                        if (self::MONEY_MANAGEMENT_SWITCH) {
+                            
+                            // 资金流水表capital_flow数据
+                            // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                            $flow['shift'] = get_Oper('shift');// 班次标识
+
+                            $o_stime = M('o_record_2_stime')->where("o_id = $o_id")->find();
+                            $flow['cTime'] = $o_stime['checkOut'];
+
+                            $flow['in'] = 0;// 收入
+                            $flow['out'] = I('post.deposit');// 支出，退押
+                            $flow['type'] = 4;// 4退押
+
+                            $capitalAdvModel = D("CapitalAdv");
+                            $last_record = $capitalAdvModel->where(array('shift'=>$flow['shift']))->last();
+
+                            // p($last_record);die;
+
+                            $flow['pay_mode'] = 0;// 支付方式，固定为现金退还押金
+                            if ($flow['pay_mode'] == 0) {
+
+                                // 只计算现金的资金流
+                                $flow['balance'] = $last_record['balance'] + $flow['in'] - $flow['out'];//余额        
+                            }else{
+
+                                $flow['balance'] = $last_record['balance'];
+                            }
+
+                            $room_info = M('o_record_2_room')->where("o_id = $o_id")->find();
+                            $flow['info'] = "房间号：".$room_info['room_ID'];
+                            
+                            $flow['operator'] = get_Oper("name");// 经办人
+
+                            // p($flow);die;
+                            $capitalModel = M('capital_flow');
+                            if ($capitalModel->add($flow) === false) {// 房费
+
+                                $order_model->rollback();
+                                $this->error('写-房费-资金流量表-失败！');
+                                return;
+                            }
+                            // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+                        }
+
                         $log_Arr = array($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_OUT, 'check_out', array('订单id' => $o_id));
                         //                     0                 1                2             3                4                            5
                         // write_log_all($this->log_model, $this->log_data, $order_model, self::RECEPTIONIST_CHECK_OUT, 'check_out', array('房间id' => $o_id));

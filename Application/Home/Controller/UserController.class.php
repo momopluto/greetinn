@@ -27,44 +27,62 @@ class UserController extends Controller{
     			$this->error('验证码不正确！');// , U('Home/User/login')
     			return;
     		}
-    		
-    		$one = is_IDCard_exists(I('post.user'), 'member');
 
-            // p($one);die;
-    		
-			// 密码通过验证，则检查是否存在该成员，且职位position为前台
-			if ($one && $one['position'] == self::OPER_CATE_RECEPTIONIST) {
+            $rst = validate_login(I('post.'));// 验证前台登录
 
-                switch ($one['on_job']) {
-                    case 0:
-                        $this->error('该成员已离职！');// , U('Home/User/login')
-                        break;
-                    case 2:
-                        $this->error('该成员休假中！');
-                        break;
-                    case 1:
-                        $info['oper_ID'] = $one['member_ID'];
-                        $info['oper_CATE'] = self::OPER_CATE_RECEPTIONIST;
-                        $info['oper_NAME'] = $one['name'];
-                        // 通过验证，合法，写session
-                        session('H_USER_V_INFO', $info);
-                        session('H_LOGIN_FLAG', true);
+            if ($rst['errcode'] == 0) {
+                $one = is_IDCard_exists(I('post.user'), 'member');
 
-                        $Home = A('home'); 
-                        $Home->login_log();// 调用Home/Controller/login_log方法
-                        
-                        $this->success('登录成功！', U('Home/Index/index'));
-                        break;
-                    default:
-                        break;
+                $last = get_lastShift_record();// 得到最后一条交班记录
+                if (!$last) {// 如果没有交班记录，说明为新表
+                    // init capital_flow
+                    
+                    // 资金流水表capital_flow数据
+                    // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                    $flow['cTime'] = getDatetime();
+                    $flow['shift'] = strtotime($flow['cTime']);// 班次标识
+                    $flow['in'] = 0;// 收入
+                    $flow['out'] = 0;// 支出
+                    $flow['type'] = 0;// 0交班
+                    $flow['pay_mode'] = 0;// 支付方式，交班固定为现金
+                    $flow['balance'] = 0;// 初始为0
+                    $flow['info'] = "[初始资金记录]";
+                    $flow['operator'] = $one['name'];// 接班人
+
+                    // p($flow);die;
+
+                    $capital_model = M('capital_flow');
+                    if ($capital_model->add($flow) === false) {
+
+                        $this->error('写-初始记录-资金流量表-失败！');
+                        return;
+                    }else{
+
+                        $last['shift'] = $flow['shift'];
+                    }
+                    // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
                 }
+                if (strcmp($last['operator'], $one['name']) != 0) {
+                    
+                    $this->error("最后操作者: [ " . $last['operator'] . " ]未进行交班操作！<br/>请该操作者登录后进行交班操作！",'',5);
+                    return;
+                }
+                $info['shift'] = $last['shift'];
+                $info['oper_ID'] = $one['member_ID'];
+                $info['oper_CATE'] = self::OPER_CATE_RECEPTIONIST;
+                $info['oper_NAME'] = $one['name'];
+                // 通过验证，合法，写session
+                session('H_USER_V_INFO', $info);
+                session('H_LOGIN_FLAG', true);
 
-                return;
-				
-			}else{
+                $Home = A('home'); 
+                $Home->login_log();// 调用Home/Controller/login_log方法
 
-				$this->error('账号或密码不正确！', U('Home/User/login'));
-			}
+                $this->success('登录成功！', U('Home/Index/index'));
+            }else {
+
+                $this->error($rst['errmsg']);
+            }
     		
     	}else{
 

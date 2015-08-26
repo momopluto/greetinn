@@ -10,7 +10,25 @@ use Think\Controller;
 class HomeController extends Controller {
 
     // 资金管理开关
-    const MONEY_MANAGEMENT_SWITCH = 0;// O关闭，1开启
+    const MONEY_MANAGEMENT_SWITCH = 1;// O关闭，1开启
+    /*
+    后台可以管理分类
+    分类：
+        0交班(平时不可见，只有交班时再会使用到此分类)
+        1房费
+        2租金
+        3押金
+        4退押
+        5商品售卖
+        6会员卡办理
+        7会员卡充值
+    详情：
+        交班：应有余额xx，实际金额xx，差额xx
+        房费、租金、押金、退押：房间号
+        商品售卖：售卖物品列表。
+        会员卡办理、会员卡充值：会员卡号
+
+     */
 
     // "高级"特殊价，验证密码
     const SPEC_PWD = "663ab0c7fac6285832519dc1a3b8c0a6";
@@ -94,7 +112,7 @@ class HomeController extends Controller {
     }
 
     /**
-     * 写登录日志
+     * [登录时有使用]写登录日志
      */
     function login_log(){
     	

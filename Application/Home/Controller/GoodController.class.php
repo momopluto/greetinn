@@ -62,6 +62,7 @@ class GoodController extends HomeController{
 		$_i = 0;
 		$total = 0;// 总价
 		$now = getDatetime();
+		$info_Str = '';
 		for ($i=0; $i < count($post['id']); $i++) {
 			if ($post['quantity'][$i] > 0) {
 
@@ -74,10 +75,19 @@ class GoodController extends HomeController{
 
 				$data[$_i]['total'] = $good[$post['id'][$i]]['price'] * $post['quantity'][$i];
 				$total += $data[$_i]['total'];
+				if ($_i == 0) {
+					
+					$info_Str .= $good[$data[$_i]['good_ID']]['name'] . " x " . $data[$_i]['quantity'];
+				}else {
+
+					$info_Str .= '<br/>'.$good[$data[$_i]['good_ID']]['name'] . " x " . $data[$_i]['quantity'];
+				}
 				$_i++;
 			}
 		}
 
+		// echo $info_Str;
+		// p($good);
 		// p($data);
 		// die;
 
@@ -87,9 +97,42 @@ class GoodController extends HomeController{
 
 		if ($good_model->addAll($data)) {
 
-			// 资金管理开启
+			// 资金管理是否开启
 			if (self::MONEY_MANAGEMENT_SWITCH) {
-				
+				// 资金流水表capital_flow数据
+				// ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+				$flow['shift'] = get_Oper('shift');// 班次标识
+				$flow['cTime'] = $now;
+				$flow['in'] = $total;// 收入，房费
+				$flow['out'] = 0;// 支出
+				$flow['type'] = 5;// 5商品售卖
+
+				$capitalAdvModel = D("CapitalAdv");
+				$last_record = $capitalAdvModel->where(array('shift'=>$flow['shift']))->last();
+				// p($last_record);die;
+
+				$flow['pay_mode'] = I('post.mode');// 支付方式
+				if ($flow['pay_mode'] == 0) {
+
+					// 只计算现金的资金流
+					$flow['balance'] = $last_record['balance'] + $flow['in'] - $flow['out'];//余额        
+				}else{
+
+					$flow['balance'] = $last_record['balance'];
+				}
+
+				$flow['info'] = $info_Str;
+				$flow['operator'] = get_Oper("name");// 经办人
+
+				// p($flow);die;
+
+				if (M('capital_flow')->add($flow) === false) {
+
+				    $order_model->rollback();
+				    $this->error('写-房费-资金流量表-失败！');
+				    return;
+				}
+				// ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 			}
 
 			// 日志信息
@@ -113,7 +156,7 @@ class GoodController extends HomeController{
 
 		$model = D('GoodView');
 
-		$map['guid'] = "626981371438224777";
+		// $map['guid'] = "626981371438224777";
 		$temp = $model->order('cTime desc')->select();
 
 		foreach ($temp as $key => $value) {

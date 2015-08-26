@@ -1,0 +1,323 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>资金流量管理</title>
+</head>
+<body>
+	<include file= "./home"/>
+	<script type="text/javascript" src="{$SRC}/scripts/bootstrap.min.js"></script>
+<div id="right-show">
+	
+	<a href="#foot" id="head">跳到最后</a>
+
+	<p>资金流量管理</p>
+
+	<p style="font-family:verdana;font-size:200%;">接班金额: <span>{:get_lastShift_record()['balance']}</span>元</p>
+	<table class="table table-striped table-bordered table-hover">
+	   <thead>
+	     <tr>
+	       <th>时间</th>
+	       <th>收入</th>
+	       <th>支出</th>
+	       <th>分类</th>
+	       <th>余额</th>
+	       <th>详情</th>
+	       <th>支付方式</th>
+	       <th>经办人</th>
+	     </tr>
+	   </thead>
+	   <tbody>
+	   	<foreach name="data" item="one" >
+	     <tr>
+	       <td capitalID="{$one['id']}" style="width:180px">{$one['cTime']}</td>
+	       <td>{$one['in']}</td>
+	       <td>{$one['out']}</td>
+	       <td style="width:120px">{$one['type_name']}</td>
+	       <td>
+	       	<?php $shouldHave_balance = $one['balance'];?>
+	       	{$one['balance']}
+	       </td>
+	       <td>{$one['info']}</td>
+	       <td style="width:120px">
+	       	<?php
+	       		$mode = '';
+	       		switch ($one['pay_mode']) {
+	       			case 0:
+	       				$mode = "现金支付";
+	       				break;
+	       			case 1:
+	       				$mode = "支付宝支付";
+	       				break;
+	       			case 2:
+	       				$mode = "会员卡支付";
+	       				break;
+	       			case 3:
+	       				$mode = "刷卡支付";
+	       				break;
+	       			default:
+	       				break;
+	       		}
+	       		echo $mode;
+	       	?>
+	       </td>
+	       <td>{$one['operator']}</td>
+	     </tr>
+	   	</foreach>
+	   	<form action="{:U('Home/Capital/add')}" method="post">
+	     <tr>
+	     	<td>-</td>
+	     	<td>
+	     		<input class="form-control" type="number" min="0" name="in" placeholder="收入" style="width:80px" required>
+	     	</td>
+	     	<td>
+	     		<input class="form-control" type="number" min="0" name="out" placeholder="支出" style="width:80px" required>
+	     	</td>
+	     	<td>
+ 			  <select name="type" class="form-control" style="width:120px">
+ 		  		<foreach name="types" item="one" key="k" >
+ 		  			<option value ="{$k}">{$one}</option>
+ 		  		</foreach>
+     		   </select>
+	     	</td>
+	     	<td>-</td>
+	     	<td>
+	     		<textarea class="form-control" name="info" placeholder="详情" style="height:34px" required></textarea>
+	     	</td>
+	     	<td>
+	     		<select name="mode" class="form-control" style="width:120px;"  title="押金支付方式">
+	     		  <option value ="0">现金支付</option>
+	     		  <option value ="1">支付宝支付</option>
+	     		  <!-- <option value ="2">会员卡支付</option> -->
+	     		  <option value ="3">刷卡支付</option>
+	     		</select>
+	     	</td>
+	     	<td>
+	     		<!-- [{:get_Oper('name')}]<br/> -->
+	     		<button class="btn btn-primary">添加</button>
+	     	</td>
+	     </tr>
+	   	</form>
+	   </tbody>
+	</table>
+	<a class="btn btn-warning shiftExchange center-block" data-toggle="modal" data-target="#shift-modal" style="width:80px">交班</a>
+	<a href="#head" id="foot">跳到开头</a>
+
+	<!-- 前台交班-模态弹出窗 -->
+	<div class="modal fade" id="shift-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title">前台交班</h4>
+				</div>
+
+				<div class="modal-body">
+				  <form class="form-horizontal" action="#" method="post">
+			  		<div class="form-group">
+			  		    <label for="" class="col-sm-2 control-label">值班人员</label>
+			  		    <div class="col-sm-10">
+			  		      <input type="text" name="prev_oper" value="{:get_Oper('name')}" class="form-control" style="width:124px" readonly>
+			  		    </div>
+			  	    </div>
+			  	    <div class="form-group">
+			  		    <label for="" class="col-sm-2 control-label">应有余额</label>
+		  		        <label class="sr-only" for="">Amount (in RMB)</label>
+		  		        <div class="input-group">
+		  		          <div class="input-group-addon">￥</div>
+			  		      <input type="number" name="shouldHave_balance" value="{$shouldHave_balance}" class="form-control" style="width:100px" readonly>
+			  		    </div>
+			  	    </div>
+			  	    <div class="form-group">
+			  	    	<label for="" class="col-sm-2 control-label">实际余额</label>
+		  		        <label class="sr-only" for="">Amount (in RMB)</label>
+		  		        <div class="input-group">
+		  		          <div class="input-group-addon">￥</div>
+		  		          <input type="number" id="actual_bal" name="actual_balance" placeholder="请输入" min="0" class="form-control" style="width:100px" required>
+		  		        </div>
+		  		    </div>
+				  </form>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" id="cmp_balance">确认</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 接班者登录验证-模态弹出窗 -->
+	<div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel2" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title">接班者登录</h4>
+				</div>
+
+				<div class="modal-body">
+				  <form id="shift-form" class="form-horizontal" method="post">
+				  	<div class="form-group">
+				  	    <label for="" class="col-sm-2 control-label">账号</label>
+				  	    <div class="col-sm-10">
+				  	      <input type="text" class="form-control" id="" name="user" style="width:200px">
+				  	    </div>
+				      </div>
+				      <div class="form-group">
+				  	    <label for="" class="col-sm-2 control-label">密码</label>
+				  	    <div class="col-sm-10">
+				  	      <input type="password" class="form-control" id="" name="pwd" style="width:200px">
+				  	    </div>
+				      </div>
+				      
+				      <div class="form-group has-feedback">
+				        <div class="col-sm-offset-2 col-sm-10">
+
+			          	  <div class="input-group has-feedback">
+				            <button type="button" class="btn btn-default" onclick="verifyShifter()">验证交班者</button>
+				            <span id="verifyShifter-status" class="glyphicon form-control-feedback" aria-hidden="true"></span>
+						    <span class="text-danger" id="verify_tips"></span>
+				          </div>
+
+			          	</div>
+				      </div>
+				  </form>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">终止交班</button>
+					<button type="button" class="btn btn-primary" id="do_shift">确认交班</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+  <script language="JavaScript">
+
+		var homeShift_url = "{:U('Home/Capital/shift')}";
+		var checkShifter_url = "{:U('Home/Capital/checkShifter')}";
+
+		var prev_oper = "{:get_Oper('name')}";// 前，交班者
+		var next_oper;// 下一个，接班者
+		var shouldHave_balance = {$shouldHave_balance};// 应有余额
+		var actual_balance;// 实际余额
+		var balance;// 差额
+
+		// ----------------------------以下代码作用：交班
+	$(function() {
+
+		/* 交班模态框 */
+	    $('.shiftExchange').on('click', function() {
+
+	        $("#shift-modal").modal("toggle");
+	        
+	        // $("#actual_bal").focus();/* 初始页面焦点 */
+	    })
+
+	    /* 计算差额 */
+	    $('#cmp_balance').on('click', function() {
+			
+			actual_balance = parseFloat($("#actual_bal").val());
+			balance = actual_balance - shouldHave_balance;
+
+			var info = '';
+			if (balance == 0) {
+
+				info = "#余额正确#\n\n\n现有余额: "+actual_balance.toFixed(1);
+			}else {
+
+				info = "#余额有误#\n\n\n应有余额: "+shouldHave_balance.toFixed(1)+"\n实际余额: "+actual_balance.toFixed(1);
+
+				if (balance < 0) {
+					info += "\n短款: "+balance.toFixed(1);
+				}else{
+					info += "\n长款: +"+balance.toFixed(1);
+				}
+			}
+
+			info += "\n\n\n点击\"确定\"，登录接班者账号，确认交班";
+			info += "\n点击\"取消\"，重新输入实际余额";
+
+			if (confirm(info)){
+				$("#shift-modal").modal("toggle");
+				// alert("登录窗口");
+				$("#login-modal").modal("toggle");
+			}
+	    });
+
+	    /* 提交信息，进行交班 */
+	    $("#do_shift").on('click', function() {
+
+	    	/*get传数据*/
+	    	var path = homeShift_url+"?prev_oper="+prev_oper+"&shouldHave_balance="+shouldHave_balance+"&actual_balance="+actual_balance;
+	    	
+	    	$("#shift-form").attr("action", path).submit();
+	    });
+	})
+
+	/* 验证交班者 */
+	function verifyShifter(){
+
+		$.ajax({
+	    	url: checkShifter_url,
+	    	type: 'post',
+	    	data: {user: $("input[name=user]").val()},
+	    	dataType: 'json',
+	    	success: function(data) {
+
+	    		// console.log(data);
+
+    			var msg = '';
+	    		if (data['errcode'] == 0) {
+	    			showSuccessStatus();
+	    			msg = data['errmsg'] + ", 接班者: "+data['next_oper'];
+	    		}else {
+	    			showErrorStatus();
+	    			msg = data['errmsg'];
+	    		}
+
+    			$("#verify_tips").text(msg);/*提示信息*/
+	    	}
+	    });
+	}
+
+	/* 验证成功后的外观提示 */
+	function showSuccessStatus(){
+
+		var V_STATUS = $("#verifyShifter-status");
+		V_STATUS.removeClass('glyphicon-remove');/*去掉 错误图标*/
+		V_STATUS.parent().removeClass('has-error');/*去掉 错误红色*/
+
+		V_STATUS.addClass('glyphicon-ok');/*加上 成功图标*/
+		V_STATUS.parent().addClass('has-success');/*加上 成功绿色*/
+
+		var VERIFY_TIPS = $("#verify_tips");
+		VERIFY_TIPS.removeClass('text-danger');
+		VERIFY_TIPS.addClass('text-success');
+	}
+
+	/* 验证失败后的外观提示 */
+	function showErrorStatus(){
+
+		var V_STATUS = $("#verifyShifter-status");
+		V_STATUS.removeClass('glyphicon-ok');/*去掉 成功图标*/
+		V_STATUS.parent().removeClass('has-success');/*去掉 成功绿色*/
+
+		V_STATUS.addClass('glyphicon-remove');/*加上 错误图标*/
+		V_STATUS.parent().addClass('has-error');/*加上 错误红色*/
+
+		var VERIFY_TIPS = $("#verify_tips");
+		VERIFY_TIPS.removeClass('text-success');
+		VERIFY_TIPS.addClass('text-danger');
+	}
+
+	function changeVerify(){
+		var timenow = new Date().getTime();
+		document.getElementById('verifyImg').src='__URL__/verify/'+timenow;
+	}
+  </script>
+
+</div>
+</body>
+</html>

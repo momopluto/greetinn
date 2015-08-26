@@ -172,6 +172,11 @@ class ClientController extends HomeController {
             // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
             if ($temp['room'] != -1) {
                 $new_order_2_room['room_ID'] = $temp['room'];
+            }else {
+                if ($temp['paid'] == 1) {
+                    $this->error('已支付订单，必须预分配房间！');
+                    return;
+                }
             }
             $new_order_2_room['A_date'] = $temp['aDay'];
             $new_order_2_room['B_date'] = $temp['bDay'];
@@ -237,7 +242,7 @@ class ClientController extends HomeController {
                 $new_order['status'] = 2;// 已支付状态
             }
 
-            $operator['new'] = get_OperName();// 经办人
+            $operator['new'] = get_Oper("name");// 经办人
             $new_order['operator'] = json_encode($operator, JSON_UNESCAPED_UNICODE);// unicode格式
 
             // p($info);
@@ -269,6 +274,49 @@ class ClientController extends HomeController {
                     $STPSaPR = $new_order['style']."-".$new_order['type'].".".$new_order['price'].".".$new_order['source']."-.".$new_order['a_id'].".-".$new_order['pay_mode']."-".$new_order_2_room['room_ID']."-";
                     if ($new_order['status'] == 2) {
                         $STPSaPR .= "已支付";
+
+                        // 资金管理是否开启
+                        if (self::MONEY_MANAGEMENT_SWITCH) {
+                            
+                            // 资金流水表capital_flow数据
+                            // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+                            $flow['shift'] = get_Oper('shift');// 班次标识
+
+                            $o_stime = M('o_record_2_stime')->where("o_id = $o_id")->find();
+                            $flow['cTime'] = $o_stime['pay'];// 支付时间
+
+                            $flow['in'] = $new_order['price'];// 收入，房费
+                            $flow['out'] = 0;// 支出
+                            $flow['type'] = 1;// 1房费
+
+                            $capitalAdvModel = D("CapitalAdv");
+                            $last_record = $capitalAdvModel->where(array('shift'=>$flow['shift']))->last();
+
+                            // p($last_record);die;
+
+                            $flow['pay_mode'] = $temp['mode'];// 支付方式
+                            if ($flow['pay_mode'] == 0) {
+
+                                // 只计算现金的资金流
+                                $flow['balance'] = $last_record['balance'] + $flow['in'] - $flow['out'];//余额        
+                            }else{
+
+                                $flow['balance'] = $last_record['balance'];
+                            }       
+
+                            $flow['info'] = "房间号：".$new_order_2_room['room_ID'];
+                            $flow['operator'] = get_Oper("name");// 经办人
+
+                            // p($flow);die;
+
+                            if (M('capital_flow')->add($flow) === false) {
+
+                                $order_model->rollback();
+                                $this->error('写-房费-资金流量表-失败！');
+                                return;
+                            }
+                            // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+                        }
                     }else{
                         $STPSaPR .= "未付款";
                     }
@@ -525,7 +573,7 @@ class ClientController extends HomeController {
                 $new_order['status'] = 2;// 已支付状态
             }
 
-            $operator['new'] = get_OperName();// 经办人
+            $operator['new'] = get_Oper("name");// 经办人
             $new_order['operator'] = json_encode($operator, JSON_UNESCAPED_UNICODE);// unicode格式
 
             // p($info);
@@ -1091,7 +1139,7 @@ class ClientController extends HomeController {
                 $new_order['status'] = 2;// 已支付状态
             }
 
-            $operator['new'] = get_OperName();// 经办人
+            $operator['new'] = get_Oper("name");// 经办人
             $new_order['operator'] = json_encode($operator, JSON_UNESCAPED_UNICODE);// unicode格式
 
             // p($info);
