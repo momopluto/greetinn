@@ -14,7 +14,7 @@
 	<p>资金流量管理</p>
 
 	<p style="font-family:verdana;font-size:200%;">接班金额: <span>{:get_lastShift_record()['balance']}</span>元</p>
-	<table class="table table-striped table-bordered table-hover">
+	<table class="table table-bordered table-hover">
 	   <thead>
 	     <tr>
 	       <th>时间</th>
@@ -29,7 +29,31 @@
 	   </thead>
 	   <tbody>
 	   	<foreach name="data" item="one" >
-	     <tr>
+	     <tr <?php
+	       		$pay_class = 'class=';
+	       		$mode = '';
+	       		switch ($one['pay_mode']) {
+	       			case 0:
+	       				$pay_class .= 'cash-pay';
+	       				$mode = "现金支付";
+	       				break;
+	       			case 1:
+	       				$pay_class .= 'zhifubao-pay'.' style="background:#f0ad4e;"';
+	       				$mode = "支付宝支付";
+	       				break;
+	       			case 2:
+	       				$pay_class .= 'vip-pay'.' style="background:#5bc0de;"';
+	       				$mode = "会员卡支付";
+	       				break;
+	       			case 3:
+	       				$pay_class .= 'cash-pay'.' style="background:#428bca;"';
+	       				$mode = "刷卡支付";
+	       				break;
+	       			default:
+	       				break;
+	       		}
+	       		echo $pay_class;
+	       	?>>
 	       <td capitalID="{$one['id']}" style="width:180px">{$one['cTime']}</td>
 	       <td>{$one['in']}</td>
 	       <td>{$one['out']}</td>
@@ -39,28 +63,7 @@
 	       	{$one['balance']}
 	       </td>
 	       <td>{$one['info']}</td>
-	       <td style="width:120px">
-	       	<?php
-	       		$mode = '';
-	       		switch ($one['pay_mode']) {
-	       			case 0:
-	       				$mode = "现金支付";
-	       				break;
-	       			case 1:
-	       				$mode = "支付宝支付";
-	       				break;
-	       			case 2:
-	       				$mode = "会员卡支付";
-	       				break;
-	       			case 3:
-	       				$mode = "刷卡支付";
-	       				break;
-	       			default:
-	       				break;
-	       		}
-	       		echo $mode;
-	       	?>
-	       </td>
+	       <td style="width:120px">{$mode}</td>
 	       <td>{$one['operator']}</td>
 	     </tr>
 	   	</foreach>
