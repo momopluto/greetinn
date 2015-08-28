@@ -841,10 +841,10 @@ class OrderController extends HomeController {
                                 // return;
                             }
 
+                            $o_stime = M('o_record_2_stime')->where("o_id = $o_id")->find();
                             if ($old_data['price'] == 0 && $old_VipData['first_free'] == 1) {
 
                                 $update_VipData['first_free'] = 0;
-                                $o_stime = M('o_record_2_stime')->where("o_id = $o_id")->find();
                                 $update_VipData['first_free_checkIn'] = $o_stime['checkIn'];// 读取入住时间
                                 if ($vipModel->where($whe)->setField($update_VipData) === false) {
                                     
