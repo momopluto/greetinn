@@ -174,6 +174,9 @@
     	    			case 'new':
     	    				echo "<p>下单:".$name."</p>";
     	    				break;
+    	    			case 'edit':
+    	    				echo "<p>编辑:".$name."</p>";
+    	    				break;
     	    			case 'checkIn':
     	    				echo "<p>办理入住:".$name."</p>";
     	    				break;
@@ -205,13 +208,16 @@
 	 				    	<?php
 	 				    }
 	 	    		?>
-	 	    		<a class="btn btn-default center-block disabled" href="{:U('Home/Order/edit')}?id={$one['o_id']}">编辑<!-- 当前页面弹出框进行修改 --></a>
+	 	    		<a class="btn btn-default center-block" href="{:U('Home/Order/edit')}?id={$one['o_id']}">编辑<!-- 当前页面弹出框进行修改 --></a>
 	 	    		<a class="btn btn-danger center-block" href="{:U('Home/Order/cancel')}?id={$one['o_id']}">取消</a>
 	 	    		<?php
 	 	    		break;
 	 	    	case 3:
 	 	    		?>
-	 	    		<a class="btn btn-info center-block disabled" href="{:U('Home/Order/stay_over')}?id={$one['o_id']}">续住</a>
+	 	    		<if condition="$one['style'] != 1">
+	 	    		    <a class="btn btn-info center-block" href="{:U('Home/Order/stay_over')}?id={$one['o_id']}">续住</a>
+	 	    		</if>
+	 	    		
 	 	    		<a class="btn btn-warning center-block" href="{:U('Home/Order/change_room')}?id={$one['o_id']}">换房</a>
 	 	    		<a class="btn btn-primary center-block disabled" target="_blank" href="{:U('Home/Rent/lists')}?id={$one['o_id']}">租用物品</a>
 	 	    		<a class="btn btn-danger center-block" href="{:U('Home/Order/check_out')}?id={$one['o_id']}">退房</a>
