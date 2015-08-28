@@ -136,13 +136,13 @@ class ClientController extends HomeController {
                 }
 
                 // $new_order['pay_mode'] = 2;
-                $new_order['status'] = 1;
+                // $new_order['status'] = 1;
                 $leave_time = self::OUT_TIME_2;// 会员离店时间
             }
             
             // style
             // ID身份证,aDay,bDay,type,price,(room),(agent),(verifyPwd),source,mode,note,info[],phone[]
-            // 公共的：ID,aDay,bDay,type,price,room,source,mode,note,info[],[hone[]
+            // 公共的：ID,aDay,bDay,type,price,room,source,mode,note,info[],phone[]
             // 特殊的：agent代理价时才有, verifyPwd高级时才有
 
             if (!($client = is_IDCard_exists($temp['ID'], 'client'))) {
@@ -240,6 +240,8 @@ class ClientController extends HomeController {
             $new_order['phone'] = $temp['phone'][0];// 联系手机
             if ($temp['paid'] == 1) {
                 $new_order['status'] = 2;// 已支付状态
+            }elseif ($temp['paid'] == 0){
+                $new_order['status'] = 1;// 未支付状态
             }
 
             $operator['new'] = get_Oper("name");// 经办人
@@ -366,10 +368,10 @@ class ClientController extends HomeController {
             $typeStr = M('style_type')->where("style = %d", $style)->getField('map_types');// 符合的房型字符串
             $map['type'] = array('in', $typeStr);
 
-            $types = M('type')->where($map)->getField('type,name');// 普通入住可选的房型
+            $types = M('type')->where($map)->getField('type,name');// style入住可选的房型
             $this->assign('types', $types);
 
-            $prices = M($style.'_price')->find(0);// 普通入住，标单价钱
+            $prices = M($style.'_price')->find(0);// style入住，标单价钱
             $this->assign('prices', $prices);
             
             if ($style != self::STYLE_2) {/*非团购*/
@@ -1298,8 +1300,8 @@ class ClientController extends HomeController {
         // $limit['type'] = 0;
         // $limit['A_date'] = "2015-03-05";
         // $limit['B_date'] = "2015-03-06";
-        if (I('post.id')) {
-            $row = M('o_record_2_room')->find(I('post.id'));
+        if ($o_id = I('post.o_id')) {
+            $row = M('o_record_2_room')->find($o_id);
             $data['rooms'] = get_available_rooms($limit, $row['room_ID']);
         }else {
 

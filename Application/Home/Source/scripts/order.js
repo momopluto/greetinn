@@ -230,14 +230,15 @@ function loadRooms(){
 			return;
 		}
 
-		/*if (typeof o_id == "undefined") {
+		if (typeof o_id == "undefined") {
 			o_id = '';
-		}*/
+		}
+		// console.log(o_id);
 
 		$.ajax({
         	url: getRoom_url,
         	type: 'post',
-        	data: {type: type, aDay: aDay, bDay: bDay/*, id: o_id*/},
+        	data: {type: type, aDay: aDay, bDay: bDay, o_id: o_id},
         	dataType: 'json',
         	success: function(data) {
 
@@ -398,7 +399,7 @@ function setWhen_vipmode(){
 	$("#VIP_mode").removeAttr('disabled');/*会员卡支付 去掉disabled*/
 	$("input[name=mode]").get(2).checked=true;/*选中 会员卡支付*/
 	$("#mode").attr('hidden','');/*隐藏 支付方式*/
-	$(".paid").attr('hidden','');/*隐藏 付款状态*/
+	$("#paid").attr('hidden','');/*隐藏 付款状态*/
 }
 
 /* 非会员卡支付，相关设置 */
@@ -406,7 +407,7 @@ function setWhen_not_vipmode(){
 	$("#VIP_mode").attr('disabled','');/*会员卡支付 加上disabled*/
 	$("input[name=mode]").get(2).checked=false;/*去除选中 会员卡支付*/
 	$("#mode").removeAttr('hidden');/*显示 支付方式*/
-	$(".paid").removeAttr('hidden');/*显示 付款状态*/
+	$("#paid").removeAttr('hidden');/*显示 付款状态*/
 }
 
 /* 展示代理人信息 */
@@ -436,12 +437,19 @@ function calTotalPrice(){
 		var time2 = new Date($("#bDay").val()); 
 
 		/* 
-		*如果求的时间差为天数则处以864000000，如果是小时数则在这个数字上 
+		*如果求的时间差为天数则除以864000000，如果是小时数则在这个数字上 
 		*除以24，分钟数则再除以60，依此类推 
-		*/  
-		var days = Math.abs(time2.getTime() - time1.getTime()) / 86400000;
-		// alert(days);
-		total = parseInt($("#vip").val()) * days;
+		*/
+		var time_diff = Math.abs(time2.getTime() - time1.getTime());
+		var nums;
+		if (time_diff >= 86400000) {/*非钟点房*/
+			nums = time_diff / 86400000;
+			total = parseInt($("#vip").val()) * nums;
+		}else{/*钟点房*/
+			nums = time_diff / (86400000 / 24);/*计算小时*/
+			total = parseInt($("#vip").val()) * (nums / 3);/*每3小时为1份*/
+		}
+		// alert(nums);
 	}else{
 		total = 0;
 	}

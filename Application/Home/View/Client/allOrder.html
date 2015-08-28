@@ -131,50 +131,6 @@ case 0:
 		      </div>
 	        </div>
 	    </div>
-	    <div class="form-group">
-	        <label for="" class="col-sm-2 control-label">选房</label>
-	        <div class="col-sm-10 form-inline">
-	    	  <select class="form-control" id="room" name="room" style="width:120px">
-	    		<option value ="-1">预分配房间</option>
-	    	  </select>
-	    	  <button type="button" class="btn btn-info btn-sm" onclick="loadRooms()">刷新</button>
-	    	</div>
-	    </div>
-	    <div class="form-group">
-	    	<label for="" class="col-sm-2 control-label">订单来源</label>
-		    <div class="col-sm-10">
-              <fieldset id="source">
-              	<?php $_i = 0;?>
-              	<foreach name="sources" item="name" key="source" >
-              		<label class="radio-inline">
-              			<input type="radio" name="source" value="{$source}" <?php if ($_i == 0) {
-                			echo "checked";
-                			$_i++;
-                		} ?>>{$name}
-                	</label>
-              	</foreach>
-              </fieldset>
-	        </div>
-	    </div>
-	    <div class="form-group">
-	    	<label for="" class="col-sm-2 control-label">支付方式</label>
-		    <div class="col-sm-10">
-		      <fieldset id="mode">
-		      	<label class="radio-inline">
-		      		<input type="radio" name="mode" value="0" checked="">现金支付
-		      	</label>
-		      	<label class="radio-inline">
-		      		<input type="radio" name="mode" value="1">支付宝支付
-		      	</label>
-		      	<label class="radio-inline">
-		      		<input type="radio" id="VIP_mode" name="mode" value="2" disabled>会员卡支付
-		      	</label>
-		      	<label class="radio-inline">
-		      		<input type="radio" name="mode" value="3" required>刷卡支付
-		      	</label>
-		      </fieldset>
-	        </div>
-	    </div>
 	<?php
 	break;
 case 1:
@@ -213,15 +169,6 @@ case 1:
 		      <span class="text-warning radio-inline" id="VIP_tips"></span>
 	        </div>
 	    </div>
-	    <div class="form-group">
-	        <label for="" class="col-sm-2 control-label">选房</label>
-	        <div class="col-sm-10 form-inline">
-	    	  <select class="form-control" id="room" name="room" style="width:120px">
-	    		<option value ="-1">预分配房间</option>
-	    	  </select>
-	    	  <button type="button" class="btn btn-info btn-sm" onclick="loadRooms()">刷新</button>
-	    	</div>
-	    </div>
 
 		<div class="form-group">
 	        <label for="" class="col-sm-2 control-label">份数</label>
@@ -243,42 +190,6 @@ case 1:
 			<input id="aDay" type="text" name="aDay" value="<?php echo date('Y-m-d H:i',NOW_TIME);?>" hidden/>
 			<input id="bDay" type="text" name="bDay" value="{$leave}" hidden/>
 	    </div>
-
-		<div class="form-group">
-	    	<label for="" class="col-sm-2 control-label">订单来源</label>
-		    <div class="col-sm-10">
-              <fieldset id="source">
-              	<?php $_i = 0;?>
-              	<foreach name="sources" item="name" key="source" >
-              		<label class="radio-inline">
-              			<input type="radio" name="source" value="{$source}" <?php if ($_i == 0) {
-                			echo "checked";
-                			$_i++;
-                		} ?>>{$name}
-                	</label>
-              	</foreach>
-              </fieldset>
-	        </div>
-	    </div>
-	    <div class="form-group">
-	    	<label for="" class="col-sm-2 control-label">支付方式</label>
-		    <div class="col-sm-10">
-		      <fieldset id="mode">
-		      	<label class="radio-inline">
-		      		<input type="radio" name="mode" value="0" checked="">现金支付
-		      	</label>
-		      	<label class="radio-inline">
-		      		<input type="radio" name="mode" value="1">支付宝支付
-		      	</label>
-		      	<label class="radio-inline">
-		      		<input type="radio" id="VIP_mode" name="mode" value="2" disabled>会员卡支付
-		      	</label>
-		      	<label class="radio-inline">
-		      		<input type="radio" name="mode" value="3" required>刷卡支付
-		      	</label>
-		      </fieldset>
-	        </div>
-        </div>
 	<?php
 	break;
 case 2:
@@ -316,47 +227,6 @@ case 2:
 		      <label class="radio-inline">
 		      	<input class="price" id="groupon"   type="radio" name="price" value="{$prices['groupon_price']}" onclick="showInfo()" checked="">团购价￥<span>{$prices['groupon_price']}</span>
 		      </label>
-	        </div>
-        </div>
-		<div class="form-group">
-	        <label for="" class="col-sm-2 control-label">选房</label>
-	        <div class="col-sm-10 form-inline">
-	    	  <select class="form-control" id="room" name="room" style="width:120px">
-	    		<option value ="-1">预分配房间</option>
-	    	  </select>
-	    	  <button type="button" class="btn btn-info btn-sm" onclick="loadRooms()">刷新</button>
-	    	</div>
-	    </div>
-	    <div class="form-group">
-	    	<label for="" class="col-sm-2 control-label">订单来源</label>
-		    <div class="col-sm-10">
-              <fieldset id="source">
-              	<?php $_i = 0;?>
-              	<foreach name="sources" item="name" key="source" >
-              		<label class="radio-inline">
-              			<input type="radio" name="source" value="{$source}" <?php if ($_i == 0) {
-                			echo "checked";
-                			$_i++;
-                		} ?>>{$name}
-                	</label>
-              	</foreach>
-              </fieldset>
-	        </div>
-	    </div>
-	    <div class="form-group">
-	    	<label for="" class="col-sm-2 control-label">支付方式</label>
-		    <div class="col-sm-10">
-		      <fieldset id="mode">
-		      	<label class="radio-inline">
-		      		<input type="radio" name="mode" value="0" checked="">现金支付
-		      	</label>
-		      	<label class="radio-inline">
-		      		<input type="radio" name="mode" value="1">支付宝支付
-		      	</label>
-		      	<label class="radio-inline">
-		      		<input type="radio" name="mode" value="3" required>刷卡支付
-		      	</label>
-		      </fieldset>
 	        </div>
         </div>
 	<?php
@@ -421,7 +291,17 @@ case 3:
 		      </div>
 	        </div>
 	    </div>
-	    <div class="form-group">
+	<?php
+	break;
+default:
+	?>
+	<strong class="text-danger">非法的指向！</strong>
+	<?php
+	break;
+}
+?>
+	<!-- 上面为特异部分，下面为公共部分 -->
+		<div class="form-group">
 	        <label for="" class="col-sm-2 control-label">选房</label>
 	        <div class="col-sm-10 form-inline">
 	    	  <select class="form-control" id="room" name="room" style="width:120px">
@@ -446,7 +326,7 @@ case 3:
               </fieldset>
 	        </div>
 	    </div>
-	    <div class="form-group">
+		<div class="form-group">
 	    	<label for="" class="col-sm-2 control-label">支付方式</label>
 		    <div class="col-sm-10">
 		      <fieldset id="mode">
@@ -456,29 +336,21 @@ case 3:
 		      	<label class="radio-inline">
 		      		<input type="radio" name="mode" value="1">支付宝支付
 		      	</label>
+		       <fieldset id="VIP_mode" disabled hidden>
 		      	<label class="radio-inline">
-		      		<input type="radio" id="VIP_mode" name="mode" value="2" disabled>会员卡支付
+		      		<input type="radio" name="mode" value="2">会员卡支付
 		      	</label>
+		       </fieldset>
 		      	<label class="radio-inline">
 		      		<input type="radio" name="mode" value="3" required>刷卡支付
 		      	</label>
 		      </fieldset>
 	        </div>
-        </div>
-	<?php
-	break;
-default:
-	?>
-	<strong class="text-danger">非法的指向！</strong>
-	<?php
-	break;
-}
-?>
-	<!-- 上面为特异部分，下面为公共部分 -->
+	    </div>
 	    <div class="form-group">
 	        <label for="" class="col-sm-2 control-label">付款状态</label>
 		    <div class="col-sm-10">
-              <fieldset class="paid" >
+              <fieldset id="paid" >
               	<label class="radio-inline">
               		<input type="radio" name="paid" value="0" checked="">未支付
               	</label>
