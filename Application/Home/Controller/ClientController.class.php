@@ -263,8 +263,8 @@ class ClientController extends HomeController {
                 // p($order_model);die;
 
                 if ($o_id === false) {
-                    $this->error('写入数据库失败！');
                     $order_model->rollback();
+                    $this->error('写入数据库失败！');
                     return;
                 }
                 
