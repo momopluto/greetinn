@@ -570,18 +570,36 @@ function init_d_sTime($d_id){
     return $model->add($data);
 }
 
-function update_o_room($o_id, $room_ID){
+function update_o_room($o_id, $room_ID, $update=''){
 
     $model = M('o_record_2_room');
-
     $data = $model->find($o_id);
 
-    if ($data['room_ID'] == $room_ID) {
-        return true;
+    $update['room_ID'] = $room_ID;
+    if ($update['A_date']) {
+        // 比较新旧数据是否完全相同
+        if ($data['room_ID'] == $update['room_ID']
+         && $data['nights'] == $update['nights']
+         && $data['A_date'] == $update['A_date']
+         && $data['B_date'] == $update['B_date']) {
+            // 完全相同，不用更新
+            return true;
+        }
+    }else{
+        if ($data['room_ID'] == $update['room_ID']) {
+            // 房号相同，不用更新
+            return true;
+        }
     }
+
+    return $model->where("o_id = $o_id")->save($update);
+
+    // if ($data['room_ID'] == $room_ID) {
+    //     return true;
+    // }
     
-    $data['room_ID'] = $room_ID;
-    return $model->where("o_id = $o_id")->save($data);
+    // $data['room_ID'] = $room_ID;
+    // return $model->where("o_id = $o_id")->save($data);
 }
 
 /**
@@ -590,7 +608,11 @@ function update_o_room($o_id, $room_ID){
  * @param int $new_status 改变的状态值
  * @return bool
  */
-function update_o_sTime($o_id, $new_status){
+function update_o_sTime($o_id, $new_status, $old_status='-1'){
+
+    if ($new_status == $old_status) {
+        return true;
+    }
 
     $model = M('o_record_2_stime');
     $which = '';
@@ -605,7 +627,7 @@ function update_o_sTime($o_id, $new_status){
         case '3':
             if (is_null($model->where("o_id = $o_id")->getField('pay'))) {
                 
-                $updata['pay'] = getDatetime();
+                $update['pay'] = getDatetime();
             }
             $which = 'checkIn';
             break;
@@ -619,8 +641,8 @@ function update_o_sTime($o_id, $new_status){
             return false;
     }
 
-    $updata[$which] = getDatetime();
-    return $model->where("o_id = $o_id")->setField($updata);
+    $update[$which] = getDatetime();
+    return $model->where("o_id = $o_id")->setField($update);
 }
 
 /**
