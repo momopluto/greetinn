@@ -31,7 +31,7 @@ class OrderController extends HomeController {
         $data['pTime'] = date('Y年m月d日 H:i',time());// 打单时间
         $json_Arr = json_decode($temp['book_info'], true);
         // p($json_Arr);die;
-        $data['name'] = $json_Arr['people_info'][0]['name'];// 入住人姓名
+        $data['name'] = $json_Arr['people_info'][0][0]['name'];// 入住人姓名
         $data['o_id'] = $temp['o_id'];// 订单号
         $data['startDay'] = date('Y-m-d H:i',strtotime($temp['A_date']));// 入住时间
         $data['endDay'] = date('Y-m-d H:i',strtotime($temp['B_date']));// 离店时间
@@ -919,7 +919,14 @@ class OrderController extends HomeController {
                                 $flow['in'] = $checkIN['deposit'];// 收入，押金
                                 $flow['type'] = 3;// 3押金
                                 $flow['pay_mode'] = I('post.mode');// 支付方式
-                                $flow['balance'] += $flow['in'] - $flow['out'];//余额
+                                if ($flow['pay_mode'] == 0) {
+
+                                    // 只计算现金的资金流
+                                    $flow['balance'] = $last_record['balance'] + $flow['in'] - $flow['out'];//余额        
+                                }else{
+
+                                    $flow['balance'] = $last_record['balance'];
+                                }
 
                                 // p($flow);die;
                                 if ($capitalModel->add($flow) === false) {// 押金

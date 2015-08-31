@@ -46,7 +46,7 @@
 	          	switch ($arr[0]) {
 	          		case '1':
 	          			$tempStr .= '<li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/check_in')."?id=".$arr[2].'">'."办理入住".'</a></li>
-	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="###">'."编辑".'</a></li>
+	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/edit')."?id=".$arr[2].'">'."编辑".'</a></li>
 	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/cancel')."?id=".$arr[2].'">'."取消".'</a></li>';
 
   	    	          	$htmlStr = '<div class="dropdown">
@@ -61,7 +61,8 @@
 	          			break;
 	          		case '2':
 	          			$tempStr .= '<li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/check_in')."?id=".$arr[2].'">'."办理入住".'</a></li>
-	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="###">'."编辑".'</a></li>';
+	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/edit')."?id=".$arr[2].'">'."编辑".'</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/cancel')."?id=".$arr[2].'">'."取消".'</a></li>';
 
 	          	    	$htmlStr = '<div class="dropdown">
   	    		          <button class="btn btn-primary dropdown-toggle center-block" type="button" data-toggle="dropdown">
@@ -74,9 +75,10 @@
   	    	          	</div>';
 	          			break;
 	          		case '3':
-	          			$tempStr .= '<li role="presentation"><a role="menuitem" tabindex="-1" href="###">'."办理续住".'</a></li>
+	          			$tempStr .= '<li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/stay_over')."?id=".$arr[2].'">'."办理续住".'</a></li>
 	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/change_room')."?id=".$arr[2].'">'."办理换房".'</a></li>
-	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/check_out')."?id=".$arr[2].'">'."办理退房".'</a></li>';
+	          	    <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/check_out')."?id=".$arr[2].'">'."办理退房".'</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="'.U('Home/Order/print_o')."?id=".$arr[2].'">'."打印订单".'</a></li>';
 	          			
 	          	    	$htmlStr = '<div class="dropdown">
   	    		          <button class="btn btn-danger dropdown-toggle center-block" type="button" data-toggle="dropdown">
