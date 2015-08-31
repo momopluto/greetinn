@@ -31,7 +31,7 @@ class OrderController extends HomeController {
         $data['pTime'] = date('Y年m月d日 H:i',time());// 打单时间
         $json_Arr = json_decode($temp['book_info'], true);
         // p($json_Arr);die;
-        $data['name'] = $json_Arr['people_info'][0]['name'];// 入住人姓名
+        $data['name'] = $json_Arr['people_info'][0][0]['name'];// 入住人姓名
         $data['o_id'] = $temp['o_id'];// 订单号
         $data['startDay'] = date('Y-m-d H:i',strtotime($temp['A_date']));// 入住时间
         $data['endDay'] = date('Y-m-d H:i',strtotime($temp['B_date']));// 离店时间
