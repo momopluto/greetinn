@@ -919,7 +919,14 @@ class OrderController extends HomeController {
                                 $flow['in'] = $checkIN['deposit'];// 收入，押金
                                 $flow['type'] = 3;// 3押金
                                 $flow['pay_mode'] = I('post.mode');// 支付方式
-                                $flow['balance'] += $flow['in'] - $flow['out'];//余额
+                                if ($flow['pay_mode'] == 0) {
+
+                                    // 只计算现金的资金流
+                                    $flow['balance'] = $last_record['balance'] + $flow['in'] - $flow['out'];//余额        
+                                }else{
+
+                                    $flow['balance'] = $last_record['balance'];
+                                }
 
                                 // p($flow);die;
                                 if ($capitalModel->add($flow) === false) {// 押金
