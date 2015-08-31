@@ -221,6 +221,7 @@
 	 	    		<a class="btn btn-warning center-block" href="{:U('Home/Order/change_room')}?id={$one['o_id']}">换房</a>
 	 	    		<a class="btn btn-primary center-block disabled" target="_blank" href="{:U('Home/Rent/lists')}?id={$one['o_id']}">租用物品</a>
 	 	    		<a class="btn btn-danger center-block" href="{:U('Home/Order/check_out')}?id={$one['o_id']}">退房</a>
+	 	    		<a class="btn btn-primary btn-xs center-block" target="_blank" href="{:U('Home/Order/print_o')}?id={$one['o_id']}">打印订单</a>
 	 	    		<?php
 	 	    		break;
 	 	    	case 5:
@@ -231,7 +232,6 @@
 	 	    		break;
 	 	    }
 	 	    ?>
-	 	    <a class="btn btn-primary btn-xs center-block" target="_blank" href="{:U('Home/Order/print_o')}?id={$one['o_id']}">打印订单</a>
 	 	    </td>
 	     </tr>
 	    </foreach>
