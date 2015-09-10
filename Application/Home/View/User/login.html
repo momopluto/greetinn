@@ -1,54 +1,56 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE HTML>
+<html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 	<title>前台登录</title>
 	<?php $SRC = HOME_SRC; ?>
 	<script type="text/javascript" src="{$SRC}/scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="{$SRC}/scripts/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="{$SRC}/css/bootstrap.min.css">
 	<style>
 
-		div.login_content{
-			margin: 0px auto;
-			margin-top: 100px;
-			width: 550px;
-			padding: 40px 150px;
-			opacity: 50%;
-			border: 4px solid #FF8000;
-			border-radius:12px;
+		body{
+		 font-family: 'microsoft yahei',Arial,sans-serif;
+		 margin:0;
+		 padding:0;
 		}
+
+		.is-Overflow {  
+		  overflow: auto;  
+		} 
 	
 	</style>
 </head>
 <body>
-	
-	<div class="login_content">
-		<form class="form-horizontal" action="{:U('Home/User/login')}" method="post">
-			<div class="form-group">
-			    <label for="" class="col-sm-2 control-label">账号</label>
-			    <div class="col-sm-10">
-			      <input type="text" class="form-control" id="" name="user" value="{:I('get.user')}" style="width:200px">
-			    </div>
-		    </div>
-		    <div class="form-group">
-			    <label for="" class="col-sm-2 control-label">密码</label>
-			    <div class="col-sm-10">
-			      <input type="password" class="form-control" id="" name="pwd" value="{:I('get.pwd')}" style="width:200px">
-			    </div>
-		    </div>
-		    <div class="form-group">
-			    <label for="" class="col-sm-2 control-label">验证码</label>
-			    <div class="col-sm-10">
-			      <input type="text" class="form-control" id="" name="verify" style="width:200px" required>
-				  <img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/>
-			    </div>
-		    </div>
-		    <div class="form-group">
-		        <div class="col-sm-offset-2 col-sm-10">
-		          <button type="submit" class="btn btn-default">登录</button>
-		        </div>
-		    </div>
-		</form>
+
+	<div id="loginModal" class="modal show is-Overflow">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h1 class="text-center text-primary">前台登录</h1>
+	      </div>
+	        <form class="form center-block" action="{:U('Home/User/login')}" method="post">
+	      <div class="modal-body">
+	          <div class="form-group">
+	            <input type="text" class="form-control input-lg" id="user" name="user" value="{:I('get.user')}" placeholder="账号" required>
+	          </div>
+	          <div class="form-group">
+	            <input type="password" class="form-control input-lg" id="pwd" name="pwd" value="{:I('get.pwd')}" placeholder="密码" required>
+	          </div>
+	          <div class="form-group form-inline">
+	            <input type="text" class="form-control input-lg" id="" name="verify" placeholder="验证码" style="width:200px" required>
+	        	<img id="verifyImg" src="__URL__/verify/<?php echo NOW_TIME;?>" onClick="changeVerify()" title="点击刷新验证码"/>
+	          </div>
+	      </div>
+	      <div class="modal-footer">
+	          <div class="form-group">
+	            <button class="btn btn-primary btn-lg btn-block">立即登录</button>
+	          </div>
+	        </form>
+	      </div>
+	    </div>
+	  </div>
 	</div>
 	
 	<script language="JavaScript">
